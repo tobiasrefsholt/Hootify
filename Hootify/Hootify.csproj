@@ -23,7 +23,6 @@
       <Folder Include="ApplicationServices\" />
       <Folder Include="DomainServices\" />
       <Folder Include="Infrastructure\" />
-      <Folder Include="ViewModel\" />
     </ItemGroup>
 
 </Project>

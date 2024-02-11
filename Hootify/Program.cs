@@ -1,4 +1,6 @@
+using Hootify.Controllers;
 using Hootify.DbModel;
+using Hootify.Endpoints;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +30,10 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
+app.UseRouting();
 app.MapIdentityApi<AppUser>();
+app.UseGameEndpoints();
+app.UseDashboardEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
