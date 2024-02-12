@@ -13,24 +13,28 @@ var connectionString = builder.Configuration.GetConnectionString("MariaDB");
 builder.Services.AddDbContext<AppDbContext>(dbContextOptions =>
 {
     dbContextOptions
-        .UseMySql(connectionString,
-            new MariaDbServerVersion(new Version(11, 2, 2)))
+        .UseMySql(connectionString, new MariaDbServerVersion(new Version(11, 2, 2)))
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors();
+});
+builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
+{
+    dbContextOptions.UseMySql(connectionString, new MariaDbServerVersion(new Version(11, 2, 2)));
 });
 builder.Services.AddAuthorizationBuilder();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {
         // Configure identity options if needed
-        options.SignIn.RequireConfirmedEmail = true;
+        //options.SignIn.RequireConfirmedEmail = true;
         options.User.RequireUniqueEmail = true;
     })
-    .AddEntityFrameworkStores<AppDbContext>();
+    .AddEntityFrameworkStores<AuthDbContext>();
 
 var app = builder.Build();
 app.UseRouting();
+app.UseWebSockets();
 app.MapIdentityApi<AppUser>();
 app.UseGameEndpoints();
 app.UseDashboardEndpoints();

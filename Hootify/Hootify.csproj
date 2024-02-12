@@ -22,7 +22,6 @@
     <ItemGroup>
       <Folder Include="ApplicationServices\" />
       <Folder Include="DomainServices\" />
-      <Folder Include="Infrastructure\" />
     </ItemGroup>
 
 </Project>

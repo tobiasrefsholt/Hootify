@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Hootify.DbModel;
 
-public class AppDbContext : IdentityDbContext<AppUser>
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        // Constructor for initializing the database context.
     }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Game> Games { get; set; }
+    public DbSet<Player> Players { get; set; }
+    public DbSet<Question> Questions { get; set; }
+    public DbSet<Quiz> Quizzes { get; set; }
 }
