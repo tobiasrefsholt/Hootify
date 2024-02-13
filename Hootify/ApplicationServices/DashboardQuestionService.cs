@@ -11,12 +11,12 @@ public class DashboardQuestionService
         _dbContext = dbContext;
     }
 
-    public void Add(ViewModel.QuestionWithAnswer viewQuestion)
+    public void Add(ViewModel.QuestionWithAnswer viewQuestion, Guid userId)
     {
         var dbQuestion = new Question
         {
             Id = Guid.NewGuid(),
-            UserId = viewQuestion.UserId,
+            UserId = userId,
             Title = viewQuestion.Title,
             Answers = viewQuestion.Answers,
             CorrectAnswer = viewQuestion.CorrectAnswer,
