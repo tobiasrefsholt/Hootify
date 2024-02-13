@@ -106,6 +106,12 @@ public static class DashboardEndpoints
                 var quizService = new DashboardQuizService(dbContext);
                 quizService.Update(quiz);
             });
+            
+            endpoints.MapPost("/dashboard/game/new", (GameOptions options, AppDbContext dbContext) =>
+            {
+                var gameService = new DashboardGameService(dbContext);
+                return gameService.New(options);
+            });
         });
     }
 }

@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Category> Categories { get; set; }
     public DbSet<Game> Games { get; set; }
+    public DbSet<GameAnswer> GameAnswers { get; set; }
     public DbSet<Player> Players { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Quiz> Quizzes { get; set; }
