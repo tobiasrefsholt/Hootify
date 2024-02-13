@@ -58,12 +58,10 @@ public static class DashboardEndpoints
                 categoryService.Delete(category.Id);
             });
             
-            endpoints.MapPost("/dashboard/editCategory", (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/editCategory", (Category category, AppDbContext dbContext) =>
             {
                 var categoryService = new DashboardCategoryService(dbContext);
-                var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
-                if (!success) return;
-                categoryService.Update(category, userId);
+                categoryService.Update(category);
             });
 
             endpoints.MapPost("/dashboard/createQuiz", (Quiz quiz, AppDbContext dbContext) =>

@@ -45,15 +45,10 @@ public class DashboardCategoryService
         }).ToList();
     }
 
-    public void Update(ViewModel.Category category, Guid userId)
+    public void Update(ViewModel.Category category)
     {
-        var dbCategory = new Category
-        {
-            Id = category.Id,
-            UserId = userId,
-            Name = category.Name
-        };
-        _dbContext.Categories.Update(dbCategory);
+        var dbCategory = _dbContext.Categories.FirstOrDefault(e => e.Id == category.Id);
+        dbCategory.Name = category.Name;
         _dbContext.SaveChanges();
     }
 
