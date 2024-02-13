@@ -11,6 +11,12 @@ public static class DashboardEndpoints
     {
         return builder.UseEndpoints(endpoints =>
         {
+            endpoints.MapPost("/dashboard/getQuestion", (Guid id, AppDbContext dbContext) =>
+            {
+                var questionService = new DashboardQuestionService(dbContext);
+                return questionService.Get(id);
+            });
+
             endpoints.MapPost("/dashboard/getQuestions",
                 (QuestionFilterOptions filterOptions, AppDbContext dbContext) =>
                 {
@@ -18,13 +24,15 @@ public static class DashboardEndpoints
                     return questionService.GetAll();
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/addQuestion", (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
-            {
-                var questionService = new DashboardQuestionService(dbContext);
-                var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
-                if (!success) return;
-                questionService.Add(question, userId);
-            });
+            endpoints.MapPost("/dashboard/addQuestion",
+                (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
+                {
+                    var questionService = new DashboardQuestionService(dbContext);
+                    var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                        out var userId);
+                    if (!success) return;
+                    questionService.Add(question, userId);
+                });
 
             endpoints.MapPost("/dashboard/deleteQuestion", (QuestionWithAnswer question, AppDbContext dbContext) =>
             {
@@ -37,21 +45,23 @@ public static class DashboardEndpoints
                 var questionService = new DashboardQuestionService(dbContext);
                 questionService.Update(question);
             });
-            
+
             endpoints.MapPost("/dashboard/getCategories", (AppDbContext dbContext) =>
             {
                 var categoryService = new DashboardCategoryService(dbContext);
                 return categoryService.GetAll();
             });
-            
-            endpoints.MapPost("/dashboard/addCategory", (Category category, AppDbContext dbContext, HttpContext httpContext) =>
-            {
-                var categoryService = new DashboardCategoryService(dbContext);
-                var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
-                if (!success) return;
-                categoryService.Add(category, userId);
-            });
-            
+
+            endpoints.MapPost("/dashboard/addCategory",
+                (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+                {
+                    var categoryService = new DashboardCategoryService(dbContext);
+                    var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                        out var userId);
+                    if (!success) return;
+                    categoryService.Add(category, userId);
+                });
+
             endpoints.MapPost("/dashboard/deleteCategory", (Category category, AppDbContext dbContext) =>
             {
                 var categoryService = new DashboardCategoryService(dbContext);
