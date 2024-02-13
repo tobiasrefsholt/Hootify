@@ -3,6 +3,7 @@ namespace Hootify.DbModel;
 public class Game
 {
     public Guid Id { get; set; }
+    public string ShareKey { get; set; }
     public Guid QuizId { get; set; }
     public string Title { get; set; }
     public bool RandomizeQuestions { get; set; }
@@ -13,7 +14,7 @@ public class Game
     public int CurrentQuestionNumber { get; set; }
     public DateTime CurrentQuestionStartTime { get; set; }
     public DateTime CurrentQuestionEndTime { get; set; }
-    public List<Guid> RemainingQuestions { get; set; }
-    public List<Guid> Players { get; set; }
-    public List<Guid> Answers { get; set; }
+    public List<Guid>? RemainingQuestions { get; set; }
+    public List<Guid>? Players { get; set; }
+    public List<Guid>? Answers { get; set; }
 }
