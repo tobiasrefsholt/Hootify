@@ -1,4 +1,3 @@
-using Hootify.Controllers;
 using Hootify.DbModel;
 using Hootify.Endpoints;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +21,7 @@ builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
 {
     dbContextOptions.UseMySql(connectionString, new MariaDbServerVersion(new Version(11, 2, 2)));
 });
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationBuilder();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
@@ -35,6 +35,7 @@ builder.Services
 var app = builder.Build();
 app.UseRouting();
 app.UseWebSockets();
+app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
 app.UseGameEndpoints();
 app.UseDashboardEndpoints();
