@@ -5,7 +5,7 @@ namespace Hootify.ApplicationServices;
 
 public class DashboardCategoryService
 {
-    AppDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
     public DashboardCategoryService(AppDbContext dbContext)
     {

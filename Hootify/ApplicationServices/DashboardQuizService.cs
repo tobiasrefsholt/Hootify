@@ -4,7 +4,7 @@ namespace Hootify.ApplicationServices;
 
 public class DashboardQuizService
 {
-    AppDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
     public DashboardQuizService(AppDbContext dbContext)
     {

@@ -4,7 +4,8 @@ namespace Hootify.ApplicationServices;
 
 public class DashboardGameService
 {
-    AppDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
+    private readonly Random _random = new Random();
 
     public DashboardGameService(AppDbContext dbContext)
     {
