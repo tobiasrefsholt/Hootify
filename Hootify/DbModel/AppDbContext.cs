@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,12 +22,24 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Global query filter
-        var idString = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid.TryParse(idString, out var userId);
-        modelBuilder.Entity<Quiz>().HasQueryFilter(e => e.UserId == userId);
-        modelBuilder.Entity<Question>().HasQueryFilter(e => e.UserId == userId);
-        /*modelBuilder.Entity<Category>().HasQueryFilter(e => e.UserId == userId);*/
         base.OnModelCreating(modelBuilder);
+        
+        // Global query filter
+        modelBuilder.Entity<Quiz>().HasQueryFilter(e => e.UserId == GetUserId());
+        modelBuilder.Entity<Question>().HasQueryFilter(e => e.UserId == GetUserId());
+        modelBuilder.Entity<Category>().HasQueryFilter(e => e.UserId == GetUserId());
+    }
+
+    private Guid GetUserId()
+    {
+        var idString = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        try
+        {
+            return Guid.Parse(idString!);
+        }
+        catch (Exception e)
+        {
+            throw new AuthenticationException(e.Message);
+        }
     }
 }
