@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
         // Global query filter
         var idString = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(idString, out var userId);
+        modelBuilder.Entity<Quiz>().HasQueryFilter(e => e.UserId == userId);
         modelBuilder.Entity<Question>().HasQueryFilter(e => e.UserId == userId);
         /*modelBuilder.Entity<Category>().HasQueryFilter(e => e.UserId == userId);*/
         base.OnModelCreating(modelBuilder);

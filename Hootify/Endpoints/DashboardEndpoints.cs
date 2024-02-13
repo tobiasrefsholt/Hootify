@@ -67,17 +67,44 @@ public static class DashboardEndpoints
                 var categoryService = new DashboardCategoryService(dbContext);
                 categoryService.Delete(category.Id);
             });
-            
+
             endpoints.MapPost("/dashboard/editCategory", (Category category, AppDbContext dbContext) =>
             {
                 var categoryService = new DashboardCategoryService(dbContext);
                 categoryService.Update(category);
             });
 
-            endpoints.MapPost("/dashboard/createQuiz", (Quiz quiz, AppDbContext dbContext) =>
+            endpoints.MapPost("/dashboard/createQuiz", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
-                /*var quizService = new DashboardQuizService(dbContext);
-                quizService.Add(quiz);*/
+                var quizService = new DashboardQuizService(dbContext);
+                var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    out var userId);
+                if (!success) return;
+                quizService.Add(quiz, userId);
+            });
+            
+            endpoints.MapPost("/dashboard/getQuiz", (Guid id, AppDbContext dbContext) =>
+            {
+                var quizService = new DashboardQuizService(dbContext);
+                return quizService.Get(id);
+            });
+
+            endpoints.MapPost("/dashboard/getQuizzes", (AppDbContext dbContext) =>
+            {
+                var quizService = new DashboardQuizService(dbContext);
+                return quizService.GetAll();
+            });
+
+            endpoints.MapPost("/dashboard/deleteQuiz", (Quiz quiz, AppDbContext dbContext) =>
+            {
+                var quizService = new DashboardQuizService(dbContext);
+                quizService.Delete(quiz.Id);
+            });
+
+            endpoints.MapPost("/dashboard/editQuiz", (Quiz quiz, AppDbContext dbContext) =>
+            {
+                var quizService = new DashboardQuizService(dbContext);
+                quizService.Update(quiz);
             });
         });
     }
