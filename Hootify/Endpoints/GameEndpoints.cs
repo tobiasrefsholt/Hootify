@@ -8,9 +8,12 @@ public static class GameEndpoints
     {
         return builder.UseEndpoints(endpoints =>
         {
-            endpoints.MapGet("/game/{game_id:int}", () =>
+            // Gets called when client enters game pin 
+            // Takes gamePin and returns associated gameId
+            endpoints.MapGet("/game/getByPin/{shareKey}", (string shareKey, AppDbContext dbContext) =>
             {
-                
+                var playerService = new PlayerService(dbContext);
+                return playerService.GetGameByPin(shareKey);
             });
             
             endpoints.MapPost("/game/join/{game_id:int}", (Player player) =>
