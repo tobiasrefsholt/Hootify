@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+using Hootify;
 using Hootify.DbModel;
 using Hootify.Endpoints;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,7 @@ builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationBuilder();
+builder.Services.AddSignalR();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {
@@ -34,11 +37,12 @@ builder.Services
 
 var app = builder.Build();
 app.UseRouting();
-app.UseWebSockets();
 app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
 app.UseGameEndpoints();
 app.UseDashboardEndpoints();
+
+app.MapHub<GameHub>("/ws");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
