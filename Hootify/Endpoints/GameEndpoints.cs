@@ -1,10 +1,12 @@
-using Hootify.ViewModel;
+using Hootify.ApplicationServices;
+using Hootify.DbModel;
+using Player = Hootify.ViewModel.Player;
 
 namespace Hootify.Endpoints;
 
 public static class GameEndpoints
 {
-    public static IApplicationBuilder UseGameEndpoints( this IApplicationBuilder builder )
+    public static IApplicationBuilder UseGameEndpoints(this IApplicationBuilder builder)
     {
         return builder.UseEndpoints(endpoints =>
         {
@@ -15,15 +17,14 @@ public static class GameEndpoints
                 var playerService = new PlayerService(dbContext);
                 return playerService.GetGameByPin(shareKey);
             });
-            
-            endpoints.MapPost("/game/join/{game_id:int}", (Player player) =>
+
+            // Gets called when client enters username
+            // Takes player object and updates database with new player
+            // Subscribes player to game and returns player object
+            endpoints.MapPost("/game/join/{gameId:guid}", (Guid gameId, Player player, AppDbContext dbContext) =>
             {
-                
-            });
-            
-            endpoints.MapPost("game/answer", () =>
-            {
-                
+                var playerService = new PlayerService(dbContext);
+                return playerService.AddPlayerToGame(gameId, player);
             });
         });
     }
