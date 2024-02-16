@@ -21,10 +21,11 @@ public static class GameEndpoints
             // Gets called when client enters username
             // Takes player object and updates database with new player
             // Subscribes player to game and returns player object
-            endpoints.MapPost("/game/join/{gameId:guid}", (Guid gameId, Player player, AppDbContext dbContext) =>
+            endpoints.MapPost("/game/join/{shareKey}", (string shareKey, Player player, AppDbContext dbContext) =>
             {
                 var playerService = new PlayerService(dbContext);
-                return playerService.AddPlayerToGame(gameId, player);
+                var game = playerService.GetGameByPin(shareKey);
+                return game != null ? playerService.AddPlayerToGame(game.Id, player) : null;
             });
         });
     }
