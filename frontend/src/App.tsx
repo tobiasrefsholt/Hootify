@@ -1,8 +1,8 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import FrontPage from "./pages/game/FrontPage";
-import GamePage from "./pages/game/GamePage";
-import DashboardPage from "./pages/game/DashboardPage";
-import JoinPage from "./pages/game/JoinPage";
+import FrontPage from "./pages/frontPage/FrontPage";
+import GamePage from "./pages/gamePage/GamePage";
+import DashboardPage from "./pages/dashboardPage/DashboardPage";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   
@@ -10,10 +10,6 @@ function App() {
     {
       path: "/",
       element: (<FrontPage />),
-    },
-    {
-      path: "/join",
-      element: (<JoinPage />),
     },
     {
       path: "/game",
@@ -26,7 +22,9 @@ function App() {
   ]);
 
   return (
-    <RouterProvider router={router} />
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <RouterProvider router={router} />
+    </ThemeProvider>
   )
 }
 
