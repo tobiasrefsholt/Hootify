@@ -3,6 +3,7 @@ import FrontPage from "./pages/frontPage/FrontPage";
 import GamePage from "./pages/gamePage/GamePage";
 import DashboardPage from "./pages/dashboardPage/DashboardPage";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "sonner";
 
 function App() {
   
@@ -12,7 +13,7 @@ function App() {
       element: (<FrontPage />),
     },
     {
-      path: "/game",
+      path: "/game/:playerId",
       element: (<GamePage/>),
     },
     {
@@ -24,6 +25,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <RouterProvider router={router} />
+      <Toaster />
     </ThemeProvider>
   )
 }

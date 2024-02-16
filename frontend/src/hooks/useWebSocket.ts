@@ -1,63 +1,83 @@
 import * as signalR from "@microsoft/signalr";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameState, LeaderBoard, Player, Question, QuestionWithAnswer } from "../Types";
+import { toast } from "sonner";
 
 export function useWebSocket(playerId: string | null) {
-    const [message, setMessage] = useState<string>('');
     const [gameState, setGameState] = useState<GameState>(GameState.WaitingForPlayers);
     const [players, setPlayers] = useState<Player[]>([]);
     const [question, setQuestion] = useState<Question | null>(null);
     const [questionWithAnswer, setQuestionWithAnswer] = useState<QuestionWithAnswer | null>(null);
     const [leaderBoard, setLeaderBoard] = useState<LeaderBoard | null>(null);
 
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl('http://localhost:5002/ws?playerId=' + playerId)
-        .configureLogging(signalR.LogLevel.Information)
-        .withHubProtocol(new signalR.JsonHubProtocol())
-        .withAutomaticReconnect()
-        .build()
+    const connectionRef = useRef<signalR.HubConnection | null>(null);
+
+    console.log("Connecting to websocket on " + import.meta.env.VITE_BACKEND_URL + '/ws?playerId=' + playerId);
 
     useEffect(() => {
         if (!playerId) throw new Error("PlayerId is required");
 
-        connection.start();
+        if (!connectionRef.current) {
+            connectionRef.current = new signalR.HubConnectionBuilder()
+                .withUrl(import.meta.env.VITE_BACKEND_URL + '/ws?playerId=' + playerId)
+                .configureLogging(signalR.LogLevel.Information)
+                .withHubProtocol(new signalR.JsonHubProtocol())
+                .withAutomaticReconnect()
+                .build()
+        }
 
-        connection.on('ReceiveMessage', (message: string) => {
-            setMessage(message);
+        connectionRef.current.start();
+
+        connectionRef.current.on('ReceiveMessage', (message: string) => {
+            toast(message);
         })
 
-        connection.on("ReceiveWaitingPlayers", (gameState: GameState, players: Player[]) => {
+        connectionRef.current.on('ReceiveChat', (message: string, sender: string = "") => {
+            toast(message, {
+                description: sender
+            });
+        })
+
+        connectionRef.current.on("ReceiveWaitingPlayers", (gameState: GameState, players: Player[]) => {
             setGameState(gameState);
             setPlayers(players);
         });
 
-        connection.on("ReceiveNewQuestion", (gameState: GameState, question: Question) => {
+        connectionRef.current.on("ReceiveNewQuestion", (gameState: GameState, question: Question) => {
             setGameState(gameState);
             setQuestion(question);
         });
 
-        connection.on("ReceiveAnswer", (gameState: GameState, questionWithAnswer: QuestionWithAnswer) => {
+        connectionRef.current.on("ReceiveAnswer", (gameState: GameState, questionWithAnswer: QuestionWithAnswer) => {
             setGameState(gameState);
             setQuestionWithAnswer(questionWithAnswer);
         });
 
-        connection.on("ReceiveLeaderBoard", (gameState: GameState, leaderBoard: LeaderBoard) => {
+        connectionRef.current.on("ReceiveLeaderBoard", (gameState: GameState, leaderBoard: LeaderBoard) => {
             setGameState(gameState);
             setLeaderBoard(leaderBoard);
         });
-    }, [connection])
+    }, [playerId])
 
     function answerQuestion(answer: number) {
-        connection.invoke("AnswerQuestion", answer);
+        if (connectionRef.current) {
+            connectionRef.current.invoke("AnswerQuestion", answer);
+        }
+    }
+
+    function sendChatMessage(message: string, sender: string) {
+        if (connectionRef.current) {
+            connectionRef.current.invoke("SendChatMessage", message, sender);
+        }
     }
 
     return {
-        message,
         gameState,
         players,
         question,
         questionWithAnswer,
         leaderBoard,
-        answerQuestion
+        answerQuestion,
+        sendChatMessage
     }
 }
