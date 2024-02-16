@@ -10,4 +10,5 @@ public interface IGameHub
     public Task ReceiveLeaderBoard(GameState gameState, LeaderBoard leaderBoard);
     public Task ReceiveGameComplete(GameState gameState);
     public Task ReceiveMessage(string message);
+    public Task ReceiveChat(string message, string sender);
 }

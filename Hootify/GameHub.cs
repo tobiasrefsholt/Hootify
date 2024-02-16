@@ -10,6 +10,14 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         Console.WriteLine(message);
         await Clients.All.ReceiveMessage(message);
     }
+    
+    public async Task SendChatMessage(string message, string sender)
+    {
+        Console.WriteLine(message);
+        var playerId = await GetPlayerId();
+        var gameId = GetGameId(playerId);
+        await Clients.Group(gameId).ReceiveChat(message, sender);
+    }
 
     public async Task WaitingPlayers(Guid gameId)
     {
@@ -65,5 +73,15 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         await Clients.Client(Context.ConnectionId).ReceiveMessage("Not a valid player id");
         Context.Abort();
         return Guid.Empty;
+    }
+    
+    private string GetGameId(Guid playerId)
+    {
+        var gameId = dbContext.Players
+            .Where(p => p.Id == playerId)
+            .Select(p => p.GameId)
+            .FirstOrDefault()
+            .ToString();
+        return gameId;
     }
 }
