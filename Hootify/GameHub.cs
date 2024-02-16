@@ -11,6 +11,26 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         await Clients.All.ReceiveMessage(message);
     }
 
+    public async Task WaitingPlayers(Guid gameId)
+    {
+        var gameState = dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => g.State)
+            .FirstOrDefault();
+
+        var players = dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .Select(p => new ViewModel.Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .ToArray();
+
+        await Clients.Group(gameId.ToString()).ReceiveWaitingPlayers(gameState, players);
+    }
+
     public override async Task OnConnectedAsync()
     {
         var playerId = await GetPlayerId();
@@ -20,7 +40,8 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         await Groups.AddToGroupAsync(Context.ConnectionId, player!.GameId.ToString());
         await Groups.AddToGroupAsync(Context.ConnectionId, player.Id.ToString());
 
-        await BroadcastMessage($"Hello, {player.Name}! Your connection id is " + Context.ConnectionId);
+        await BroadcastMessage($"{player.Name}! has joined the game!");
+        await WaitingPlayers(player.GameId);
 
         await base.OnConnectedAsync();
     }
