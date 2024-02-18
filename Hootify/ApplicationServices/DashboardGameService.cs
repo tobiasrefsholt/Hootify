@@ -47,35 +47,36 @@ public class DashboardGameService
         }
     }
 
-    public async Task<bool> Start(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
+    public async Task<ViewModel.Question?> Start(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
-        if (game == null) return false;
+        if (game == null) return null;
 
         game.ShareKey = string.Empty;
-        NextQuestion(gameId, gameHubContext);
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return await NextQuestion(gameId, gameHubContext);
     }
 
-    public async void NextQuestion(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
+    public async Task<ViewModel.Question?> NextQuestion(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
-        if (game == null) return;
+        if (game == null) return null;
 
         game.State = GameState.QuestionInProgress;
 
         if (game.RemainingQuestions?.Count == 0)
         {
             game.State = GameState.GameComplete;
-            return;
+            await gameHubContext.Clients.Groups(game.Id.ToString())
+                .ReceiveGameComplete(game.State);
+            await _dbContext.SaveChangesAsync();
+            return null;
         }
 
         var nextQuestionId = game.RandomizeQuestions
             ? game.RemainingQuestions?[_random.Next(game.RemainingQuestions.Count)]
             : game.RemainingQuestions?.First();
 
-        if (nextQuestionId == null) return;
+        if (nextQuestionId == null) return null;
 
         var nextQuestion = _dbContext.Questions
             .Where(q => q.Id == (Guid)nextQuestionId)
@@ -87,11 +88,12 @@ public class DashboardGameService
             })
             .FirstOrDefault();
 
-        if (nextQuestion == null) return;
+        if (nextQuestion == null) return null;
 
         game.RemainingQuestions?.Remove((Guid)nextQuestionId);
-
+        await _dbContext.SaveChangesAsync();
         await gameHubContext.Clients.Groups(game.Id.ToString())
-            .ReceiveNewQuestion(GameState.QuestionInProgress, nextQuestion);
+            .ReceiveNewQuestion(game.State, nextQuestion);
+        return nextQuestion;
     }
 }

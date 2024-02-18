@@ -119,6 +119,12 @@ public static class DashboardEndpoints
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.Start(gameId, gameHubContext);
             });
+            
+            endpoints.MapPost("/dashboard/game/nextQuestion/{gameId:guid}", (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
+            {
+                var gameService = new DashboardGameService(dbContext);
+                return gameService.NextQuestion(gameId, gameHubContext);
+            });
         });
     }
 }

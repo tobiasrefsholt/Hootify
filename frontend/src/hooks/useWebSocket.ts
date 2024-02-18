@@ -34,7 +34,7 @@ export function useWebSocket(playerId: string | null) {
 
         connectionRef.current.on('ReceiveChat', (message: string, sender: string = "") => {
             toast(message, {
-                description: sender
+                description: "Sent by: " + sender
             });
         })
 
