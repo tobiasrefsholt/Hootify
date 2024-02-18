@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Hootify.ApplicationServices;
 using AppDbContext = Hootify.DbModel.AppDbContext;
 using Hootify.ViewModel;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Hootify.Endpoints;
 
@@ -111,6 +112,12 @@ public static class DashboardEndpoints
             {
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.New(options);
+            });
+            
+            endpoints.MapPost("/dashboard/game/start/{gameId:guid}", (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
+            {
+                var gameService = new DashboardGameService(dbContext);
+                return gameService.Start(gameId, gameHubContext);
             });
         });
     }
