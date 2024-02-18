@@ -11,10 +11,11 @@ export default function GamePage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-10">
+            {gameState ===  null && <h1 className="text-6xl text-center font-bold">Connecting to server...</h1>}
             {gameState === GameState.WaitingForPlayers && <WaitingForPlayers players={players} currentPlayerId={playerId} sendChatMessage={sendChatMessage} />}
             {gameState === GameState.QuestionInProgress && <ShowQuestion question={question} answerQuestion={answerQuestion} />}
             {gameState === GameState.QuestionComplete && <ShowAnswer question={questionWithAnswer} />}
-            {gameState === GameState.GameComplete && <h1>Game over!</h1>}
+            {gameState === GameState.GameComplete && <h1 className="text-6xl text-center font-bold">Game over!</h1>}
         </div>
     )
 }

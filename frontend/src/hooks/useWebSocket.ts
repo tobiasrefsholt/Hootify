@@ -4,7 +4,7 @@ import { GameState, LeaderBoard, Player, Question, QuestionWithAnswer } from "..
 import { toast } from "sonner";
 
 export function useWebSocket(playerId: string | null) {
-    const [gameState, setGameState] = useState<GameState>(GameState.WaitingForPlayers);
+    const [gameState, setGameState] = useState<GameState | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [question, setQuestion] = useState<Question | null>(null);
     const [questionWithAnswer, setQuestionWithAnswer] = useState<QuestionWithAnswer | null>(null);
@@ -57,6 +57,10 @@ export function useWebSocket(playerId: string | null) {
             setGameState(gameState);
             setLeaderBoard(leaderBoard);
         });
+
+        connectionRef.current.on("ReceiveGameComplete", (gameState: GameState) => {
+            setGameState(gameState);
+        })
     }, [playerId])
 
     function answerQuestion(answer: number) {
