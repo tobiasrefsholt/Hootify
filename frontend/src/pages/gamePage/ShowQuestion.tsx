@@ -1,18 +1,24 @@
-import { Question } from "@/Types"
+import {Question} from "@/Types"
+import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 
 type ShowQuesionProps = {
     question: Question | null,
     answerQuestion: (answer: number) => void
 }
 
-export default function ShowQuestion({ question, answerQuestion }: ShowQuesionProps) {
+export default function ShowQuestion({question, answerQuestion}: ShowQuesionProps) {
     if (!question) return <h1>No question</h1>
     return (
         <>
-            <h1 className="text-6xl text-center font-bold">{question.title}</h1>
-            <div className="grid grid-cols-2 grid-rows-2">
+            <h1 className="text-4xl md:text-6xl text-center font-bold w-full xl:w-8/12">{question.title}</h1>
+            <div className="grid md:grid-cols-2 grid-rows-2 gap-5 w-full xl:w-8/12">
                 {question.answers.map((answer, index) => (
-                    <button key={index} onClick={() => answerQuestion(index + 1)}>{answer}</button>
+                    <Card key={index} onClick={() => answerQuestion(index + 1)} className="cursor-pointer hover:bg-accent/90">
+                        <CardHeader className="text-muted-foreground">Alternative {index + 1}</CardHeader>
+                        <CardContent className="text-lg text-2xl font-bold">
+                            {answer}
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
         </>
