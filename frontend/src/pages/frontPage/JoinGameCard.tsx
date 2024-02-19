@@ -38,6 +38,8 @@ export default function JoinGameCard() {
                 <CardContent className="flex flex-col gap-2">
                     <Input placeholder="Game pin" inputMode="numeric" onChange={(e) => setGamePin(e.target.value)} />
                     <Input placeholder="Username" onChange={(e) => setName(e.target.value)} />
+                    {error && <p className="text-red-500">{error}</p>}
+                    {isPending && <p>Loading...</p>}
                 </CardContent>
                 <CardFooter>
                     <Button>Join</Button>
