@@ -88,7 +88,19 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
 
     private async Task GameComplete()
     {
-        throw new NotImplementedException();
+        var playerId = await GetPlayerId();
+        var gameId = GetGameId(playerId);
+        var leaderBoard = dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .OrderByDescending(p => p.Score)
+            .Select(p => new ViewModel.Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .ToArray();
+        await Clients.Group(playerId.ToString()).ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
     }
 
     public override async Task OnConnectedAsync()
