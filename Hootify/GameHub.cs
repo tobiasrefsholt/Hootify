@@ -1,6 +1,8 @@
 using Hootify.DbModel;
+using Hootify.ViewModel;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Player = Hootify.DbModel.Player;
 using Question = Hootify.ViewModel.Question;
 
 namespace Hootify;
@@ -58,12 +60,30 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
                 Answers = q.Answers
             })
             .FirstOrDefault();
+        if (question == null) throw new Exception("Question not found");
         await Clients.Groups(playerId.ToString()).ReceiveNewQuestion(GameState.QuestionInProgress, question);
     }
 
     private async Task QuestionComplete()
     {
-        throw new NotImplementedException();
+        var playerId = await GetPlayerId();
+        var gameId = GetGameId(playerId);
+        var currentQuestionId = dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => g.CurrentQuestionId)
+            .FirstOrDefault();
+        var question = dbContext.Questions
+            .Where(q => q.Id == currentQuestionId)
+            .Select(q => new QuestionWithAnswer()
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Answers = q.Answers,
+                CorrectAnswer = q.CorrectAnswer
+            })
+            .FirstOrDefault();
+        if (question == null) throw new Exception("Question not found");
+        await Clients.Group(playerId.ToString()).ReceiveAnswer(GameState.QuestionComplete, question);
     }
 
     private async Task GameComplete()
