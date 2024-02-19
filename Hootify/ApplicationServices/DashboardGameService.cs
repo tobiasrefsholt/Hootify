@@ -90,6 +90,10 @@ public class DashboardGameService
 
         if (nextQuestion == null) return null;
 
+        game.CurrentQuestionId = (Guid)nextQuestionId;
+        game.CurrentQuestionStartTime = DateTime.Now;
+        game.CurrentQuestionEndTime = DateTime.Now.AddSeconds(game.SecondsPerQuestion);
+        game.CurrentQuestionNumber++;
         game.RemainingQuestions?.Remove((Guid)nextQuestionId);
         await _dbContext.SaveChangesAsync();
         await gameHubContext.Clients.Groups(game.Id.ToString())
