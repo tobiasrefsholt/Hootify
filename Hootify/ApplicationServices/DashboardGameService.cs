@@ -96,4 +96,33 @@ public class DashboardGameService
             .ReceiveNewQuestion(game.State, nextQuestion);
         return nextQuestion;
     }
+
+    public ViewModel.Game? Get(Guid gameId)
+    {
+        return _dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => new ViewModel.Game
+            {
+                Id = g.Id,
+                Title = g.Title,
+                QuizId = g.QuizId,
+                ShareKey = g.ShareKey,
+                State = g.State,
+                SecondsPerQuestion = g.SecondsPerQuestion
+            })
+            .FirstOrDefault();
+    }
+
+    public List<Guid> GetAll(GameState? gameState)
+    {
+        if (gameState == null)
+            return _dbContext.Games
+                .Select(g => g.Id)
+                .ToList();
+        
+        return _dbContext.Games
+            .Where(g => g.State == gameState)
+            .Select(g => g.Id)
+            .ToList();
+    }
 }
