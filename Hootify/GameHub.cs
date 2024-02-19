@@ -50,6 +50,7 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
             .Select(g => g.CurrentQuestionId)
             .FirstOrDefault();
         var question = dbContext.Questions
+            .Where(q => q.Id == currentQuestionId)
             .Select(q => new Question
             {
                 Id = q.Id,
