@@ -63,9 +63,9 @@ export function useWebSocket(playerId: string | null) {
         })
     }, [playerId])
 
-    function answerQuestion(answer: number) {
+    function answerQuestion(questionId: string, answer: number) {
         if (connectionRef.current) {
-            connectionRef.current.invoke("AnswerQuestion", answer);
+            connectionRef.current.invoke("AnswerQuestion", questionId, answer);
         }
     }
 

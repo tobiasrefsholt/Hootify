@@ -1,7 +1,7 @@
+using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.ViewModel;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Player = Hootify.DbModel.Player;
 using Question = Hootify.ViewModel.Question;
 
@@ -101,6 +101,17 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
             })
             .ToArray();
         await Clients.Group(playerId.ToString()).ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+    }
+
+    public async Task AnswerQuestion(Guid questionId, int answerIndex)
+    {
+        Console.WriteLine($"Answering question {questionId} with answer {answerIndex}");
+        var playerId = await GetPlayerId();
+        var gameId = GetGameId(playerId);
+        var playerService = new PlayerService(dbContext);
+        var isAnswered = playerService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
+        var message = isAnswered ? "Answer is recorded" : "Cannot answer question";
+        await Clients.Group(playerId.ToString()).ReceiveMessage(message);
     }
 
     public override async Task OnConnectedAsync()
