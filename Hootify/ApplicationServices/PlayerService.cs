@@ -87,4 +87,73 @@ public class PlayerService
         return _dbContext.Players.Any(p => p.Id == playerId) &&
                _dbContext.Questions.Any(q => q.Id == questionId);
     }
+    
+    public bool AllPlayersAnswered(Guid gameId, Guid questionId)
+    {
+        var players = _dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .Select(p => p.Id)
+            .ToArray();
+
+        var answers = _dbContext.GameAnswers
+            .Where(a => a.GameId == gameId && a.QuestionId == questionId)
+            .Select(a => a.PlayerId)
+            .ToArray();
+
+        return players.All(p => answers.Contains(p));
+    }
+
+    public Player[] GetLeaderBoard(Guid gameId)
+    {
+        return _dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .OrderByDescending(p => p.Score)
+            .Select(p => new Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .ToArray();
+    }
+
+    public ViewModel.Question? GetCurrentQuestion(Guid gameId)
+    {
+        var currentQuestionId = CurrentQuestionId(gameId);
+
+        return _dbContext.Questions
+            .Where(q => q.Id == currentQuestionId)
+            .Select(q => new ViewModel.Question
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Answers = q.Answers
+            })
+            .FirstOrDefault();
+    }
+    
+    public ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
+    {
+        var currentQuestionId = CurrentQuestionId(gameId);
+
+        return _dbContext.Questions
+            .Where(q => q.Id == currentQuestionId)
+            .Select(q => new ViewModel.QuestionWithAnswer
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Answers = q.Answers,
+                CorrectAnswer = q.CorrectAnswer
+            })
+            .FirstOrDefault();
+    }
+
+    private Guid CurrentQuestionId(Guid gameId)
+    {
+        var currentQuestionId = _dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => g.CurrentQuestionId)
+            .FirstOrDefault();
+        return currentQuestionId;
+    }
 }

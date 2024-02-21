@@ -2,6 +2,7 @@ using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.ViewModel;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Player = Hootify.DbModel.Player;
 using Question = Hootify.ViewModel.Question;
 
@@ -23,7 +24,33 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         await Clients.Group(gameId).ReceiveChat(message, sender);
     }
 
-    public async Task WaitingPlayers(Guid gameId)
+    public async Task AnswerQuestion(Guid questionId, int answerIndex)
+    {
+        var playerId = await GetPlayerId();
+        var gameId = GetGameId(playerId);
+
+        // Handle answer
+        var playerService = new PlayerService(dbContext);
+        var isAnswered = playerService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
+        var allPlayersAnswered = playerService.AllPlayersAnswered(gameId, questionId);
+
+        // Send response to player
+        var message = isAnswered ? "Answer is recorded" : "Cannot answer question";
+        await Clients.Group(playerId.ToString()).ReceiveMessage(message);
+
+        // If all players have answered, move to next question
+        if (allPlayersAnswered)
+        {
+            await dbContext.Games
+                .Where(g => g.Id == gameId)
+                .ExecuteUpdateAsync(b =>
+                    b.SetProperty(g => g.State, GameState.QuestionComplete)
+                );
+            await QuestionComplete();
+        }
+    }
+
+    private async Task WaitingPlayers(Guid gameId)
     {
         var gameState = dbContext.Games
             .Where(g => g.Id == gameId)
@@ -47,20 +74,9 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
     {
         var playerId = await GetPlayerId();
         var gameId = GetGameId(playerId);
-        var currentQuestionId = dbContext.Games
-            .Where(g => g.Id == gameId)
-            .Select(g => g.CurrentQuestionId)
-            .FirstOrDefault();
-        var question = dbContext.Questions
-            .Where(q => q.Id == currentQuestionId)
-            .Select(q => new Question
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers
-            })
-            .FirstOrDefault();
-        if (question == null) throw new Exception("Question not found");
+        var playerService = new PlayerService(dbContext);
+        var question = playerService.GetCurrentQuestion(gameId);
+        if (question == null) return;
         await Clients.Groups(playerId.ToString()).ReceiveNewQuestion(GameState.QuestionInProgress, question);
     }
 
@@ -68,50 +84,21 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
     {
         var playerId = await GetPlayerId();
         var gameId = GetGameId(playerId);
-        var currentQuestionId = dbContext.Games
-            .Where(g => g.Id == gameId)
-            .Select(g => g.CurrentQuestionId)
-            .FirstOrDefault();
-        var question = dbContext.Questions
-            .Where(q => q.Id == currentQuestionId)
-            .Select(q => new QuestionWithAnswer()
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                CorrectAnswer = q.CorrectAnswer
-            })
-            .FirstOrDefault();
-        if (question == null) throw new Exception("Question not found");
-        await Clients.Group(playerId.ToString()).ReceiveAnswer(GameState.QuestionComplete, question);
+
+        var playerService = new PlayerService(dbContext);
+        var questionWithAnswer = playerService.GetCurrentQuestionWithAnswer(gameId);
+
+        if (questionWithAnswer == null) return;
+        await Clients.Group(gameId.ToString()).ReceiveAnswer(GameState.QuestionComplete, questionWithAnswer);
     }
 
     private async Task GameComplete()
     {
         var playerId = await GetPlayerId();
         var gameId = GetGameId(playerId);
-        var leaderBoard = dbContext.Players
-            .Where(p => p.GameId == gameId)
-            .OrderByDescending(p => p.Score)
-            .Select(p => new ViewModel.Player
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Score = p.Score
-            })
-            .ToArray();
-        await Clients.Group(playerId.ToString()).ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
-    }
-
-    public async Task AnswerQuestion(Guid questionId, int answerIndex)
-    {
-        Console.WriteLine($"Answering question {questionId} with answer {answerIndex}");
-        var playerId = await GetPlayerId();
-        var gameId = GetGameId(playerId);
         var playerService = new PlayerService(dbContext);
-        var isAnswered = playerService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
-        var message = isAnswered ? "Answer is recorded" : "Cannot answer question";
-        await Clients.Group(playerId.ToString()).ReceiveMessage(message);
+        var leaderBoard = playerService.GetLeaderBoard(gameId);
+        await Clients.Group(playerId.ToString()).ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
     }
 
     public override async Task OnConnectedAsync()

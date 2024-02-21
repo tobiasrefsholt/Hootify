@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { useWebSocket } from "../../hooks/useWebSocket";
+import { useWebSocket } from "@/hooks/useWebSocket.ts";
 import { GameState } from "@/Types";
 import ShowQuestion from "./ShowQuestion";
 import WaitingForPlayers from "./WaitingForPlayers";
