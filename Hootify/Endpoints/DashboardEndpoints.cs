@@ -113,31 +113,24 @@ public static class DashboardEndpoints
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.New(options);
             }).RequireAuthorization();
-            
+
             endpoints.MapPost("/dashboard/game/get/{gameId:guid}", (Guid gameId, AppDbContext dbContext) =>
             {
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.Get(gameId);
             }).RequireAuthorization();
-            
+
             endpoints.MapPost("/dashboard/game/getAll", (AppDbContext dbContext) =>
             {
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.GetAll(null);
             }).RequireAuthorization();
-            
+
             endpoints.MapPost("/dashboard/game/getAll/{gameState}", (GameState gameState, AppDbContext dbContext) =>
             {
                 var gameService = new DashboardGameService(dbContext);
                 return gameService.GetAll(gameState);
             }).RequireAuthorization();
-
-            endpoints.MapPost("/dashboard/game/start/{gameId:guid}",
-                (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext);
-                    return gameService.Start(gameId, gameHubContext);
-                }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/nextQuestion/{gameId:guid}",
                 (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
