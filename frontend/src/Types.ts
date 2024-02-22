@@ -17,7 +17,9 @@ export type Question = {
     title: string,
     answers: string[],
     category: string,
-    categoryId: string
+    categoryId: string,
+    startTime: string,
+    seconds: number
 };
 
 export type QuestionWithAnswer = Question & {

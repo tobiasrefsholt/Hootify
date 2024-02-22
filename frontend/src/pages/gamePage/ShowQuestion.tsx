@@ -1,6 +1,8 @@
 import {Question} from "@/Types"
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {useEffect, useState} from "react";
+import {Progress} from "@/components/ui/progress.tsx";
+import useShowQuestion from "@/pages/gamePage/useShowQuestion.ts";
 
 type ShowQuestionProps = {
     question: Question | null,
@@ -9,8 +11,10 @@ type ShowQuestionProps = {
 
 export default function ShowQuestion({question, answerQuestion}: ShowQuestionProps) {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const {progressPercentage} = useShowQuestion({question});
 
     useEffect(() => {
+        if (!question?.id) return;
         setSelectedAnswer(null);
     }, [question?.id]);
 
@@ -23,9 +27,12 @@ export default function ShowQuestion({question, answerQuestion}: ShowQuestionPro
 
     if (!question) return <h1>No question</h1>
     return (
-        <>
-            <h1 className="text-4xl md:text-6xl text-center font-bold w-full xl:w-8/12">{question.title}</h1>
-            <div className="grid md:grid-cols-2 grid-rows-2 gap-5 w-full xl:w-8/12">
+        <div className="w-full xl:w-8/12 space-y-10">
+            <h1 className="text-4xl md:text-6xl text-center font-bold">{question.title}</h1>
+            {(progressPercentage === 100)
+                ? <h1 className="text-center">Time's up!</h1>
+                : <Progress value={progressPercentage}/>}
+            <div className="grid md:grid-cols-2 grid-rows-2 gap-5">
                 {question.answers.map((answer, index) => {
                     const isSelected = selectedAnswer === index;
                     return (
@@ -39,6 +46,6 @@ export default function ShowQuestion({question, answerQuestion}: ShowQuestionPro
                     )
                 })}
             </div>
-        </>
+        </div>
     )
 }
