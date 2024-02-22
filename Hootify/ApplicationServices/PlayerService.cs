@@ -72,9 +72,9 @@ public class PlayerService
             // Question is not the current question
             game.CurrentQuestionId != questionId ||
             // Question has expired
-            /*game.CurrentQuestionStartTime.AddSeconds(game.SecondsPerQuestion) < DateTime.Now ||
+            game.CurrentQuestionStartTime.AddSeconds(game.SecondsPerQuestion) < DateTime.Now ||
             // Question has not started
-            game.CurrentQuestionStartTime > DateTime.Now ||*/
+            game.CurrentQuestionStartTime > DateTime.Now ||
             // Game is not in progress
             game.State != GameState.QuestionInProgress)
             return false;
