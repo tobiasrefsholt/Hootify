@@ -39,7 +39,7 @@ export default function ShowQuestion({question, answerQuestion}: ShowQuestionPro
                         <Card key={index} onClick={() => handleAnswerClick(index)}
                               className={isSelected ? "bg-primary/90" : "cursor-pointer bg-accent/90 hover:bg-accent/60"}>
                             <CardHeader className="text-muted-foreground">Alternative {index + 1}</CardHeader>
-                            <CardContent className="text-lg text-2xl font-bold">
+                            <CardContent className="text-2xl font-bold">
                                 {answer}
                             </CardContent>
                         </Card>
