@@ -13,7 +13,7 @@ public class DashboardGameService
         _dbContext = dbContext;
     }
 
-    public Guid New(ViewModel.GameOptions gameOptions)
+    public ViewModel.Game New(ViewModel.GameOptions gameOptions)
     {
         var activeQuiz = _dbContext.Quizzes.FirstOrDefault(q => q.Id == gameOptions.QuizId);
         if (activeQuiz == null) throw new Exception("Quiz not found");
@@ -33,7 +33,8 @@ public class DashboardGameService
         };
         _dbContext.Games.Add(dbGame);
         _dbContext.SaveChanges();
-        return gameId;
+        var viewGame = Get(gameId);
+        return viewGame ?? throw new Exception("Game not found");
     }
 
     private string GenerateShareKey()
@@ -47,20 +48,12 @@ public class DashboardGameService
         }
     }
 
-    public async Task<ViewModel.Question?> Start(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
-    {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
-        if (game == null) return null;
-
-        game.ShareKey = string.Empty;
-        return await NextQuestion(gameId, gameHubContext);
-    }
-
     public async Task<ViewModel.Question?> NextQuestion(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
         if (game == null) return null;
 
+        game.ShareKey = string.Empty;
         game.State = GameState.QuestionInProgress;
 
         if (game.RemainingQuestions?.Count == 0)
@@ -78,24 +71,33 @@ public class DashboardGameService
 
         if (nextQuestionId == null) return null;
 
-        var nextQuestion = _dbContext.Questions
-            .Where(q => q.Id == (Guid)nextQuestionId)
-            .Select(q => new ViewModel.Question
+        var nextQuestion = (
+            from q in _dbContext.Questions
+            join c in _dbContext.Categories on q.CategoryId equals c.Id
+            join g in _dbContext.Games on q.Id equals nextQuestionId
+            where (q.Id == nextQuestionId)
+            select new ViewModel.Question
             {
                 Id = q.Id,
                 Title = q.Title,
-                Answers = q.Answers
-            })
-            .FirstOrDefault();
+                Answers = q.Answers,
+                Category = c.Name,
+                CategoryId = c.Id,
+                StartTime = g.CurrentQuestionStartTime,
+                Seconds = g.SecondsPerQuestion
+            }).FirstOrDefault();
 
         if (nextQuestion == null) return null;
+        
+        var timestamp = DateTime.Now;
 
         game.CurrentQuestionId = (Guid)nextQuestionId;
-        game.CurrentQuestionStartTime = DateTime.Now;
-        game.CurrentQuestionEndTime = DateTime.Now.AddSeconds(game.SecondsPerQuestion);
+        game.CurrentQuestionStartTime = timestamp;
         game.CurrentQuestionNumber++;
         game.RemainingQuestions?.Remove((Guid)nextQuestionId);
         await _dbContext.SaveChangesAsync();
+        nextQuestion.StartTime = timestamp;
+        nextQuestion.Seconds = game.SecondsPerQuestion;
         await gameHubContext.Clients.Groups(game.Id.ToString())
             .ReceiveNewQuestion(game.State, nextQuestion);
         return nextQuestion;
@@ -108,11 +110,17 @@ public class DashboardGameService
             .Select(g => new ViewModel.Game
             {
                 Id = g.Id,
-                Title = g.Title,
-                QuizId = g.QuizId,
                 ShareKey = g.ShareKey,
+                QuizId = g.QuizId,
+                Title = g.Title,
+                RandomizeQuestions = g.RandomizeQuestions,
+                RandomizeAnswers = g.RandomizeAnswers,
+                SecondsPerQuestion = g.SecondsPerQuestion,
                 State = g.State,
-                SecondsPerQuestion = g.SecondsPerQuestion
+                CurrentQuestionId = g.CurrentQuestionId,
+                CurrentQuestionNumber = g.CurrentQuestionNumber,
+                CurrentQuestionStartTime = g.CurrentQuestionStartTime,
+                RemainingQuestions = g.RemainingQuestions,
             })
             .FirstOrDefault();
     }
@@ -123,7 +131,7 @@ public class DashboardGameService
             return _dbContext.Games
                 .Select(g => g.Id)
                 .ToList();
-        
+
         return _dbContext.Games
             .Where(g => g.State == gameState)
             .Select(g => g.Id)

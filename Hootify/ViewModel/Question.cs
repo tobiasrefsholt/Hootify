@@ -8,4 +8,6 @@ public class Question
         public string[] Answers { get; set; }
         public string Category { get; set; }
         public Guid CategoryId { get; set; }
+        public DateTime StartTime { get; set; }
+        public int Seconds { get; set; }
 }

@@ -13,8 +13,5 @@ public class Game
     public Guid CurrentQuestionId { get; set; }
     public int CurrentQuestionNumber { get; set; }
     public DateTime CurrentQuestionStartTime { get; set; }
-    public DateTime CurrentQuestionEndTime { get; set; }
     public List<Guid>? RemainingQuestions { get; set; }
-    public List<Guid>? Players { get; set; }
-    public List<Guid>? Answers { get; set; }
 }

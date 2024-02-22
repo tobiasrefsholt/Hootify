@@ -87,7 +87,7 @@ public class PlayerService
         return _dbContext.Players.Any(p => p.Id == playerId) &&
                _dbContext.Questions.Any(q => q.Id == questionId);
     }
-    
+
     public bool AllPlayersAnswered(Guid gameId, Guid questionId)
     {
         var players = _dbContext.Players
@@ -121,17 +121,24 @@ public class PlayerService
     {
         var currentQuestionId = CurrentQuestionId(gameId);
 
-        return _dbContext.Questions
-            .Where(q => q.Id == currentQuestionId)
-            .Select(q => new ViewModel.Question
+        return (
+            from q in _dbContext.Questions
+            join c in _dbContext.Categories on q.CategoryId equals c.Id
+            join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
+            where (q.Id == currentQuestionId)
+            select new ViewModel.Question
             {
                 Id = q.Id,
                 Title = q.Title,
-                Answers = q.Answers
-            })
-            .FirstOrDefault();
+                Answers = q.Answers,
+                Category = c.Name,
+                CategoryId = c.Id,
+                StartTime = g.CurrentQuestionStartTime,
+                Seconds = g.SecondsPerQuestion
+            }
+        ).FirstOrDefault();
     }
-    
+
     public ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
     {
         var currentQuestionId = CurrentQuestionId(gameId);
