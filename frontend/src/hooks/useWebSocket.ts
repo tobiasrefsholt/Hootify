@@ -64,7 +64,7 @@ export function useWebSocket(playerId: string | null) {
     }, [playerId])
 
     function getGameState() {
-        connectionRef.current?.invoke("GetGameState");
+        connectionRef.current?.invoke("GetGameState", playerId);
     }
 
     function answerQuestion(questionId: string, answer: number) {
