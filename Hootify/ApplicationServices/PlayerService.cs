@@ -51,6 +51,80 @@ public class PlayerService
         };
     }
 
+    public async Task GetGameState(Guid playerId)
+    {
+        var gameId = GetGameIdByPlayer(playerId);
+        var gameState = GetState(gameId);
+        var recipientGroup = playerId.ToString();
+
+        switch (gameState)
+        {
+            case GameState.QuestionInProgress:
+                await SendQuestion(gameId, playerId, recipientGroup);
+                break;
+
+            case GameState.QuestionComplete:
+                await SendQuestionComplete(gameId, playerId, recipientGroup);
+                break;
+
+            case GameState.GameComplete:
+                await SendGameComplete(gameId, playerId, recipientGroup);
+                break;
+
+            case GameState.WaitingForPlayers:
+            default:
+                await SendWaitingPlayers(gameId, recipientGroup);
+                break;
+        }
+    }
+
+    private async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
+    {
+        var players = GetPlayers(gameId);
+        await _gameHubContext.Clients
+            .Group(recipientGroup)
+            .ReceiveWaitingPlayers(GameState.WaitingForPlayers, players);
+    }
+
+    private async Task SendQuestion(Guid gameId, Guid playerId, string recipientGroup)
+    {
+        var currentQuestion = GetCurrentQuestion(gameId);
+        // Check if question has expired and handle it
+        if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
+        {
+            await HandleFinishedQuestion(gameId, playerId);
+            return;
+        }
+
+        await _gameHubContext.Clients
+            .Group(recipientGroup)
+            .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
+    }
+
+    private async Task SendQuestionComplete(Guid gameId, Guid playerId, string recipientGroup)
+    {
+        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+        await _gameHubContext.Clients
+            .Group(recipientGroup)
+            .ReceiveAnswer(GameState.QuestionComplete, questionWithAnswer);
+    }
+
+    private async Task SendGameComplete(Guid gameId, Guid playerId, string recipientGroup)
+    {
+        var leaderBoard = GetLeaderBoard(gameId);
+        await _gameHubContext.Clients
+            .Group(recipientGroup)
+            .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+    }
+
+    public async Task SendWelcomeMessage(Guid playerId, Guid gameId, string connectionId)
+    {
+        var player = GetPlayer(playerId);
+        await _gameHubContext.Clients
+            .GroupExcept(gameId.ToString(), connectionId)
+            .ReceiveMessage($"{player!.Name} has joined the game!");
+    }
+
     public async Task AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
     {
         if (!CanAnswerQuestion(playerId, gameId, questionId))
@@ -137,20 +211,20 @@ public class PlayerService
 
         if (!players.All(p => answers.Contains(p))) return;
 
-        await HandleFinishedQuestion(gameId);
+        await HandleFinishedQuestion(gameId, gameId);
     }
 
-    private async Task HandleFinishedQuestion(Guid gameId)
+    private async Task HandleFinishedQuestion(Guid gameId, Guid group)
     {
         await _dbContext.Games
             .Where(g => g.Id == gameId)
             .ExecuteUpdateAsync(b =>
                 b.SetProperty(g => g.State, GameState.QuestionComplete)
             );
-        var leaderBoard = GetLeaderBoard(gameId);
+        var currentQuestionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
         await _gameHubContext.Clients
-            .Group(gameId.ToString())
-            .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+            .Group(group.ToString())
+            .ReceiveAnswer(GameState.QuestionComplete, currentQuestionWithAnswer);
     }
 
     private Player[] GetLeaderBoard(Guid gameId)
@@ -214,44 +288,6 @@ public class PlayerService
         return currentQuestionId;
     }
 
-    public async Task GetGameState(Guid playerId)
-    {
-        var gameId = GetGameIdByPlayer(playerId);
-        var gameState = GetState(gameId);
-
-        switch (gameState)
-        {
-            case GameState.QuestionInProgress:
-                var currentQuestion = GetCurrentQuestion(gameId);
-                await _gameHubContext.Clients
-                    .Group(playerId.ToString())
-                    .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
-                break;
-
-            case GameState.QuestionComplete:
-                var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
-                await _gameHubContext.Clients
-                    .Group(gameId.ToString())
-                    .ReceiveAnswer(GameState.QuestionComplete, questionWithAnswer);
-                break;
-
-            case GameState.GameComplete:
-                var leaderBoard = GetLeaderBoard(gameId);
-                await _gameHubContext.Clients
-                    .Group(playerId.ToString())
-                    .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
-                break;
-
-            case GameState.WaitingForPlayers:
-            default:
-                var players = GetPlayers(gameId);
-                await _gameHubContext.Clients
-                    .Group(gameId.ToString())
-                    .ReceiveWaitingPlayers(gameState, players);
-                break;
-        }
-    }
-
     private GameState GetState(Guid gameId)
     {
         return _dbContext.Games
@@ -273,7 +309,7 @@ public class PlayerService
             .ToArray();
     }
 
-    public Player? GetPlayer(Guid playerId)
+    private Player? GetPlayer(Guid playerId)
     {
         return _dbContext.Players
             .Where(p => p.Id == playerId)
@@ -292,11 +328,5 @@ public class PlayerService
             .Where(p => p.Id == playerId)
             .Select(p => p.GameId)
             .FirstOrDefault();
-    }
-
-    public async Task SendWelcomeMessage(Guid playerId)
-    {
-        var player = GetPlayer(playerId);
-        await _gameHubContext.Clients.All.ReceiveMessage($"{player!.Name} has joined the game!");
     }
 }

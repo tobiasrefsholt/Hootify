@@ -140,7 +140,7 @@ public static class DashboardEndpoints
                 (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
                 {
                     var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.NextQuestion(gameId);
+                    return gameService.SendNextQuestion(gameId);
                 }).RequireAuthorization();
         });
     }

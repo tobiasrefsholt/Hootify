@@ -25,8 +25,8 @@ public sealed class GameHub : Hub<IGameHub>
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
         await Groups.AddToGroupAsync(Context.ConnectionId, playerId.ToString());
-        await _playerService.SendWelcomeMessage(playerId);
-        GetGameState(playerId);
+        await _playerService.SendWelcomeMessage(playerId, gameId, Context.ConnectionId);
+        await GetGameState(playerId);
 
         await base.OnConnectedAsync();
     }

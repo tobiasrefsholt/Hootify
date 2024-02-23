@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using Hootify.DbModel;
 using Microsoft.AspNetCore.SignalR;
+using Question = Hootify.ViewModel.Question;
 
 namespace Hootify.ApplicationServices;
 
@@ -50,7 +52,7 @@ public class DashboardGameService
         }
     }
 
-    public async Task<ViewModel.Question?> NextQuestion(Guid gameId)
+    public async Task<Question?> SendNextQuestion(Guid gameId)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
         if (game == null) return null;
@@ -58,27 +60,43 @@ public class DashboardGameService
         game.ShareKey = string.Empty;
         game.State = GameState.QuestionInProgress;
 
-        if (game.RemainingQuestions?.Count == 0)
-        {
-            game.State = GameState.GameComplete;
-            await _gameHubContext.Clients.Groups(game.Id.ToString())
-                .ReceiveGameComplete(game.State);
-            await _dbContext.SaveChangesAsync();
-            return null;
-        }
+        var gameComplete = game.RemainingQuestions?.Count == 0;
+        if (gameComplete)
+            await HandleGameComplete(game);
 
+        var nextQuestion = GetNextQuestion(game);
+        if (nextQuestion == null)
+            return null;
+
+        var timestamp = DateTime.Now;
+
+        game.CurrentQuestionId = nextQuestion.Id;
+        game.CurrentQuestionStartTime = timestamp;
+        game.CurrentQuestionNumber++;
+        game.RemainingQuestions?.Remove(nextQuestion.Id);
+        await _dbContext.SaveChangesAsync();
+        nextQuestion.StartTime = timestamp;
+        nextQuestion.Seconds = game.SecondsPerQuestion;
+        await _gameHubContext.Clients.Groups(game.Id.ToString())
+            .ReceiveNewQuestion(game.State, nextQuestion);
+        return nextQuestion;
+    }
+
+    private Question? GetNextQuestion([DisallowNull] Game game)
+    {
         var nextQuestionId = game.RandomizeQuestions
             ? game.RemainingQuestions?[_random.Next(game.RemainingQuestions.Count)]
             : game.RemainingQuestions?.First();
 
-        if (nextQuestionId == null) return null;
+        if (nextQuestionId == null)
+            return null;
 
-        var nextQuestion = (
+        return (
             from q in _dbContext.Questions
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals nextQuestionId
             where (q.Id == nextQuestionId)
-            select new ViewModel.Question
+            select new Question
             {
                 Id = q.Id,
                 Title = q.Title,
@@ -87,22 +105,16 @@ public class DashboardGameService
                 CategoryId = c.Id,
                 StartTime = g.CurrentQuestionStartTime,
                 Seconds = g.SecondsPerQuestion
-            }).FirstOrDefault();
+            }
+        ).FirstOrDefault();
+    }
 
-        if (nextQuestion == null) return null;
-
-        var timestamp = DateTime.Now;
-
-        game.CurrentQuestionId = (Guid)nextQuestionId;
-        game.CurrentQuestionStartTime = timestamp;
-        game.CurrentQuestionNumber++;
-        game.RemainingQuestions?.Remove((Guid)nextQuestionId);
-        await _dbContext.SaveChangesAsync();
-        nextQuestion.StartTime = timestamp;
-        nextQuestion.Seconds = game.SecondsPerQuestion;
+    private async Task HandleGameComplete(Game game)
+    {
+        game.State = GameState.GameComplete;
         await _gameHubContext.Clients.Groups(game.Id.ToString())
-            .ReceiveNewQuestion(game.State, nextQuestion);
-        return nextQuestion;
+            .ReceiveGameComplete(game.State);
+        await _dbContext.SaveChangesAsync();
     }
 
     public ViewModel.Game? Get(Guid gameId)
