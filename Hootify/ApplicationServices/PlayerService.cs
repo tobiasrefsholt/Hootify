@@ -1,4 +1,5 @@
 using Hootify.DbModel;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Player = Hootify.ViewModel.Player;
 
@@ -7,10 +8,12 @@ namespace Hootify.ApplicationServices;
 public class PlayerService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IHubContext<GameHub, IGameHub> _gameHubContext;
 
-    public PlayerService(AppDbContext dbContext)
+    public PlayerService(AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext)
     {
         _dbContext = dbContext;
+        _gameHubContext = gameHubContext;
     }
 
     public ViewModel.Game? GetGameByPin(string shareKey)
@@ -48,9 +51,15 @@ public class PlayerService
         };
     }
 
-    public async Task<bool> AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
+    public async Task AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
     {
-        if (!CanAnswerQuestion(playerId, gameId, questionId)) return false;
+        if (!CanAnswerQuestion(playerId, gameId, questionId))
+        {
+            await _gameHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Failed to answer question");
+            return;
+        }
+
+        await CheckAnswer(playerId, questionId, answer);
 
         var dbAnswer = new GameAnswer
         {
@@ -60,23 +69,26 @@ public class PlayerService
             QuestionId = questionId,
             Answer = answer
         };
-
-        await UpdateScore(playerId, questionId, answer);
-
         _dbContext.GameAnswers.Add(dbAnswer);
-        var save = await _dbContext.SaveChangesAsync();
-        return save > 0;
+        await _dbContext.SaveChangesAsync();
+
+        await CheckIfAllPlayersAnswered(gameId, questionId);
     }
 
-    private async Task UpdateScore(Guid playerId, Guid questionId, int answer)
+    private async Task CheckAnswer(Guid playerId, Guid questionId, int answer)
     {
         var answerIsCorrect = _dbContext.Questions
             .Where(q => q.Id == questionId)
             .Select(q => q.CorrectAnswer)
             .FirstOrDefault() == answer;
 
-        if (!answerIsCorrect) return;
+        if (!answerIsCorrect)
+        {
+            await _gameHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Incorrect answer");
+            return;
+        }
 
+        // Update player score if answer is correct
         await _dbContext.Players
             .Where(p => p.Id == playerId)
             .ExecuteUpdateAsync(
@@ -84,6 +96,8 @@ public class PlayerService
                     p => p.Score, p => p.Score + 1
                 )
             );
+
+        await _gameHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Correct answer");
     }
 
     private bool CanAnswerQuestion(Guid playerId, Guid gameId, Guid questionId)
@@ -109,7 +123,7 @@ public class PlayerService
                _dbContext.Questions.Any(q => q.Id == questionId);
     }
 
-    public bool AllPlayersAnswered(Guid gameId, Guid questionId)
+    private async Task CheckIfAllPlayersAnswered(Guid gameId, Guid questionId)
     {
         var players = _dbContext.Players
             .Where(p => p.GameId == gameId)
@@ -121,10 +135,25 @@ public class PlayerService
             .Select(a => a.PlayerId)
             .ToArray();
 
-        return players.All(p => answers.Contains(p));
+        if (!players.All(p => answers.Contains(p))) return;
+
+        await HandleFinishedQuestion(gameId);
     }
 
-    public Player[] GetLeaderBoard(Guid gameId)
+    private async Task HandleFinishedQuestion(Guid gameId)
+    {
+        await _dbContext.Games
+            .Where(g => g.Id == gameId)
+            .ExecuteUpdateAsync(b =>
+                b.SetProperty(g => g.State, GameState.QuestionComplete)
+            );
+        var leaderBoard = GetLeaderBoard(gameId);
+        await _gameHubContext.Clients
+            .Group(gameId.ToString())
+            .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+    }
+
+    private Player[] GetLeaderBoard(Guid gameId)
     {
         return _dbContext.Players
             .Where(p => p.GameId == gameId)
@@ -138,7 +167,7 @@ public class PlayerService
             .ToArray();
     }
 
-    public ViewModel.Question? GetCurrentQuestion(Guid gameId)
+    private ViewModel.Question? GetCurrentQuestion(Guid gameId)
     {
         var currentQuestionId = CurrentQuestionId(gameId);
 
@@ -160,7 +189,7 @@ public class PlayerService
         ).FirstOrDefault();
     }
 
-    public ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
+    private ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
     {
         var currentQuestionId = CurrentQuestionId(gameId);
 
@@ -183,5 +212,91 @@ public class PlayerService
             .Select(g => g.CurrentQuestionId)
             .FirstOrDefault();
         return currentQuestionId;
+    }
+
+    public async Task GetGameState(Guid playerId)
+    {
+        var gameId = GetGameIdByPlayer(playerId);
+        var gameState = GetState(gameId);
+
+        switch (gameState)
+        {
+            case GameState.QuestionInProgress:
+                var currentQuestion = GetCurrentQuestion(gameId);
+                await _gameHubContext.Clients
+                    .Group(playerId.ToString())
+                    .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
+                break;
+
+            case GameState.QuestionComplete:
+                var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+                await _gameHubContext.Clients
+                    .Group(gameId.ToString())
+                    .ReceiveAnswer(GameState.QuestionComplete, questionWithAnswer);
+                break;
+
+            case GameState.GameComplete:
+                var leaderBoard = GetLeaderBoard(gameId);
+                await _gameHubContext.Clients
+                    .Group(playerId.ToString())
+                    .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+                break;
+
+            case GameState.WaitingForPlayers:
+            default:
+                var players = GetPlayers(gameId);
+                await _gameHubContext.Clients
+                    .Group(gameId.ToString())
+                    .ReceiveWaitingPlayers(gameState, players);
+                break;
+        }
+    }
+
+    private GameState GetState(Guid gameId)
+    {
+        return _dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => g.State)
+            .FirstOrDefault();
+    }
+
+    private Player[] GetPlayers(Guid gameId)
+    {
+        return _dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .Select(p => new ViewModel.Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .ToArray();
+    }
+
+    public Player? GetPlayer(Guid playerId)
+    {
+        return _dbContext.Players
+            .Where(p => p.Id == playerId)
+            .Select(p => new Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .FirstOrDefault();
+    }
+
+    public Guid GetGameIdByPlayer(Guid playerId)
+    {
+        return _dbContext.Players
+            .Where(p => p.Id == playerId)
+            .Select(p => p.GameId)
+            .FirstOrDefault();
+    }
+
+    public async Task SendWelcomeMessage(Guid playerId)
+    {
+        var player = GetPlayer(playerId);
+        await _gameHubContext.Clients.All.ReceiveMessage($"{player!.Name} has joined the game!");
     }
 }

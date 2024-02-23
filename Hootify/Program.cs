@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using Hootify;
+using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.Endpoints;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<PlayerService>();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {

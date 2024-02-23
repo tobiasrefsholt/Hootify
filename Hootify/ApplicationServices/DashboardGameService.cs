@@ -6,11 +6,13 @@ namespace Hootify.ApplicationServices;
 public class DashboardGameService
 {
     private readonly AppDbContext _dbContext;
-    private readonly Random _random = new Random();
+    private readonly IHubContext<GameHub, IGameHub> _gameHubContext;
+    private readonly Random _random = new();
 
-    public DashboardGameService(AppDbContext dbContext)
+    public DashboardGameService(AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext)
     {
         _dbContext = dbContext;
+        _gameHubContext = gameHubContext;
     }
 
     public ViewModel.Game New(ViewModel.GameOptions gameOptions)
@@ -48,7 +50,7 @@ public class DashboardGameService
         }
     }
 
-    public async Task<ViewModel.Question?> NextQuestion(Guid gameId, IHubContext<GameHub, IGameHub> gameHubContext)
+    public async Task<ViewModel.Question?> NextQuestion(Guid gameId)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
         if (game == null) return null;
@@ -59,7 +61,7 @@ public class DashboardGameService
         if (game.RemainingQuestions?.Count == 0)
         {
             game.State = GameState.GameComplete;
-            await gameHubContext.Clients.Groups(game.Id.ToString())
+            await _gameHubContext.Clients.Groups(game.Id.ToString())
                 .ReceiveGameComplete(game.State);
             await _dbContext.SaveChangesAsync();
             return null;
@@ -88,7 +90,7 @@ public class DashboardGameService
             }).FirstOrDefault();
 
         if (nextQuestion == null) return null;
-        
+
         var timestamp = DateTime.Now;
 
         game.CurrentQuestionId = (Guid)nextQuestionId;
@@ -98,7 +100,7 @@ public class DashboardGameService
         await _dbContext.SaveChangesAsync();
         nextQuestion.StartTime = timestamp;
         nextQuestion.Seconds = game.SecondsPerQuestion;
-        await gameHubContext.Clients.Groups(game.Id.ToString())
+        await _gameHubContext.Clients.Groups(game.Id.ToString())
             .ReceiveNewQuestion(game.State, nextQuestion);
         return nextQuestion;
     }
