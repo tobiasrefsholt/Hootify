@@ -31,7 +31,7 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
 
         // Handle answer
         var playerService = new PlayerService(dbContext);
-        var isAnswered = playerService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
+        var isAnswered = await playerService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
         var allPlayersAnswered = playerService.AllPlayersAnswered(gameId, questionId);
 
         // Send response to player
@@ -41,13 +41,18 @@ public sealed class GameHub(AppDbContext dbContext) : Hub<IGameHub>
         // If all players have answered, move to next question
         if (allPlayersAnswered)
         {
-            await dbContext.Games
-                .Where(g => g.Id == gameId)
-                .ExecuteUpdateAsync(b =>
-                    b.SetProperty(g => g.State, GameState.QuestionComplete)
-                );
-            await QuestionComplete();
+            await HandleFinishedQuestion(gameId);
         }
+    }
+
+    private async Task HandleFinishedQuestion(Guid gameId)
+    {
+        await dbContext.Games
+            .Where(g => g.Id == gameId)
+            .ExecuteUpdateAsync(b =>
+                b.SetProperty(g => g.State, GameState.QuestionComplete)
+            );
+        await QuestionComplete();
     }
 
     private async Task WaitingPlayers(Guid gameId)

@@ -1,4 +1,5 @@
 using Hootify.DbModel;
+using Microsoft.EntityFrameworkCore;
 using Player = Hootify.ViewModel.Player;
 
 namespace Hootify.ApplicationServices;
@@ -47,7 +48,7 @@ public class PlayerService
         };
     }
 
-    public bool AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
+    public async Task<bool> AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
     {
         if (!CanAnswerQuestion(playerId, gameId, questionId)) return false;
 
@@ -60,9 +61,29 @@ public class PlayerService
             Answer = answer
         };
 
+        await UpdateScore(playerId, questionId, answer);
+
         _dbContext.GameAnswers.Add(dbAnswer);
-        var save = _dbContext.SaveChanges();
+        var save = await _dbContext.SaveChangesAsync();
         return save > 0;
+    }
+
+    private async Task UpdateScore(Guid playerId, Guid questionId, int answer)
+    {
+        var answerIsCorrect = _dbContext.Questions
+            .Where(q => q.Id == questionId)
+            .Select(q => q.CorrectAnswer)
+            .FirstOrDefault() == answer;
+
+        if (!answerIsCorrect) return;
+
+        await _dbContext.Players
+            .Where(p => p.Id == playerId)
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(
+                    p => p.Score, p => p.Score + 1
+                )
+            );
     }
 
     private bool CanAnswerQuestion(Guid playerId, Guid gameId, Guid questionId)
