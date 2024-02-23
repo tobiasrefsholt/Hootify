@@ -63,16 +63,16 @@ export function useWebSocket(playerId: string | null) {
         })
     }, [playerId])
 
+    function getGameState() {
+        connectionRef.current?.invoke("GetGameState");
+    }
+
     function answerQuestion(questionId: string, answer: number) {
-        if (connectionRef.current) {
-            connectionRef.current.invoke("AnswerQuestion", questionId, answer);
-        }
+        connectionRef.current?.invoke("AnswerQuestion", questionId, answer);
     }
 
     function sendChatMessage(message: string, sender: string) {
-        if (connectionRef.current) {
-            connectionRef.current.invoke("SendChatMessage", message, sender);
-        }
+        connectionRef.current?.invoke("SendChatMessage", message, sender);
     }
 
     return {
@@ -81,6 +81,7 @@ export function useWebSocket(playerId: string | null) {
         question,
         questionWithAnswer,
         leaderBoard,
+        getGameState,
         answerQuestion,
         sendChatMessage
     }

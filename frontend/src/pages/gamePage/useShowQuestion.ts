@@ -3,9 +3,10 @@ import {useEffect, useState} from "react";
 
 type useShowQuestionProps = {
     question: Question | null
+    getGameState: () => void
 }
 
-export default function useShowQuestion({question}: useShowQuestionProps) {
+export default function useShowQuestion({question, getGameState}: useShowQuestionProps) {
 
     const [progressPercentage, setProgressPercentage] = useState(0);
 
@@ -22,6 +23,10 @@ export default function useShowQuestion({question}: useShowQuestionProps) {
 
         const progressInterval = setInterval(() => {
             setProgressPercentage(calculateProgressPercentage());
+            if (calculateProgressPercentage() >= 100) {
+                clearInterval(progressInterval);
+                setTimeout(getGameState, 2000);
+            }
         }, 500);
 
         return () => clearInterval(progressInterval);

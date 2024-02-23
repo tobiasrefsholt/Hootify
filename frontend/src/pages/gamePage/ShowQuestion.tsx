@@ -7,11 +7,12 @@ import useShowQuestion from "@/pages/gamePage/useShowQuestion.ts";
 type ShowQuestionProps = {
     question: Question | null,
     answerQuestion: (questionId: string, answer: number) => void
+    getGameState: () => void
 }
 
-export default function ShowQuestion({question, answerQuestion}: ShowQuestionProps) {
+export default function ShowQuestion({question, getGameState, answerQuestion}: ShowQuestionProps) {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-    const {progressPercentage} = useShowQuestion({question});
+    const {progressPercentage} = useShowQuestion({question, getGameState});
 
     useEffect(() => {
         if (!question?.id) return;
