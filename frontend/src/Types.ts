@@ -27,4 +27,13 @@ export type QuestionWithAnswer = Question & {
     correctAnswer: number
 };
 
-export type LeaderBoard = {};
+export type User = {
+    id: string,
+    name: string
+};
+
+export type UserContextType = {
+    userData: User | null,
+    login: (user: User) => void,
+    logout: () => void
+};
