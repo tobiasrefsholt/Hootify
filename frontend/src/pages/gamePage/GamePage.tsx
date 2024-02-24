@@ -4,6 +4,7 @@ import {GameState} from "@/Types";
 import ShowQuestion from "./ShowQuestion";
 import WaitingForPlayers from "./WaitingForPlayers";
 import {ShowAnswer} from "./ShowAnswer";
+import ShowLeaderBoard from "@/pages/gamePage/ShowLeaderBoard.tsx";
 
 export default function GamePage() {
     const playerId = useParams().playerId || "";
@@ -12,6 +13,7 @@ export default function GamePage() {
         players,
         question,
         questionWithAnswer,
+        leaderBoard,
         getGameState,
         answerQuestion,
         sendChatMessage
@@ -32,7 +34,8 @@ export default function GamePage() {
                     answerQuestion={answerQuestion}
                     getGameState={getGameState}
                 />}
-            {gameState === GameState.QuestionComplete && <ShowAnswer question={questionWithAnswer}/>}
+            {gameState === GameState.ShowAnswer && <ShowAnswer question={questionWithAnswer}/>}
+            {gameState === GameState.ShowLeaderboard && <ShowLeaderBoard leaderBoard={leaderBoard}/>}
             {gameState === GameState.GameComplete && <h1 className="text-6xl text-center font-bold">Game over!</h1>}
         </div>
     )

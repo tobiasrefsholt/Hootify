@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { useEffect, useRef, useState } from "react";
-import { GameState, LeaderBoard, Player, Question, QuestionWithAnswer } from "../Types";
+import { GameState, Player, Question, QuestionWithAnswer } from "../Types";
 import { toast } from "sonner";
 
 export function useWebSocket(playerId: string | null) {
@@ -8,7 +8,7 @@ export function useWebSocket(playerId: string | null) {
     const [players, setPlayers] = useState<Player[]>([]);
     const [question, setQuestion] = useState<Question | null>(null);
     const [questionWithAnswer, setQuestionWithAnswer] = useState<QuestionWithAnswer | null>(null);
-    const [leaderBoard, setLeaderBoard] = useState<LeaderBoard | null>(null);
+    const [leaderBoard, setLeaderBoard] = useState<Player[]>([]);
 
     const connectionRef = useRef<signalR.HubConnection | null>(null);
 
@@ -53,7 +53,7 @@ export function useWebSocket(playerId: string | null) {
             setQuestionWithAnswer(questionWithAnswer);
         });
 
-        connectionRef.current.on("ReceiveLeaderBoard", (gameState: GameState, leaderBoard: LeaderBoard) => {
+        connectionRef.current.on("ReceiveLeaderBoard", (gameState: GameState, leaderBoard: Player[]) => {
             setGameState(gameState);
             setLeaderBoard(leaderBoard);
         });

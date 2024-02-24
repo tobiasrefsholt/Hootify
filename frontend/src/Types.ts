@@ -1,9 +1,10 @@
 export enum GameState {
     WaitingForPlayers,
     QuestionInProgress,
-    QuestionComplete,
+    ShowAnswer,
+    ShowLeaderboard,
     GameComplete
-};
+}
 
 export type Player = {
     id: string,
