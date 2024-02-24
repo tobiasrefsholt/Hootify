@@ -1,33 +1,25 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import FrontPage from "./pages/frontPage/FrontPage";
-import GamePage from "./pages/gamePage/GamePage";
-import DashboardPage from "./pages/dashboardPage/DashboardPage";
-import { ThemeProvider } from "./components/theme-provider";
-import { Toaster } from "sonner";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {ThemeProvider} from "./components/theme-provider";
+import {Toaster} from "sonner";
+import React from "react";
+
+const FrontPage = React.lazy(() => import("./pages/frontPage/FrontPage"));
+const GamePage = React.lazy(() => import("./pages/gamePage/GamePage"));
+const DashboardPage = React.lazy(() => import("./pages/dashboardPage/DashboardPage"));
 
 function App() {
-  
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (<FrontPage />),
-    },
-    {
-      path: "/game/:playerId",
-      element: (<GamePage/>),
-    },
-    {
-      path: "/dashboard",
-      element: (<DashboardPage/>),
-    }
-  ]);
-
-  return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <RouterProvider router={router} />
-      <Toaster />
-    </ThemeProvider>
-  )
+    return (
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<FrontPage/>}/>
+                    <Route path="/game/*" element={<GamePage/>}/>
+                    <Route path="/dashboard/*" element={<DashboardPage/>}/>
+                </Routes>
+                <Toaster/>
+            </BrowserRouter>
+        </ThemeProvider>
+    )
 }
 
 export default App
