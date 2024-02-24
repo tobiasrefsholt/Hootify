@@ -1,23 +1,29 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {ThemeProvider} from "./components/theme-provider";
 import {Toaster} from "sonner";
-import React from "react";
+import {lazy, Suspense} from "react";
+import {UserProvider} from "@/context/userContext.tsx";
+import {Loader2} from "lucide-react";
 
-const FrontPage = React.lazy(() => import("./pages/frontPage/FrontPage"));
-const GamePage = React.lazy(() => import("./pages/gamePage/GamePage"));
-const DashboardPage = React.lazy(() => import("./pages/dashboardPage/DashboardPage"));
+const FrontPage = lazy(() => import("./pages/frontPage/FrontPage"));
+const GamePage = lazy(() => import("./pages/gamePage/GamePage"));
+const DashboardPage = lazy(() => import("./pages/dashboardPage/DashboardPage"));
 
 function App() {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <BrowserRouter>
-                <Routes>
-                    <Route index element={<FrontPage/>}/>
-                    <Route path="/game/*" element={<GamePage/>}/>
-                    <Route path="/dashboard/*" element={<DashboardPage/>}/>
-                </Routes>
-                <Toaster/>
-            </BrowserRouter>
+            <UserProvider>
+                <BrowserRouter>
+                    <Suspense fallback={<div className="h-screen w-full flex items-center justify-center"><Loader2/></div>}>
+                        <Routes>
+                            <Route index element={<FrontPage/>}/>
+                            <Route path="/game/*" element={<GamePage/>}/>
+                            <Route path="/dashboard/*" element={<DashboardPage/>}/>
+                        </Routes>
+                    </Suspense>
+                    <Toaster/>
+                </BrowserRouter>
+            </UserProvider>
         </ThemeProvider>
     )
 }
