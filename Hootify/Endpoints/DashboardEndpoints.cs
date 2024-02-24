@@ -142,6 +142,13 @@ public static class DashboardEndpoints
                     var gameService = new DashboardGameService(dbContext, gameHubContext);
                     return gameService.SendNextQuestion(gameId);
                 }).RequireAuthorization();
+
+            endpoints.MapPost("/dashboard/game/showLeaderboard/{gameId:guid}",
+                (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
+                {
+                    var gameService = new DashboardGameService(dbContext, gameHubContext);
+                    return gameService.SendLeaderboard(gameId);
+                }).RequireAuthorization();
         });
     }
 }

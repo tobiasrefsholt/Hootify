@@ -151,4 +151,32 @@ public class DashboardGameService
             .Select(g => g.Id)
             .ToList();
     }
+
+    public async Task SendLeaderboard(Guid gameId)
+    {
+        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        if (game == null) return;
+        game.ShareKey = string.Empty;
+        game.State = GameState.ShowLeaderboard;
+        await _dbContext.SaveChangesAsync();
+
+        var leaderboard = GetLeaderBoard(game.Id);
+        await _gameHubContext.Clients
+            .Groups(game.Id.ToString())
+            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderboard);
+    }
+
+    private ViewModel.Player[] GetLeaderBoard(Guid gameId)
+    {
+        return _dbContext.Players
+            .Where(p => p.GameId == gameId)
+            .OrderByDescending(p => p.Score)
+            .Select(p => new ViewModel.Player
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Score = p.Score
+            })
+            .ToArray();
+    }
 }

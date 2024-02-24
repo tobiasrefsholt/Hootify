@@ -4,6 +4,7 @@ public enum GameState
 {
     WaitingForPlayers,
     QuestionInProgress,
-    QuestionComplete,
+    ShowAnswer,
+    ShowLeaderboard,
     GameComplete
 }

@@ -63,8 +63,12 @@ public class PlayerService
                 await SendQuestion(gameId, playerId, recipientGroup);
                 break;
 
-            case GameState.QuestionComplete:
-                await SendQuestionComplete(gameId, playerId, recipientGroup);
+            case GameState.ShowAnswer:
+                await SendAnswer(gameId, playerId, recipientGroup);
+                break;
+            
+            case GameState.ShowLeaderboard:
+                await SendLeaderBoard(gameId, playerId, recipientGroup);
                 break;
 
             case GameState.GameComplete:
@@ -101,14 +105,22 @@ public class PlayerService
             .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
     }
 
-    private async Task SendQuestionComplete(Guid gameId, Guid playerId, string recipientGroup)
+    private async Task SendAnswer(Guid gameId, Guid playerId, string recipientGroup)
     {
         var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
         await _gameHubContext.Clients
             .Group(recipientGroup)
-            .ReceiveAnswer(GameState.QuestionComplete, questionWithAnswer);
+            .ReceiveAnswer(GameState.ShowAnswer, questionWithAnswer);
     }
 
+    private async Task SendLeaderBoard(Guid gameId, Guid playerId, string recipientGroup)
+    {
+        var leaderBoard = GetLeaderBoard(gameId);
+        await _gameHubContext.Clients
+            .Group(recipientGroup)
+            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderBoard);
+    }
+    
     private async Task SendGameComplete(Guid gameId, Guid playerId, string recipientGroup)
     {
         var leaderBoard = GetLeaderBoard(gameId);
@@ -219,12 +231,12 @@ public class PlayerService
         await _dbContext.Games
             .Where(g => g.Id == gameId)
             .ExecuteUpdateAsync(b =>
-                b.SetProperty(g => g.State, GameState.QuestionComplete)
+                b.SetProperty(g => g.State, GameState.ShowAnswer)
             );
         var currentQuestionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
         await _gameHubContext.Clients
             .Group(group.ToString())
-            .ReceiveAnswer(GameState.QuestionComplete, currentQuestionWithAnswer);
+            .ReceiveAnswer(GameState.ShowAnswer, currentQuestionWithAnswer);
     }
 
     private Player[] GetLeaderBoard(Guid gameId)
