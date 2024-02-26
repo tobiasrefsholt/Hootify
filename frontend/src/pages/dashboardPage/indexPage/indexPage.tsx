@@ -6,7 +6,7 @@ export default function IndexPage() {
     const {userData} = useUser();
     return (
         <PageContainer>
-            <PageHeader>Welcome back, {userData?.name || "user"}!</PageHeader>
+            <PageHeader>Welcome back, {userData?.email || "user"}!</PageHeader>
         </PageContainer>
     )
 }

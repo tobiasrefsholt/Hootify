@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export enum ApiEndpoint {
     Register = "/register",
-    Login = "/login",
+    Login = "/login?useCookies=true",
     Refresh = "/refresh",
     ConfirmEmail = "/confirmEmail",
     ResendConfirmationEmail = "/resendConfirmationEmail",
@@ -34,6 +34,7 @@ export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.De
         setIsPending(true);
         fetch(path, {
             method: fetchMethod,
+            credentials: 'include',
             headers: {
                 "Content-Type": "application/json"
             },
