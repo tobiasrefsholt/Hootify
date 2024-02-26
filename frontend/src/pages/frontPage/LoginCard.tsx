@@ -5,6 +5,7 @@ import {Input} from "@/components/ui/input";
 import {useUser} from "@/context/userContext.tsx";
 import {useNavigate} from "react-router";
 import {Loader2} from "lucide-react";
+import {ApiEndpoint} from "@/Types.ts";
 
 export default function JoinGameCard() {
     const user = useUser();
@@ -23,7 +24,7 @@ export default function JoinGameCard() {
         const password = passwordRef.current?.value;
         if (!email && !password) return;
 
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/login?useCookies=true", {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL + ApiEndpoint.Login, {
             method: "POST",
             credentials: "include",
             headers: {

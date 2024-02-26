@@ -1,8 +1,8 @@
-import { Player } from "@/Types";
+import {ApiEndpoint, Player} from "@/Types";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useFetch, ApiEndpoint } from "@/hooks/useFetch";
+import { useFetch } from "@/hooks/useFetch";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 

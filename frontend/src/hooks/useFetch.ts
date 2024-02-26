@@ -1,17 +1,5 @@
 import { useEffect, useState } from "react";
-
-export enum ApiEndpoint {
-    Register = "/register",
-    Login = "/login?useCookies=true",
-    Refresh = "/refresh",
-    ConfirmEmail = "/confirmEmail",
-    ResendConfirmationEmail = "/resendConfirmationEmail",
-    ForgotPassword = "/forgotPassword",
-    ResetPassword = "/resetPassword",
-    ManageTwoFactor = "/manage/2fa",
-    ManageInfo = "/manage/info",
-    JoinGame = "/game/join",
-}
+import {ApiEndpoint} from "@/Types.ts";
 
 export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.DependencyList | undefined, fetchError: string | null = null) {
     const [error, setError] = useState<string | null>(null);

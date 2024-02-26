@@ -1,3 +1,17 @@
+export enum ApiEndpoint {
+    Register = "/register",
+    Login = "/login?useCookies=true",
+    Logout = "/logout",
+    Refresh = "/refresh",
+    ConfirmEmail = "/confirmEmail",
+    ResendConfirmationEmail = "/resendConfirmationEmail",
+    ForgotPassword = "/forgotPassword",
+    ResetPassword = "/resetPassword",
+    ManageTwoFactor = "/manage/2fa",
+    ManageInfo = "/manage/info",
+    JoinGame = "/game/join",
+}
+
 export enum GameState {
     WaitingForPlayers,
     QuestionInProgress,

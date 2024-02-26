@@ -2,6 +2,7 @@ using Hootify;
 using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.Endpoints;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<PlayerService>();
 builder.Services
@@ -37,7 +39,8 @@ builder.Services
     .AddEntityFrameworkStores<AuthDbContext>();
 
 var app = builder.Build();
-if (!string.IsNullOrEmpty(builder.Configuration["AllowedOrigins"])) {
+if (!string.IsNullOrEmpty(builder.Configuration["AllowedOrigins"]))
+{
     var origins = builder.Configuration["AllowedOrigins"]!.Split(",");
     app.UseCors(options =>
         options.WithOrigins(origins)
@@ -46,12 +49,21 @@ if (!string.IsNullOrEmpty(builder.Configuration["AllowedOrigins"])) {
             .AllowCredentials()
     );
 }
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
 app.UseGameEndpoints();
 app.UseDashboardEndpoints();
+
+app.MapPost("/logout", async (SignInManager<AppUser> signInManager) =>
+    {
+        await signInManager.SignOutAsync();
+        return Results.Ok();
+    })
+    .WithOpenApi()
+    .RequireAuthorization();
 
 app.MapHub<GameHub>("/ws");
 
