@@ -1,4 +1,3 @@
-using System.Net.WebSockets;
 using Hootify;
 using Hootify.ApplicationServices;
 using Hootify.DbModel;
@@ -25,7 +24,7 @@ builder.Services.AddDbContext<AuthDbContext>(dbContextOptions =>
     dbContextOptions.UseMySql(connectionString, new MariaDbServerVersion(new Version(11, 2, 2)));
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthorization();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<PlayerService>();
 builder.Services
@@ -38,12 +37,17 @@ builder.Services
     .AddEntityFrameworkStores<AuthDbContext>();
 
 var app = builder.Build();
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-);
+if (!string.IsNullOrEmpty(builder.Configuration["AllowedOrigins"])) {
+    var origins = builder.Configuration["AllowedOrigins"]!.Split(",");
+    app.UseCors(options =>
+        options.WithOrigins(origins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+    );
+}
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
 app.UseGameEndpoints();
