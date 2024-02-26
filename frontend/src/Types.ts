@@ -10,6 +10,22 @@ export enum ApiEndpoint {
     ManageTwoFactor = "/manage/2fa",
     ManageInfo = "/manage/info",
     JoinGame = "/game/join",
+    DashboardGetQuestions = "/dashboard/questions/get",
+    DashboardGetAllQuestions = "/dashboard/questions/getAll",
+    DashboardAddQuestion = "/dashboard/questions/add",
+    DashboardDeleteQuestion = "/dashboard/questions/delete",
+    DashboardEditQuestion = "/dashboard/questions/edit",
+    DashboardGetQuiz = "/dashboard/quiz/get",
+    DashboardGetAllQuizzes = "/dashboard/quiz/getAll",
+    DashboardAddQuiz = "/dashboard/quiz/add",
+    DashboardDeleteQuiz = "/dashboard/quiz/delete",
+    DashboardEditQuiz = "/dashboard/quiz/edit",
+    DashboardGetGame = "/dashboard/game/get",
+    DashboardGetAllGames = "/dashboard/game/getAll",
+    DashboardAddGame = "/dashboard/game/add",
+    DashboardDeleteGame = "/dashboard/game/delete",
+    DashboardNextQuestion = "/dashboard/game/nextQuestion",
+    DashboardShowLeaderboard = "/dashboard/game/showLeaderboard",
 }
 
 export enum GameState {
@@ -50,3 +66,18 @@ export type UserContextType = {
     login: (user: User) => void,
     logout: () => void
 };
+
+export type Game = {
+    id: string;
+    shareKey: string;
+    quizId: string;
+    title: string;
+    randomizeQuestions: boolean;
+    randomizeAnswers: boolean;
+    secondsPerQuestion: number;
+    state: GameState;
+    currentQuestionId: string;
+    currentQuestionNumber: number;
+    currentQuestionStartTime: string;
+    remainingQuestions: string[];
+}
