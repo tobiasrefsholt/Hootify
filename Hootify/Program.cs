@@ -28,7 +28,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddSignalR();
-builder.Services.AddScoped<PlayerService>();
+builder.Services.AddScoped<GameService>();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {

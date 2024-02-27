@@ -13,15 +13,15 @@ public static class GameEndpoints
         {
             // Gets called when client enters game pin 
             // Takes gamePin and returns associated gameId
-            endpoints.MapGet("/game/getByPin/{shareKey}", (string shareKey, PlayerService playerService) => playerService.GetGameByPin(shareKey));
+            endpoints.MapGet("/game/getByPin/{shareKey}", (string shareKey, GameService gameService) => gameService.GetGameByPin(shareKey));
 
             // Gets called when client enters username
             // Takes player object and updates database with new player
             // Subscribes player to game and returns player object
-            endpoints.MapPost("/game/join/{shareKey}", (string shareKey, Player player, PlayerService playerService) =>
+            endpoints.MapPost("/game/join/{shareKey}", (string shareKey, Player player, GameService gameService) =>
             {
-                var game = playerService.GetGameByPin(shareKey);
-                return game != null ? playerService.AddPlayerToGame(game.Id, player) : null;
+                var game = gameService.GetGameByPin(shareKey);
+                return game != null ? gameService.AddPlayerToGame(game.Id, player) : null;
             });
         });
     }

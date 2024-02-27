@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Hootify.ApplicationServices;
+using Hootify.Hubs;
+using Hootify.Hubs.ClientInterfaces;
 using AppDbContext = Hootify.DbModel.AppDbContext;
 using Hootify.ViewModel;
 using Microsoft.AspNetCore.SignalR;
@@ -109,46 +111,22 @@ public static class DashboardEndpoints
             }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/new",
-                (GameOptions options, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.New(options);
-                }).RequireAuthorization();
+                (GameOptions options, GameService gameService) => gameService.New(options)).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/get/{gameId:guid}",
-                (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.Get(gameId);
-                }).RequireAuthorization();
+                (Guid gameId, GameService gameService) => gameService.Get(gameId)).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/getAll",
-                (AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.GetAll(null);
-                }).RequireAuthorization();
+            endpoints.MapPost("/dashboard/game/getAll", (GameService gameService) => gameService.GetAll(null))
+                .RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/getAll/{gameState}",
-                (GameState gameState, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.GetAll(gameState);
-                }).RequireAuthorization();
+                (GameState gameState, GameService gameService) => gameService.GetAll(gameState)).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/nextQuestion/{gameId:guid}",
-                (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.SendNextQuestion(gameId);
-                }).RequireAuthorization();
+                (Guid gameId, GameService gameService) => gameService.SendNextQuestion(gameId)).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/showLeaderboard/{gameId:guid}",
-                (Guid gameId, AppDbContext dbContext, IHubContext<GameHub, IGameHub> gameHubContext) =>
-                {
-                    var gameService = new DashboardGameService(dbContext, gameHubContext);
-                    return gameService.SendLeaderboard(gameId);
-                }).RequireAuthorization();
+                (Guid gameId, GameService gameService) => gameService.SendLeaderboard(gameId)).RequireAuthorization();
         });
     }
 }
