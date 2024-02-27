@@ -57,6 +57,12 @@ export function useWebSocket(url: string) {
         connectionRef.current.on("ReceiveGameComplete", (gameState: GameState) => {
             setGameState(gameState);
         })
+
+        return () => {
+            if (connectionRef.current) {
+                connectionRef.current.stop();
+            }
+        };
     }, [url])
 
     function answerQuestion(questionId: string, answer: number) {
