@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { GameState, Player, Question, QuestionWithAnswer } from "../Types";
 import { toast } from "sonner";
 
-export function useWebSocket(playerId: string | null) {
+export function useWebSocket(url: string) {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [question, setQuestion] = useState<Question | null>(null);
@@ -12,14 +12,10 @@ export function useWebSocket(playerId: string | null) {
 
     const connectionRef = useRef<signalR.HubConnection | null>(null);
 
-    console.log("Connecting to websocket on " + import.meta.env.VITE_BACKEND_URL + '/ws?playerId=' + playerId);
-
     useEffect(() => {
-        if (!playerId) throw new Error("PlayerId is required");
-
         if (!connectionRef.current) {
             connectionRef.current = new signalR.HubConnectionBuilder()
-                .withUrl(import.meta.env.VITE_BACKEND_URL + '/ws?playerId=' + playerId)
+                .withUrl(url)
                 .configureLogging(signalR.LogLevel.Information)
                 .withHubProtocol(new signalR.JsonHubProtocol())
                 .withAutomaticReconnect()
@@ -61,11 +57,7 @@ export function useWebSocket(playerId: string | null) {
         connectionRef.current.on("ReceiveGameComplete", (gameState: GameState) => {
             setGameState(gameState);
         })
-    }, [playerId])
-
-    function getGameState() {
-        connectionRef.current?.invoke("GetGameState", playerId);
-    }
+    }, [url])
 
     function answerQuestion(questionId: string, answer: number) {
         connectionRef.current?.invoke("AnswerQuestion", questionId, answer);
@@ -77,12 +69,17 @@ export function useWebSocket(playerId: string | null) {
 
     return {
         gameState,
+        setGameState,
         players,
+        setPlayers,
         question,
+        setQuestion,
         questionWithAnswer,
+        setQuestionWithAnswer,
         leaderBoard,
-        getGameState,
+        setLeaderBoard,
         answerQuestion,
-        sendChatMessage
+        sendChatMessage,
+        connectionRef
     }
 }
