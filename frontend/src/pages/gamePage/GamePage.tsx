@@ -1,10 +1,10 @@
 import {useParams} from "react-router";
-import {useWebSocket} from "@/hooks/useWebSocket.ts";
 import {GameState} from "@/Types";
 import ShowQuestion from "./ShowQuestion";
 import WaitingForPlayers from "./WaitingForPlayers";
 import {ShowAnswer} from "./ShowAnswer";
 import ShowLeaderBoard from "@/pages/gamePage/ShowLeaderBoard.tsx";
+import {usePlayerWebSocket} from "@/hooks/usePlayerWebSocket.ts";
 
 export default function GamePage() {
     const playerId = useParams().playerId || "";
@@ -17,7 +17,7 @@ export default function GamePage() {
         getGameState,
         answerQuestion,
         sendChatMessage
-    } = useWebSocket(playerId);
+    } = usePlayerWebSocket(playerId);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-10 px-10">
