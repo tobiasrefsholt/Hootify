@@ -1,8 +1,8 @@
 using Hootify.ViewModel;
 
-namespace Hootify;
+namespace Hootify.Hubs.ClientInterfaces;
 
-public interface IGameHub
+public interface IPlayerHub
 {
     public Task ReceiveWaitingPlayers(GameState gameState, Player[] players);
     public Task ReceiveNewQuestion(GameState gameState, Question question);

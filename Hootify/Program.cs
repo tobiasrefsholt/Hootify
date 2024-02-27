@@ -2,6 +2,7 @@ using Hootify;
 using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.Endpoints;
+using Hootify.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -65,7 +66,8 @@ app.MapPost("/logout", async (SignInManager<AppUser> signInManager) =>
     .WithOpenApi()
     .RequireAuthorization();
 
-app.MapHub<GameHub>("/ws");
+app.MapHub<PlayerHub>("/ws");
+app.MapHub<DashboardHub>("/dashboard/ws");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
