@@ -15,9 +15,9 @@ export default function DashboardPage() {
             <Sidebar/>
             <Routes>
                 <Route index={true} element={<IndexPage/>}></Route>
-                <Route path="games" element={<GamesPage/>}></Route>
-                <Route path="quizzes" element={<QuizzesPage/>}></Route>
-                <Route path="questions" element={<QuestionsPage/>}></Route>
+                <Route path="games/*" element={<GamesPage/>}></Route>
+                <Route path="quizzes/*" element={<QuizzesPage/>}></Route>
+                <Route path="questions/*" element={<QuestionsPage/>}></Route>
             </Routes>
         </div>
     )
