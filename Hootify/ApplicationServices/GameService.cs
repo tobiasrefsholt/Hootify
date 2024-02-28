@@ -447,7 +447,6 @@ public class GameService
 
     public ViewModel.Game? Get(Guid gameId)
     {
-        var leaderBoard = GetLeaderBoard(gameId);
         return _dbContext.Games
             .Where(g => g.Id == gameId)
             .Select(g => new ViewModel.Game
@@ -463,8 +462,7 @@ public class GameService
                 CurrentQuestionId = g.CurrentQuestionId,
                 CurrentQuestionNumber = g.CurrentQuestionNumber,
                 CurrentQuestionStartTime = g.CurrentQuestionStartTime,
-                RemainingQuestions = g.RemainingQuestions,
-                LeaderBoard = leaderBoard
+                RemainingQuestions = g.RemainingQuestions
             })
             .FirstOrDefault();
     }
