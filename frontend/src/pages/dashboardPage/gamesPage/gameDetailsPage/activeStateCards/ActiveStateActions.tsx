@@ -11,19 +11,41 @@ import ShowAnswerActions from "@/pages/dashboardPage/gamesPage/gameDetailsPage/a
 type ActiveStateActionsProps = {
     gameState: GameState | null;
     questionWithAnswer: QuestionWithAnswer | null;
+    sendNextQuestion: () => void;
+    sendLeaderboard: () => void;
     sendAnswer: () => void;
 }
-export default function ActiveStateActions({gameState, questionWithAnswer, sendAnswer}: ActiveStateActionsProps) {
+export default function ActiveStateActions(
+    {
+        gameState,
+        questionWithAnswer,
+        sendAnswer,
+        sendNextQuestion,
+        sendLeaderboard
+    }: ActiveStateActionsProps) {
     return (
         <>
             {gameState === GameState.WaitingForPlayers &&
-                <WaitingForPlayersActions/>}
+                <WaitingForPlayersActions
+                    sendNextQuestion={sendNextQuestion}
+                />}
             {gameState === GameState.QuestionInProgress &&
-                <QuestionInProgressActions question={questionWithAnswer} onComplete={sendAnswer}/>}
+                <QuestionInProgressActions
+                    question={questionWithAnswer}
+                    onComplete={sendAnswer}
+                    sendNextQuestion={sendNextQuestion}
+                    sendLeaderboard={sendLeaderboard}
+                />}
             {gameState === GameState.ShowAnswer &&
-                <ShowAnswerActions question={questionWithAnswer}/>}
+                <ShowAnswerActions
+                    question={questionWithAnswer}
+                    sendNextQuestion={sendNextQuestion}
+                    sendLeaderboard={sendLeaderboard}
+                />}
             {gameState === GameState.ShowLeaderboard &&
-                <ShowLeaderBoardActions/>}
+                <ShowLeaderBoardActions
+                    sendNextQuestion={sendNextQuestion}
+                />}
             {gameState === GameState.GameComplete &&
                 <GameComplete/>}
         </>

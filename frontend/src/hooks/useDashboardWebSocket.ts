@@ -19,6 +19,14 @@ export function useDashboardWebSocket(gameId: string) {
 
     }, [connectionRef]);
 
+    function sendNextQuestion() {
+        connectionRef.current?.invoke("SendNextQuestion");
+    }
+
+    function sendLeaderboard() {
+        connectionRef.current?.invoke("SendLeaderboard");
+    }
+
     function sendAnswer() {
         connectionRef.current?.invoke("SendAnswer");
     }
@@ -30,6 +38,8 @@ export function useDashboardWebSocket(gameId: string) {
     return {
         gameOptions,
         updateGameOptions,
+        sendLeaderboard,
+        sendNextQuestion,
         sendAnswer,
         ...stateVariables
     }

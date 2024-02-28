@@ -13,13 +13,17 @@ export default function GameDetailsCard({gameState, game, gameOptions, onChange}
     return (
         <Card>
             <CardHeader>Game Details</CardHeader>
-            <CardContent>
-                <p>State:</p>
-                <p className="mb-5 font-bold">{GameState[gameState || 0]}</p>
-                {game?.shareKey && <>
-                    <p>ShareKey:</p>
-                    <p className="text-5xl">{game.shareKey}</p>
-                </>}
+            <CardContent className="space-y-5">
+                <div>
+                    <p>State:</p>
+                    <p className="mb-5 font-bold">{GameState[gameState || 0]}</p>
+                </div>
+                {game?.shareKey &&
+                    <div>
+                        <p>ShareKey:</p>
+                        <p className="text-5xl">{game.shareKey}</p>
+                    </div>
+                }
                 <GameOptionsDialog gameOptions={gameOptions} onChange={onChange}/>
             </CardContent>
         </Card>

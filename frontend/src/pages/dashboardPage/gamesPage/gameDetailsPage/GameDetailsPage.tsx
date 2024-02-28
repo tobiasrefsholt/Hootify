@@ -22,6 +22,8 @@ export default function GameDetailsPage() {
         questionWithAnswer,
         leaderBoard,
         sendChatMessage,
+        sendNextQuestion,
+        sendLeaderboard,
         sendAnswer,
         updateGameOptions
     } = useDashboardWebSocket(gameId || "");
@@ -36,7 +38,12 @@ export default function GameDetailsPage() {
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/> Return to games</Link>
             <PageHeader>{gameOptions?.title}</PageHeader>
             <div className="grid grid-cols-2 gap-5">
-                <ActiveStateActions gameState={gameState} questionWithAnswer={questionWithAnswer} sendAnswer={sendAnswer}/>
+                <ActiveStateActions
+                    gameState={gameState}
+                    questionWithAnswer={questionWithAnswer}
+                    sendNextQuestion={sendNextQuestion}
+                    sendLeaderboard={sendLeaderboard}
+                    sendAnswer={sendAnswer}/>
                 <GameDetailsCard gameState={gameState} game={game.data} gameOptions={gameOptions} onChange={updateGameOptions}/>
                 <LeaderboardCard players={leaderBoard}/>
                 <ChatCard sendChatMessage={sendChatMessage}/>
