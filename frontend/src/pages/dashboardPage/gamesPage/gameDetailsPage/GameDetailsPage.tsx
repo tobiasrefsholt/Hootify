@@ -3,7 +3,7 @@ import PageHeader from "@/components/ui/pageHeader.tsx";
 import {Link} from "react-router-dom";
 import {ArrowLeft} from "lucide-react";
 import {useFetch} from "@/hooks/useFetch.ts";
-import {ApiEndpoint, Game, GameState, Player} from "@/Types.ts";
+import {ApiEndpoint, Game} from "@/Types.ts";
 import {useParams} from "react-router";
 import {useEffect} from "react";
 import {useDashboardWebSocket} from "@/hooks/useDashboardWebSocket.ts";
@@ -16,11 +16,8 @@ export default function GameDetailsPage() {
     const game = useFetch<Game>(ApiEndpoint.DashboardGetGame, []);
     const {
         gameState,
-        players,
-        question,
         questionWithAnswer,
         leaderBoard,
-        answerQuestion,
         sendChatMessage
     } = useDashboardWebSocket(gameId || "");
 
@@ -34,9 +31,9 @@ export default function GameDetailsPage() {
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/> Return to games</Link>
             <PageHeader>{game.data?.title}</PageHeader>
             <div className="grid grid-cols-2 gap-5">
-                <LeaderboardCard players={players}/>
+                <CurrentQuestionCard question={questionWithAnswer}/>
                 <GameDetailsCard gameState={gameState} game={game.data}/>
-                <CurrentQuestionCard question={question}/>
+                <LeaderboardCard players={leaderBoard}/>
             </div>
         </PageContainer>
     )

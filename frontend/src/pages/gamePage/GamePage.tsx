@@ -7,25 +7,24 @@ import ShowLeaderBoard from "@/pages/gamePage/ShowLeaderBoard.tsx";
 import {usePlayerWebSocket} from "@/hooks/usePlayerWebSocket.ts";
 
 export default function GamePage() {
-    const playerId = useParams().playerId || "";
+    const {playerId} = useParams();
     const {
         gameState,
-        players,
         question,
         questionWithAnswer,
         leaderBoard,
         getGameState,
         answerQuestion,
         sendChatMessage
-    } = usePlayerWebSocket(playerId);
+    } = usePlayerWebSocket(playerId || "");
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-10 px-10">
             {gameState === null && <h1 className="text-6xl text-center font-bold">Connecting to server...</h1>}
             {gameState === GameState.WaitingForPlayers &&
                 <WaitingForPlayers
-                    players={players}
-                    currentPlayerId={playerId}
+                    players={leaderBoard}
+                    currentPlayerId={playerId || ""}
                     sendChatMessage={sendChatMessage}
                 />}
             {gameState === GameState.QuestionInProgress &&

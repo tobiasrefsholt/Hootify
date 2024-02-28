@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 export function useWebSocket(url: string) {
     const [gameState, setGameState] = useState<GameState | null>(null);
-    const [players, setPlayers] = useState<Player[]>([]);
     const [question, setQuestion] = useState<Question | null>(null);
     const [questionWithAnswer, setQuestionWithAnswer] = useState<QuestionWithAnswer | null>(null);
     const [leaderBoard, setLeaderBoard] = useState<Player[]>([]);
@@ -36,7 +35,7 @@ export function useWebSocket(url: string) {
 
         connectionRef.current.on("ReceiveWaitingPlayers", (gameState: GameState, players: Player[]) => {
             setGameState(gameState);
-            setPlayers(players);
+            setLeaderBoard(players);
         });
 
         connectionRef.current.on("ReceiveNewQuestion", (gameState: GameState, question: Question) => {
@@ -76,8 +75,6 @@ export function useWebSocket(url: string) {
     return {
         gameState,
         setGameState,
-        players,
-        setPlayers,
         question,
         setQuestion,
         questionWithAnswer,
