@@ -1,13 +1,15 @@
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {QuestionWithAnswer} from "@/Types.ts";
 import Countdown, {zeroPad} from "react-countdown";
+import ShowQuestionWithAnswer
+    from "@/pages/dashboardPage/gamesPage/gameDetailsPage/activeStateCards/ShowQuestionWithAnswer.tsx";
 
 type CurrentQuestionCardProps = {
     question: QuestionWithAnswer | null
     onComplete: () => void
 }
 
-export default function CurrentQuestionCard({question, onComplete}: CurrentQuestionCardProps) {
+export default function QuestionInProgressActions({question, onComplete}: CurrentQuestionCardProps) {
     const startDate = new Date(question?.startTime || "");
     const endDate = new Date(startDate.getTime() + (question?.seconds || 0) * 1000);
     return (
@@ -27,19 +29,7 @@ export default function CurrentQuestionCard({question, onComplete}: CurrentQuest
                             onComplete={onComplete}
                         />
                     </div>}
-                <p>Question:</p>
-                <p className="mb-5 font-bold">{question?.title}</p>
-                <p>Alternatives:</p>
-                <ul className="ml-5">
-                    {question?.answers.map((answer, i) => {
-                        const className = question?.correctAnswer === i
-                            ? "font-bold list-decimal text-green-700"
-                            : "list-decimal";
-                        return (
-                            <li key={question?.id + "_answer" + i} className={className}>{answer}</li>
-                        )
-                    })}
-                </ul>
+                <ShowQuestionWithAnswer question={question}/>
             </CardContent>
         </Card>
     )

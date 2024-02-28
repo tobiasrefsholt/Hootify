@@ -9,8 +9,9 @@ import {useEffect} from "react";
 import {useDashboardWebSocket} from "@/hooks/useDashboardWebSocket.ts";
 import LeaderboardCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/LeaderboardCard.tsx";
 import GameDetailsCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/GameDetailsCard.tsx";
-import CurrentQuestionCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/CurrentQuestionCard.tsx";
 import ChatCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/ChatCard.tsx";
+import ActiveStateActions
+    from "@/pages/dashboardPage/gamesPage/gameDetailsPage/activeStateCards/ActiveStateActions.tsx";
 
 export default function GameDetailsPage() {
     const {gameId} = useParams();
@@ -33,7 +34,7 @@ export default function GameDetailsPage() {
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/> Return to games</Link>
             <PageHeader>{game.data?.title}</PageHeader>
             <div className="grid grid-cols-2 gap-5">
-                <CurrentQuestionCard question={questionWithAnswer} onComplete={sendAnswer}/>
+                <ActiveStateActions gameState={gameState} questionWithAnswer={questionWithAnswer} sendAnswer={sendAnswer}/>
                 <GameDetailsCard gameState={gameState} game={game.data}/>
                 <LeaderboardCard players={leaderBoard}/>
                 <ChatCard sendChatMessage={sendChatMessage}/>
