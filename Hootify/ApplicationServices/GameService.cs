@@ -95,6 +95,7 @@ public class GameService
         await client.ReceiveGameState(GetState(gameId));
         await client.ReceiveAnswer(GetCurrentQuestionWithAnswer(gameId));
         await client.ReceiveLeaderBoard(GetLeaderBoard(gameId));
+        await client.ReceiveGameOptions(GetGameOptions(gameId));
     }
 
     public async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
@@ -390,6 +391,31 @@ public class GameService
         _dbContext.SaveChanges();
         var viewGame = Get(gameId);
         return viewGame ?? throw new Exception("Game not found");
+    }
+    
+    public ViewModel.GameOptions? GetGameOptions(Guid gameId)
+    {
+        return _dbContext.Games
+            .Where(g => g.Id == gameId)
+            .Select(g => new ViewModel.GameOptions
+            {
+                Title = g.Title,
+                RandomizeQuestions = g.RandomizeQuestions,
+                RandomizeAnswers = g.RandomizeAnswers,
+                SecondsPerQuestion = g.SecondsPerQuestion
+            })
+            .FirstOrDefault();
+    }
+    
+    public async Task UpdateGameOptions(Guid gameId, ViewModel.GameOptions options)
+    {
+        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        if (game == null) return;
+        game.Title = options.Title;
+        game.RandomizeQuestions = options.RandomizeQuestions;
+        game.RandomizeAnswers = options.RandomizeAnswers;
+        game.SecondsPerQuestion = options.SecondsPerQuestion;
+        await _dbContext.SaveChangesAsync();
     }
 
     private string GenerateShareKey()

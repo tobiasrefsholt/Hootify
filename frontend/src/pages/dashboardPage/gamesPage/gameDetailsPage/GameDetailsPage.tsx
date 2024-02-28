@@ -17,11 +17,13 @@ export default function GameDetailsPage() {
     const {gameId} = useParams();
     const game = useFetch<Game>(ApiEndpoint.DashboardGetGame, []);
     const {
+        gameOptions,
         gameState,
         questionWithAnswer,
         leaderBoard,
         sendChatMessage,
-        sendAnswer
+        sendAnswer,
+        updateGameOptions
     } = useDashboardWebSocket(gameId || "");
 
     useEffect(() => {
@@ -32,10 +34,10 @@ export default function GameDetailsPage() {
     return (
         <PageContainer>
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/> Return to games</Link>
-            <PageHeader>{game.data?.title}</PageHeader>
+            <PageHeader>{gameOptions?.title}</PageHeader>
             <div className="grid grid-cols-2 gap-5">
                 <ActiveStateActions gameState={gameState} questionWithAnswer={questionWithAnswer} sendAnswer={sendAnswer}/>
-                <GameDetailsCard gameState={gameState} game={game.data}/>
+                <GameDetailsCard gameState={gameState} game={game.data} gameOptions={gameOptions} onChange={updateGameOptions}/>
                 <LeaderboardCard players={leaderBoard}/>
                 <ChatCard sendChatMessage={sendChatMessage}/>
             </div>

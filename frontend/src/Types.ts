@@ -66,17 +66,21 @@ export type UserContextType = {
     logout: () => void
 };
 
-export type Game = {
-    id: string;
-    shareKey: string;
-    quizId: string;
+export type GameOptions = {
     title: string;
+    quizId: string;
     randomizeQuestions: boolean;
     randomizeAnswers: boolean;
     secondsPerQuestion: number;
+}
+
+export type Game = GameOptions & {
+    id: string;
+    shareKey: string;
     state: GameState;
     currentQuestionId: string;
     currentQuestionNumber: number;
     currentQuestionStartTime: string;
     remainingQuestions: string[];
 }
+

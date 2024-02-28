@@ -56,6 +56,14 @@ public class DashboardHub : Hub<IDashboardHub>
         Console.WriteLine(gameId);
         await _gameService.UpdateDashboardState(gameId);
     }
+    
+    public async Task UpdateGameOptions(ViewModel.GameOptions options)
+    {
+        var gameId = await GetGameId();
+        await _gameService.UpdateGameOptions(gameId, options);
+        await Clients.Group("dashboard_" + gameId).ReceiveGameOptions(options);
+        await Clients.Group("dashboard_" + gameId).ReceiveMessage("Game options updated");
+    }
 
     private async Task<Guid> GetGameId()
     {
