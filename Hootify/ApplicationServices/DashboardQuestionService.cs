@@ -35,7 +35,6 @@ public class DashboardQuestionService
             select new ViewModel.QuestionWithAnswer
             {
                 Id = q.Id,
-                UserId = q.UserId,
                 Title = q.Title,
                 Answers = q.Answers,
                 CorrectAnswer = q.CorrectAnswer,
@@ -52,7 +51,6 @@ public class DashboardQuestionService
             select new ViewModel.QuestionWithAnswer
             {
                 Id = q.Id,
-                UserId = q.UserId,
                 Title = q.Title,
                 Answers = q.Answers,
                 CorrectAnswer = q.CorrectAnswer,
