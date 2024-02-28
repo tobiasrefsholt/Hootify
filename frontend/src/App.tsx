@@ -18,7 +18,7 @@ function App() {
                         fallback={<div className="h-screen w-full flex items-center justify-center"><Loader2/></div>}>
                         <Routes>
                             <Route index element={<FrontPage/>}/>
-                            <Route path="game/*" element={<GamePage/>}/>
+                            <Route path="game/:playerId" element={<GamePage/>}/>
                             <Route path="dashboard/*" element={<DashboardPage/>}/>
                         </Routes>
                     </Suspense>
