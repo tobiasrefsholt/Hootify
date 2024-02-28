@@ -43,6 +43,12 @@ public class DashboardHub : Hub<IDashboardHub>
         var gameId = await GetGameId();
         await _gameService.SendLeaderboard(gameId);
     }
+    
+    public async Task SendAnswer()
+    {
+        var gameId = await GetGameId();
+        await _gameService.HandleFinishedQuestion(gameId);
+    }
 
     public async Task GetFullGameState()
     {
