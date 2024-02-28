@@ -155,6 +155,15 @@ public class GameService
             .ReceiveMessage($"{player!.Name} has joined the game!");
     }
 
+    public async Task SendDisconnectMessage(Guid playerId)
+    {
+        var player = GetPlayer(playerId);
+        var gameId = GetGameIdByPlayer(playerId);
+        await _playerHubContext.Clients
+            .Group(gameId.ToString())
+            .ReceiveMessage($"{player!.Name} has left the game!");
+    }
+
     public async Task AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
     {
         if (!CanAnswerQuestion(playerId, gameId, questionId))
