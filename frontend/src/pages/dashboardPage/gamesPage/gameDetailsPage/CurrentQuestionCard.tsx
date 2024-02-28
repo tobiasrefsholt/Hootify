@@ -7,7 +7,7 @@ type CurrentQuestionCardProps = {
 
 export default function CurrentQuestionCard({question}: CurrentQuestionCardProps) {
     return (
-        <Card>
+        <Card className="bg-neutral-900">
             <CardHeader>Current Question</CardHeader>
             <CardContent>
                 <p>Question:</p>
