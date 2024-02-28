@@ -66,19 +66,19 @@ public class GameService
         switch (gameState)
         {
             case GameState.QuestionInProgress:
-                await SendQuestion(gameId, playerId, recipientGroup);
+                await SendQuestion(gameId, recipientGroup);
                 break;
 
             case GameState.ShowAnswer:
-                await SendAnswer(gameId, playerId, recipientGroup);
+                await SendAnswer(gameId, recipientGroup);
                 break;
 
             case GameState.ShowLeaderboard:
-                await SendLeaderBoard(gameId, playerId, recipientGroup);
+                await SendLeaderBoard(gameId, recipientGroup);
                 break;
 
             case GameState.GameComplete:
-                await SendGameComplete(gameId, playerId, recipientGroup);
+                await SendGameComplete(gameId, recipientGroup);
                 break;
 
             case GameState.WaitingForPlayers:
@@ -86,6 +86,18 @@ public class GameService
                 await SendWaitingPlayers(gameId, recipientGroup);
                 break;
         }
+    }
+
+    public async Task GetFullGameState(Guid gameId)
+    {
+        var recipientGroup = "dashboard_" + gameId;
+
+        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+        var leaderBoard = GetLeaderBoard(gameId);
+        await _dashboardHubContext.Clients.Group(recipientGroup)
+            .ReceiveAnswer(GameState.ShowAnswer, questionWithAnswer);
+        await _dashboardHubContext.Clients.Group(recipientGroup)
+            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderBoard);
     }
 
     private async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
@@ -96,13 +108,13 @@ public class GameService
             .ReceiveWaitingPlayers(GameState.WaitingForPlayers, players);
     }
 
-    private async Task SendQuestion(Guid gameId, Guid playerId, string recipientGroup)
+    private async Task SendQuestion(Guid gameId, string recipientGroup)
     {
         var currentQuestion = GetCurrentQuestion(gameId);
         // Check if question has expired and handle it
         if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
         {
-            await HandleFinishedQuestion(gameId, playerId);
+            await HandleFinishedQuestion(gameId, gameId);
             return;
         }
 
@@ -111,7 +123,7 @@ public class GameService
             .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
     }
 
-    private async Task SendAnswer(Guid gameId, Guid playerId, string recipientGroup)
+    private async Task SendAnswer(Guid gameId, string recipientGroup)
     {
         var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
         await _playerHubContext.Clients
@@ -119,7 +131,7 @@ public class GameService
             .ReceiveAnswer(GameState.ShowAnswer, questionWithAnswer);
     }
 
-    private async Task SendLeaderBoard(Guid gameId, Guid playerId, string recipientGroup)
+    private async Task SendLeaderBoard(Guid gameId, string recipientGroup)
     {
         var leaderBoard = GetLeaderBoard(gameId);
         await _playerHubContext.Clients
@@ -127,7 +139,7 @@ public class GameService
             .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderBoard);
     }
 
-    private async Task SendGameComplete(Guid gameId, Guid playerId, string recipientGroup)
+    private async Task SendGameComplete(Guid gameId, string recipientGroup)
     {
         var leaderBoard = GetLeaderBoard(gameId);
         await _playerHubContext.Clients
