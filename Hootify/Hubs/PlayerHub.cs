@@ -4,16 +4,19 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Hootify.Hubs;
 
-public class PlayerHub : GameHub<IPlayerHub>
+public class PlayerHub : Hub<IPlayerHub>
 {
-    public PlayerHub(GameService gameService) : base(gameService)
+    private readonly GameService _gameService;
+
+    public PlayerHub(GameService gameService)
     {
+        _gameService = gameService;
     }
 
     public override async Task OnConnectedAsync()
     {
         var playerId = await GetPlayerId();
-        var gameId = GameService.GetGameIdByPlayer(playerId);
+        var gameId = _gameService.GetGameIdByPlayer(playerId);
         if (playerId == Guid.Empty || gameId == Guid.Empty)
         {
             await Clients.Client(Context.ConnectionId).ReceiveMessage("Cannot find player with that id");
@@ -22,24 +25,36 @@ public class PlayerHub : GameHub<IPlayerHub>
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
         await Groups.AddToGroupAsync(Context.ConnectionId, playerId.ToString());
-        await GameService.SendWelcomeMessage(playerId, gameId, Context.ConnectionId);
+        await _gameService.SendWelcomeMessage(playerId, gameId, Context.ConnectionId);
         await GetGameState(playerId);
 
         await base.OnConnectedAsync();
+    }
+    
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var playerId = await GetPlayerId();
+        await _gameService.SendDisconnectMessage(playerId);
+        await base.OnDisconnectedAsync(exception);
     }
 
     public async Task AnswerQuestion(Guid questionId, int answerIndex)
     {
         var playerId = await GetPlayerId();
-        var gameId = GameService.GetGameIdByPlayer(playerId);
-        await GameService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
+        var gameId = _gameService.GetGameIdByPlayer(playerId);
+        await _gameService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
     }
 
     public async Task SendChatMessage(string message, string sender)
     {
         var playerId = await GetPlayerId();
-        var gameId = GameService.GetGameIdByPlayer(playerId).ToString();
+        var gameId = _gameService.GetGameIdByPlayer(playerId).ToString();
         await Clients.Group(gameId).ReceiveChat(message, sender);
+    }
+    
+    public async Task GetGameState(Guid playerId)
+    {
+        await _gameService.GetGameState(playerId);
     }
 
     private async Task<Guid> GetPlayerId()

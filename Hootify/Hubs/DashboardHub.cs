@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.SignalR;
 namespace Hootify.Hubs;
 
 [Authorize]
-public class DashboardHub : GameHub<IDashboardHub>
+public class DashboardHub : Hub<IDashboardHub>
 {
-    public DashboardHub(GameService gameService) : base(gameService)
+    private readonly GameService _gameService;
+
+    public DashboardHub(GameService gameService)
     {
+        _gameService = gameService;
     }
 
     public override async Task OnConnectedAsync()
@@ -17,26 +20,29 @@ public class DashboardHub : GameHub<IDashboardHub>
         var gameId = await GetGameId();
 
         await Groups.AddToGroupAsync(Context.ConnectionId, "dashboard_" + gameId);
-
+        await Clients.Group("dashboard_" + gameId).ReceiveMessage("Connected to dashboard hub!");
+        await GetFullGameState();
+        
         await base.OnConnectedAsync();
     }
 
     public async Task SendNextQuestion()
     {
         var gameId = await GetGameId();
-        await GameService.SendNextQuestion(gameId);
+        await _gameService.SendNextQuestion(gameId);
     }
 
     public async Task SendLeaderBoard()
     {
         var gameId = await GetGameId();
-        await GameService.SendLeaderboard(gameId);
+        await _gameService.SendLeaderboard(gameId);
     }
 
     public async Task GetFullGameState()
     {
         var gameId = await GetGameId();
-        await GameService.GetGameState(gameId);
+        Console.WriteLine(gameId);
+        await _gameService.GetFullGameState(gameId);
     }
 
     private async Task<Guid> GetGameId()
