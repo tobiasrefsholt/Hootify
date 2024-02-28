@@ -495,11 +495,14 @@ public class GameService
     private async Task HandleGameComplete(Game game)
     {
         game.State = GameState.GameComplete;
+        game.CurrentQuestionId = Guid.Empty;
+        game.CurrentQuestionStartTime = DateTime.MinValue;
         await _dbContext.SaveChangesAsync();
         
         var clients = _playerHubContext.Clients.Group(game.Id.ToString());
         await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(game.State);
+        await UpdateDashboardState(game.Id);
     }
 
     public ViewModel.Game? Get(Guid gameId)
@@ -548,6 +551,7 @@ public class GameService
         var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
         await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(GameState.ShowLeaderboard);
+        await UpdateDashboardState(gameId);
     }
 
     public async Task SendChatMessage(Guid gameId, string message, string sender)
