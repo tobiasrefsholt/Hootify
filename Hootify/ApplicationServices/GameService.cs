@@ -88,7 +88,7 @@ public class GameService
         }
     }
 
-    public async Task GetFullGameState(Guid gameId)
+    public async Task UpdateDashboardState(Guid gameId)
     {
         var recipientGroup = "dashboard_" + gameId;
 
@@ -173,6 +173,7 @@ public class GameService
         }
 
         await CheckAnswer(playerId, questionId, answer);
+        await _dashboardHubContext.Clients.Group("dashboard_" + gameId).ReceiveLeaderBoard(GameState.QuestionInProgress, GetLeaderBoard(gameId));
 
         var dbAnswer = new GameAnswer
         {
@@ -209,7 +210,7 @@ public class GameService
                     p => p.Score, p => p.Score + 1
                 )
             );
-
+        
         await _playerHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Correct answer");
     }
 
@@ -292,16 +293,23 @@ public class GameService
     {
         var currentQuestionId = CurrentQuestionId(gameId);
 
-        return _dbContext.Questions
-            .Where(q => q.Id == currentQuestionId)
-            .Select(q => new ViewModel.QuestionWithAnswer
+        return (
+            from q in _dbContext.Questions
+            join c in _dbContext.Categories on q.CategoryId equals c.Id
+            join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
+            where (q.Id == currentQuestionId)
+            select new ViewModel.QuestionWithAnswer
             {
                 Id = q.Id,
                 Title = q.Title,
                 Answers = q.Answers,
-                CorrectAnswer = q.CorrectAnswer
-            })
-            .FirstOrDefault();
+                CorrectAnswer = q.CorrectAnswer,
+                Category = c.Name,
+                CategoryId = c.Id,
+                StartTime = g.CurrentQuestionStartTime,
+                Seconds = g.SecondsPerQuestion
+            }
+        ).FirstOrDefault();
     }
 
     private Guid CurrentQuestionId(Guid gameId)
@@ -390,7 +398,10 @@ public class GameService
 
         var gameComplete = game.RemainingQuestions?.Count == 0;
         if (gameComplete)
+        {
             await HandleGameComplete(game);
+            return null;
+        }
 
         var nextQuestion = GetNextQuestion(game);
         if (nextQuestion == null)
@@ -405,7 +416,9 @@ public class GameService
         await _dbContext.SaveChangesAsync();
         nextQuestion.StartTime = timestamp;
         nextQuestion.Seconds = game.SecondsPerQuestion;
-        await _dashboardHubContext.Clients.Groups(game.Id.ToString())
+        
+        await UpdateDashboardState(gameId);
+        await _playerHubContext.Clients.Group(game.Id.ToString())
             .ReceiveNewQuestion(game.State, nextQuestion);
         return nextQuestion;
     }
@@ -440,7 +453,7 @@ public class GameService
     private async Task HandleGameComplete(Game game)
     {
         game.State = GameState.GameComplete;
-        await _dashboardHubContext.Clients.Groups(game.Id.ToString())
+        await _playerHubContext.Clients.Group(game.Id.ToString())
             .ReceiveGameComplete(game.State);
         await _dbContext.SaveChangesAsync();
     }
@@ -489,17 +502,17 @@ public class GameService
         await _dbContext.SaveChangesAsync();
 
         var leaderboard = GetLeaderBoard(game.Id);
-        await _dashboardHubContext.Clients
+        await _playerHubContext.Clients
             .Groups(game.Id.ToString())
             .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderboard);
     }
-    
+
     public async Task SendChatMessage(Guid gameId, string message, string sender)
     {
         await _playerHubContext.Clients
             .Group(gameId.ToString())
             .ReceiveChat(message, sender);
-    
+
         await _dashboardHubContext.Clients
             .Group("dashboard_" + gameId)
             .ReceiveChat(message, sender);

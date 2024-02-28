@@ -22,10 +22,10 @@ public class DashboardHub : Hub<IDashboardHub>
         await Groups.AddToGroupAsync(Context.ConnectionId, "dashboard_" + gameId);
         await Clients.Group("dashboard_" + gameId).ReceiveMessage("Connected to dashboard hub!");
         await GetFullGameState();
-        
+
         await base.OnConnectedAsync();
     }
-    
+
     public async Task SendChatMessage(string message, string sender)
     {
         var gameId = await GetGameId();
@@ -48,7 +48,7 @@ public class DashboardHub : Hub<IDashboardHub>
     {
         var gameId = await GetGameId();
         Console.WriteLine(gameId);
-        await _gameService.GetFullGameState(gameId);
+        await _gameService.UpdateDashboardState(gameId);
     }
 
     private async Task<Guid> GetGameId()
