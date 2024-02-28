@@ -10,6 +10,7 @@ import {useDashboardWebSocket} from "@/hooks/useDashboardWebSocket.ts";
 import LeaderboardCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/LeaderboardCard.tsx";
 import GameDetailsCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/GameDetailsCard.tsx";
 import CurrentQuestionCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/CurrentQuestionCard.tsx";
+import ChatCard from "@/pages/dashboardPage/gamesPage/gameDetailsPage/ChatCard.tsx";
 
 export default function GameDetailsPage() {
     const {gameId} = useParams();
@@ -34,6 +35,7 @@ export default function GameDetailsPage() {
                 <CurrentQuestionCard question={questionWithAnswer}/>
                 <GameDetailsCard gameState={gameState} game={game.data}/>
                 <LeaderboardCard players={leaderBoard}/>
+                <ChatCard sendChatMessage={sendChatMessage}/>
             </div>
         </PageContainer>
     )

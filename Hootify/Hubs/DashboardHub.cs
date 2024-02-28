@@ -25,6 +25,12 @@ public class DashboardHub : Hub<IDashboardHub>
         
         await base.OnConnectedAsync();
     }
+    
+    public async Task SendChatMessage(string message, string sender)
+    {
+        var gameId = await GetGameId();
+        await _gameService.SendChatMessage(gameId, message, sender);
+    }
 
     public async Task SendNextQuestion()
     {

@@ -48,8 +48,8 @@ public class PlayerHub : Hub<IPlayerHub>
     public async Task SendChatMessage(string message, string sender)
     {
         var playerId = await GetPlayerId();
-        var gameId = _gameService.GetGameIdByPlayer(playerId).ToString();
-        await Clients.Group(gameId).ReceiveChat(message, sender);
+        var gameId = _gameService.GetGameIdByPlayer(playerId);
+        await _gameService.SendChatMessage(gameId, message, sender);
     }
     
     public async Task GetGameState(Guid playerId)

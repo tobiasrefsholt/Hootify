@@ -493,6 +493,17 @@ public class GameService
             .Groups(game.Id.ToString())
             .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderboard);
     }
+    
+    public async Task SendChatMessage(Guid gameId, string message, string sender)
+    {
+        await _playerHubContext.Clients
+            .Group(gameId.ToString())
+            .ReceiveChat(message, sender);
+    
+        await _dashboardHubContext.Clients
+            .Group("dashboard_" + gameId)
+            .ReceiveChat(message, sender);
+    }
 
     private ViewModel.Player[] GetLeaderBoard(Guid gameId)
     {
