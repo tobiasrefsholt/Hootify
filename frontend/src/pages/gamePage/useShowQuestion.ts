@@ -6,7 +6,7 @@ type useShowQuestionProps = {
     getGameState: () => void
 }
 
-export default function useShowQuestion({question, getGameState}: useShowQuestionProps) {
+export default function useShowQuestion({question}: useShowQuestionProps) {
 
     const [progressPercentage, setProgressPercentage] = useState(0);
 
@@ -25,7 +25,6 @@ export default function useShowQuestion({question, getGameState}: useShowQuestio
             setProgressPercentage(calculateProgressPercentage());
             if (calculateProgressPercentage() >= 100) {
                 clearInterval(progressInterval);
-                setTimeout(getGameState, 2000);
             }
         }, 500);
 

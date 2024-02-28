@@ -13,7 +13,12 @@ export function useDashboardWebSocket(gameId: string) {
 
     }, [connectionRef]);
 
+    function sendAnswer() {
+        connectionRef.current?.invoke("SendAnswer");
+    }
+
     return {
+        sendAnswer,
         ...stateVariables
     }
 }

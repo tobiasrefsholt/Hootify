@@ -4,9 +4,10 @@ import Countdown, {zeroPad} from "react-countdown";
 
 type CurrentQuestionCardProps = {
     question: QuestionWithAnswer | null
+    onComplete: () => void
 }
 
-export default function CurrentQuestionCard({question}: CurrentQuestionCardProps) {
+export default function CurrentQuestionCard({question, onComplete}: CurrentQuestionCardProps) {
     const startDate = new Date(question?.startTime || "");
     const endDate = new Date(startDate.getTime() + (question?.seconds || 0) * 1000);
     return (
@@ -23,6 +24,7 @@ export default function CurrentQuestionCard({question}: CurrentQuestionCardProps
                                 <span>{zeroPad(minutes)}:{zeroPad(seconds)}</span>
                             )}
                             className="font-bold"
+                            onComplete={onComplete}
                         />
                     </div>}
                 <p>Question:</p>

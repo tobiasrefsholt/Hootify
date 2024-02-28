@@ -19,7 +19,8 @@ export default function GameDetailsPage() {
         gameState,
         questionWithAnswer,
         leaderBoard,
-        sendChatMessage
+        sendChatMessage,
+        sendAnswer
     } = useDashboardWebSocket(gameId || "");
 
     useEffect(() => {
@@ -32,7 +33,7 @@ export default function GameDetailsPage() {
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/> Return to games</Link>
             <PageHeader>{game.data?.title}</PageHeader>
             <div className="grid grid-cols-2 gap-5">
-                <CurrentQuestionCard question={questionWithAnswer}/>
+                <CurrentQuestionCard question={questionWithAnswer} onComplete={sendAnswer}/>
                 <GameDetailsCard gameState={gameState} game={game.data}/>
                 <LeaderboardCard players={leaderBoard}/>
                 <ChatCard sendChatMessage={sendChatMessage}/>
