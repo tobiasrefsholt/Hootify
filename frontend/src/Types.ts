@@ -44,7 +44,6 @@ export type Player = {
 
 export type Question = {
     id: string,
-    userId: string,
     title: string,
     answers: string[],
     category: string,

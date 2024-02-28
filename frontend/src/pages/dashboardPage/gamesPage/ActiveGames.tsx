@@ -17,7 +17,9 @@ export default function ActiveGames() {
             <div className="grid grid-cols-4 gap-5 mt-5">
                 {activeGames.data?.map((game: Game) =>
                     <Card key={game.id}>
-                        <CardHeader className="font-bold">{game.title}</CardHeader>
+                        <CardHeader>
+                            <span className="font-bold truncate">{game.title}</span>
+                        </CardHeader>
                         <CardContent>
                             <p>ShareKey: {game.shareKey}</p>
                             <p>State: {GameState[game.state]}</p>

@@ -21,9 +21,9 @@ export default function LeaderboardCard({players}: LeaderboardCardProps) {
                     <TableBody>
                         {players?.map((player: Player, index: number) =>
                             <TableRow key={player.id}>
-                                <TableCell>{index}</TableCell>
+                                <TableCell>{index+1}</TableCell>
                                 <TableCell>{player.name}</TableCell>
-                                <TableCell className="text-right">{player.score}</TableCell>
+                                <TableCell className="text-right">{player.score}p</TableCell>
                             </TableRow>
                         )}
                     </TableBody>

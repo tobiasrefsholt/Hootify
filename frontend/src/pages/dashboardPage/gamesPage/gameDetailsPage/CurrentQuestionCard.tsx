@@ -1,15 +1,30 @@
 import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {QuestionWithAnswer} from "@/Types.ts";
+import Countdown, {zeroPad} from "react-countdown";
 
 type CurrentQuestionCardProps = {
     question: QuestionWithAnswer | null
 }
 
 export default function CurrentQuestionCard({question}: CurrentQuestionCardProps) {
+    const startDate = new Date(question?.startTime || "");
+    const endDate = new Date(startDate.getTime() + (question?.seconds || 0) * 1000);
     return (
         <Card className="bg-neutral-900">
             <CardHeader>Current Question</CardHeader>
             <CardContent>
+                {question?.startTime &&
+                    <div className="mb-5">
+                        <p>Time left:</p>
+                        <Countdown
+                            autoStart={true}
+                            date={endDate}
+                            renderer={({minutes, seconds}) => (
+                                <span>{zeroPad(minutes)}:{zeroPad(seconds)}</span>
+                            )}
+                            className="font-bold"
+                        />
+                    </div>}
                 <p>Question:</p>
                 <p className="mb-5 font-bold">{question?.title}</p>
                 <p>Alternatives:</p>
