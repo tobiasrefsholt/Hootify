@@ -91,21 +91,18 @@ public class GameService
     public async Task UpdateDashboardState(Guid gameId)
     {
         var recipientGroup = "dashboard_" + gameId;
-
-        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
-        var leaderBoard = GetLeaderBoard(gameId);
-        await _dashboardHubContext.Clients.Group(recipientGroup)
-            .ReceiveAnswer(GameState.ShowAnswer, questionWithAnswer);
-        await _dashboardHubContext.Clients.Group(recipientGroup)
-            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderBoard);
+        var client = _dashboardHubContext.Clients.Group(recipientGroup);
+        await client.ReceiveGameState(GetState(gameId));
+        await client.ReceiveAnswer(GetCurrentQuestionWithAnswer(gameId));
+        await client.ReceiveLeaderBoard(GetLeaderBoard(gameId));
     }
 
     private async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
     {
         var players = GetPlayers(gameId);
-        await _playerHubContext.Clients
-            .Group(recipientGroup)
-            .ReceiveWaitingPlayers(GameState.WaitingForPlayers, players);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveGameState(GameState.WaitingForPlayers);
+        await clients.ReceiveLeaderBoard(players);
     }
 
     private async Task SendQuestion(Guid gameId, string recipientGroup)
@@ -118,33 +115,33 @@ public class GameService
             return;
         }
 
-        await _playerHubContext.Clients
-            .Group(recipientGroup)
-            .ReceiveNewQuestion(GameState.QuestionInProgress, currentQuestion!);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveNewQuestion(currentQuestion);
+        await clients.ReceiveGameState(GameState.QuestionInProgress);
     }
 
     private async Task SendAnswer(Guid gameId, string recipientGroup)
     {
         var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
-        await _playerHubContext.Clients
-            .Group(recipientGroup)
-            .ReceiveAnswer(GameState.ShowAnswer, questionWithAnswer);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveAnswer(questionWithAnswer);
+        await clients.ReceiveGameState(GameState.ShowAnswer);
     }
 
     private async Task SendLeaderBoard(Guid gameId, string recipientGroup)
     {
         var leaderBoard = GetLeaderBoard(gameId);
-        await _playerHubContext.Clients
-            .Group(recipientGroup)
-            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderBoard);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveLeaderBoard(leaderBoard);
+        await clients.ReceiveGameState(GameState.ShowLeaderboard);
     }
 
     private async Task SendGameComplete(Guid gameId, string recipientGroup)
     {
         var leaderBoard = GetLeaderBoard(gameId);
-        await _playerHubContext.Clients
-            .Group(recipientGroup)
-            .ReceiveLeaderBoard(GameState.GameComplete, leaderBoard);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveLeaderBoard(leaderBoard);
+        await clients.ReceiveGameState(GameState.GameComplete);
     }
 
     public async Task SendWelcomeMessage(Guid playerId, Guid gameId, string connectionId)
@@ -159,9 +156,14 @@ public class GameService
     {
         var player = GetPlayer(playerId);
         var gameId = GetGameIdByPlayer(playerId);
+        var message = $"{player!.Name} has left the game!";
+
         await _playerHubContext.Clients
             .Group(gameId.ToString())
-            .ReceiveMessage($"{player!.Name} has left the game!");
+            .ReceiveMessage(message);
+        await _dashboardHubContext.Clients
+            .Group("dashboard_" + gameId)
+            .ReceiveMessage(message);
     }
 
     public async Task AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
@@ -173,7 +175,8 @@ public class GameService
         }
 
         await CheckAnswer(playerId, questionId, answer);
-        await _dashboardHubContext.Clients.Group("dashboard_" + gameId).ReceiveLeaderBoard(GameState.QuestionInProgress, GetLeaderBoard(gameId));
+        var dashboardHub = _dashboardHubContext.Clients.Group("dashboard_" + gameId);
+        await dashboardHub.ReceiveLeaderBoard(GetLeaderBoard(gameId));
 
         var dbAnswer = new GameAnswer
         {
@@ -210,7 +213,7 @@ public class GameService
                     p => p.Score, p => p.Score + 1
                 )
             );
-        
+
         await _playerHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Correct answer");
     }
 
@@ -262,9 +265,9 @@ public class GameService
                 b.SetProperty(g => g.State, GameState.ShowAnswer)
             );
         var currentQuestionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
-        await _playerHubContext.Clients
-            .Group(group.ToString())
-            .ReceiveAnswer(GameState.ShowAnswer, currentQuestionWithAnswer);
+        var clients = _playerHubContext.Clients.Group(group.ToString());
+        await clients.ReceiveAnswer(currentQuestionWithAnswer);
+        await clients.ReceiveGameState(GameState.ShowAnswer);
     }
 
     private ViewModel.Question? GetCurrentQuestion(Guid gameId)
@@ -416,10 +419,11 @@ public class GameService
         await _dbContext.SaveChangesAsync();
         nextQuestion.StartTime = timestamp;
         nextQuestion.Seconds = game.SecondsPerQuestion;
-        
+
         await UpdateDashboardState(gameId);
-        await _playerHubContext.Clients.Group(game.Id.ToString())
-            .ReceiveNewQuestion(game.State, nextQuestion);
+        var clients = _playerHubContext.Clients.Group(game.Id.ToString());
+        await clients.ReceiveNewQuestion(nextQuestion);
+        await clients.ReceiveGameState(GameState.QuestionInProgress);
         return nextQuestion;
     }
 
@@ -453,9 +457,11 @@ public class GameService
     private async Task HandleGameComplete(Game game)
     {
         game.State = GameState.GameComplete;
-        await _playerHubContext.Clients.Group(game.Id.ToString())
-            .ReceiveGameComplete(game.State);
         await _dbContext.SaveChangesAsync();
+        
+        var clients = _playerHubContext.Clients.Group(game.Id.ToString());
+        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
+        await clients.ReceiveGameState(game.State);
     }
 
     public ViewModel.Game? Get(Guid gameId)
@@ -500,11 +506,10 @@ public class GameService
         game.ShareKey = string.Empty;
         game.State = GameState.ShowLeaderboard;
         await _dbContext.SaveChangesAsync();
-
-        var leaderboard = GetLeaderBoard(game.Id);
-        await _playerHubContext.Clients
-            .Groups(game.Id.ToString())
-            .ReceiveLeaderBoard(GameState.ShowLeaderboard, leaderboard);
+        
+        var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
+        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
+        await clients.ReceiveGameState(GameState.ShowLeaderboard);
     }
 
     public async Task SendChatMessage(Guid gameId, string message, string sender)

@@ -33,29 +33,21 @@ export function useWebSocket(url: string) {
             });
         })
 
-        connectionRef.current.on("ReceiveWaitingPlayers", (gameState: GameState, players: Player[]) => {
+        connectionRef.current.on("ReceiveGameState", (gameState: GameState) => {
             setGameState(gameState);
-            setLeaderBoard(players);
         });
 
-        connectionRef.current.on("ReceiveNewQuestion", (gameState: GameState, question: Question) => {
-            setGameState(gameState);
+        connectionRef.current.on("ReceiveNewQuestion", (question: Question) => {
             setQuestion(question);
         });
 
-        connectionRef.current.on("ReceiveAnswer", (gameState: GameState, questionWithAnswer: QuestionWithAnswer) => {
-            setGameState(gameState);
+        connectionRef.current.on("ReceiveAnswer", (questionWithAnswer: QuestionWithAnswer) => {
             setQuestionWithAnswer(questionWithAnswer);
         });
 
-        connectionRef.current.on("ReceiveLeaderBoard", (gameState: GameState, leaderBoard: Player[]) => {
-            setGameState(gameState);
+        connectionRef.current.on("ReceiveLeaderBoard", (leaderBoard: Player[]) => {
             setLeaderBoard(leaderBoard);
         });
-
-        connectionRef.current.on("ReceiveGameComplete", (gameState: GameState) => {
-            setGameState(gameState);
-        })
 
         return () => {
             if (connectionRef.current) {
