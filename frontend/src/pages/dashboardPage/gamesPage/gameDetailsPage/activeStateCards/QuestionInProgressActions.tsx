@@ -13,8 +13,14 @@ type CurrentQuestionCardProps = {
     sendLeaderboard: () => void
 }
 
-export default function QuestionInProgressActions({question, onComplete, sendNextQuestion, sendLeaderboard}: CurrentQuestionCardProps) {
-        const [endDate, setEndDate] = useState<Date>();
+export default function QuestionInProgressActions(
+    {
+        question,
+        onComplete,
+        sendNextQuestion,
+        sendLeaderboard
+    }: CurrentQuestionCardProps) {
+    const [endDate, setEndDate] = useState<Date>();
 
     useEffect(() => {
         if (!question?.id) return;
