@@ -8,7 +8,7 @@ import TableCellActions from "@/pages/dashboardPage/questionsPage/questionsTable
 
 export const tableColumns: ColumnDef<Question>[] = [
     {
-        id: "title",
+        accessorKey: "title",
         header: ({column}) => (
             <DataTableColumnHeader column={column} title={"Title"}/>
         ),
