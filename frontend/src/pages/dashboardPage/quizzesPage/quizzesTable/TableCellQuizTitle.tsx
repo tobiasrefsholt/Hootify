@@ -1,8 +1,8 @@
-import {Question} from "@/Types.ts";
+import {Quiz} from "@/Types.ts";
 import {useNavigate} from "react-router";
 
 type QuestionTitleProps = {
-    row: { original: Question };
+    row: { original: Quiz };
 }
 
 export default function QuestionTitle({row}: QuestionTitleProps) {
