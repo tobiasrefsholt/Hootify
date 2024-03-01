@@ -8,7 +8,7 @@ export default function Navigation() {
                     <Link to="/dashboard" className="text-white">Dashboard</Link>
                 </li>
                 <li>
-                    <Link to="/dashboard/games" className="text-white">Active Games</Link>
+                    <Link to="/dashboard/games" className="text-white">Games</Link>
                 </li>
                 <li>
                     <Link to="/dashboard/quizzes" className="text-white">Quizzes</Link>
