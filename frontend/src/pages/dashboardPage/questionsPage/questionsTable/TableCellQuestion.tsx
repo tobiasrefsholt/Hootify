@@ -1,19 +1,16 @@
 import {Question} from "@/Types.ts";
-import {useNavigate} from "react-router";
+import QuestionSheet from "../questionSheet";
 
 type QuestionTitleProps = {
     row: { original: Question };
 }
 
-export default function QuestionTitle({row}: QuestionTitleProps) {
-    const navigate = useNavigate()
-
+export default function TableCellQuestion({row}: QuestionTitleProps) {
     return (
-        <span
-            className="hover:underline cursor-pointer"
-            onClick={() => navigate(row.original.id)}
-        >
-            {row.original.title}
+        <QuestionSheet question={row.original}>
+        <span className="hover:underline cursor-pointer">
+                {row.original.title}
         </span>
+        </QuestionSheet>
     )
 }

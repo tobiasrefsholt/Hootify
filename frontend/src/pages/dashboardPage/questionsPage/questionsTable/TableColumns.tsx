@@ -3,7 +3,7 @@
 import {ColumnDef} from "@tanstack/react-table"
 import {Question} from "@/Types.ts";
 import {DataTableColumnHeader} from "@/components/ui/dataTable/DataTableColumnHeader.tsx";
-import QuestionTitle from "@/pages/dashboardPage/questionsPage/questionsTable/TableCellQuestion.tsx";
+import TableCellQuestion from "@/pages/dashboardPage/questionsPage/questionsTable/TableCellQuestion.tsx";
 import TableCellActions from "@/pages/dashboardPage/questionsPage/questionsTable/TableCellActions.tsx";
 
 export const tableColumns: ColumnDef<Question>[] = [
@@ -13,7 +13,7 @@ export const tableColumns: ColumnDef<Question>[] = [
             <DataTableColumnHeader column={column} title={"Title"}/>
         ),
         cell: ({row}) => (
-            <QuestionTitle row={row}/>
+            <TableCellQuestion row={row}/>
         )
     },
     {
