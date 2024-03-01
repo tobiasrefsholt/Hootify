@@ -84,3 +84,9 @@ export type Game = GameOptions & {
     remainingQuestions: string[];
 }
 
+export type Quiz = {
+    id: string;
+    title: string;
+    description: string;
+    questionIds: string[];
+}
