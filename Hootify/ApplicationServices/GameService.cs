@@ -83,6 +83,8 @@ public class GameService
 
             case GameState.WaitingForPlayers:
             default:
+                await SendLeaderBoard(gameId, recipientGroup);
+                await _dashboardHubContext.Clients.Group("dashboard_" + gameId).ReceiveLeaderBoard(GetLeaderBoard(gameId));
                 await SendWaitingPlayers(gameId, recipientGroup);
                 break;
         }
