@@ -8,6 +8,7 @@ import {useFetch} from "@/hooks/useFetch.ts";
 import {ApiEndpoint, Game, GameState} from "@/Types.ts";
 import {useEffect} from "react";
 import ArchivedGames from "@/pages/dashboardPage/gamesPage/ArchivedGames.tsx";
+import NewGameModal from "@/pages/dashboardPage/gamesPage/NewGameModal.tsx";
 
 export default function GamesPage() {
     const games = useFetch<Game[]>(ApiEndpoint.DashboardGetAllGames, []);
@@ -25,7 +26,9 @@ export default function GamesPage() {
                     <PageHeader>Games</PageHeader>
                     <div className="space-y-10">
                         <ActiveGames activeGames={activeGames}/>
-                        <Button variant="default">New Game</Button>
+                        <NewGameModal>
+                            <Button variant="default">New Game</Button>
+                        </NewGameModal>
                         <ArchivedGames archivedGames={archivedGames}/>
                     </div>
                 </PageContainer>
