@@ -110,7 +110,7 @@ public static class DashboardEndpoints
                 quizService.Update(quiz);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/new",
+            endpoints.MapPost("/dashboard/game/add",
                 (GameOptions options, GameService gameService) => gameService.New(options)).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/get/{gameId:guid}",
