@@ -9,11 +9,9 @@ import {Checkbox} from "@/components/ui/checkbox.tsx";
 import {Button} from "@/components/ui/button.tsx";
 
 const FormSchema = z.object({
-    name: z.string(),
-    quizId: z.string(),
-    seconds: z.number().refine((value) => value > 0, {
-        message: "You must select a valid duration",
-    }),
+    name: z.string().min(1),
+    quizId: z.string().uuid(),
+    seconds: z.coerce.number().positive().min(2),
     randomizeQuestions: z.boolean(),
     randomizeAnswers: z.boolean(),
 })
