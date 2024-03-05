@@ -1,6 +1,6 @@
 import {Game, GameState} from "@/Types.ts";
 import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card.tsx";
-import {Button} from "@/components/ui/button";
+import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router";
 
 type ActiveGamesProps = {
@@ -25,7 +25,7 @@ export default function ActiveGames({activeGames}: ActiveGamesProps) {
                                     <p>State: {GameState[game.state]}</p>
                                 </CardContent>
                                 <CardFooter className="space-x-2.5">
-                                    <Button variant="secondary" onClick={() => navigate(game.id)}>View</Button>
+                                    <Button variant="secondary" onClick={() => navigate("games/" + game.id)}>View</Button>
                                 </CardFooter>
                             </Card>
                         )

@@ -1,7 +1,7 @@
 import PageContainer from "@/components/ui/pageContainer.tsx";
 import PageHeader from "@/components/ui/pageHeader.tsx";
 import {useUser} from "@/context/userContext.tsx";
-import ActiveGames from "@/pages/dashboardPage/gamesPage/ActiveGames.tsx";
+import ActiveGames from "@/pages/dashboardPage/indexPage/ActiveGames.tsx";
 import {useGames} from "@/context/gamesContext.tsx";
 import {GameState} from "@/Types.ts";
 
