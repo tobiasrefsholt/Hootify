@@ -7,7 +7,7 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    useReactTable,
+    useReactTable, RowSelectionState,
 } from "@tanstack/react-table"
 
 import {
@@ -18,7 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table.tsx"
-import {useState} from "react";
+import {Dispatch, SetStateAction, useState} from "react";
 import {Input} from "@/components/ui/input.tsx";
 import {DataTablePagination} from "@/components/ui/dataTable/DataTablePagination.tsx";
 import {DataTableViewOptions} from "@/components/ui/dataTable/DataTableViewOptions.tsx";
@@ -26,9 +26,11 @@ import {DataTableViewOptions} from "@/components/ui/dataTable/DataTableViewOptio
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    rowSelection: RowSelectionState,
+    setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
 }
 
-export function DataTable<TData, TValue>({columns, data,}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({columns, data, rowSelection, setRowSelection}: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -41,9 +43,11 @@ export function DataTable<TData, TValue>({columns, data,}: DataTableProps<TData,
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        onRowSelectionChange: setRowSelection,
         state: {
             sorting,
             columnFilters,
+            rowSelection,
         },
     })
 
