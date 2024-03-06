@@ -1,5 +1,5 @@
 import {Question} from "@/Types.ts";
-import QuestionSheet from "../questionSheet";
+import QuestionSheet from "@/pages/dashboardPage/questionsPage/editQuestionModal/questionSheet.tsx";
 
 type QuestionTitleProps = {
     row: { original: Question };

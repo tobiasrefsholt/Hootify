@@ -20,7 +20,7 @@ type RemoveQuestionModalProps = {
 export default function RemoveQuestionModal({children, onCanceled, onConfirm}: RemoveQuestionModalProps) {
     return (
         <AlertDialog>
-            <AlertDialogTrigger>
+            <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
             <AlertDialogContent>
