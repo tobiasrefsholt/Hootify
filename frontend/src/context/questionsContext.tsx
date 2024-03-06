@@ -1,12 +1,12 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, Question} from "@/Types.ts";
+import {ApiEndpoint, QuestionWithAnswer} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
 
 type QuestionsContextType = {
-    questions: Question[],
+    questions: QuestionWithAnswer[],
     isPending: boolean,
     error: string | null,
-    add: (question: Question) => void,
+    add: (question: QuestionWithAnswer) => void,
     remove: (id: string) => void
 }
 
@@ -31,7 +31,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         isPending,
         error,
         doFetch
-    } = useFetch<Question[]>(ApiEndpoint.DashboardGetAllQuestions, []);
+    } = useFetch<QuestionWithAnswer[]>(ApiEndpoint.DashboardGetAllQuestions, []);
 
     const addFetch = useFetch<null>(ApiEndpoint.DashboardAddQuestion, []);
     const deleteFetch = useFetch<null>(ApiEndpoint.DashboardDeleteQuestion, []);
@@ -46,17 +46,17 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         doFetch("POST", [], payload);
     }, []);
 
-    function add(question: Question) {
+    function add(question: QuestionWithAnswer) {
         addFetch.doFetch("POST", [], question, () => {
             // Fetch questions after adding
-            doFetch("POST", [], null);
+            doFetch("POST", [], payload);
         });
     }
 
     function remove(id: string) {
         deleteFetch.doFetch("POST", [], {id}, () => {
             // Fetch questions after deleting
-            doFetch("POST", [], null);
+            doFetch("POST", [], payload);
         });
     }
 
