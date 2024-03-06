@@ -121,12 +121,6 @@ public static class DashboardEndpoints
 
             endpoints.MapPost("/dashboard/game/getAll/{gameState}",
                 (GameState gameState, GameService gameService) => gameService.GetAll(gameState)).RequireAuthorization();
-
-            endpoints.MapPost("/dashboard/game/nextQuestion/{gameId:guid}",
-                (Guid gameId, GameService gameService) => gameService.SendNextQuestion(gameId)).RequireAuthorization();
-
-            endpoints.MapPost("/dashboard/game/showLeaderboard/{gameId:guid}",
-                (Guid gameId, GameService gameService) => gameService.SendLeaderboard(gameId)).RequireAuthorization();
         });
     }
 }
