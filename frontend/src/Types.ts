@@ -15,6 +15,10 @@ export enum ApiEndpoint {
     DashboardAddQuestion = "/dashboard/questions/add",
     DashboardDeleteQuestion = "/dashboard/questions/delete",
     DashboardEditQuestion = "/dashboard/questions/edit",
+    DashboardGetAllCategories = "/dashboard/categories/getAll",
+    DashboardAddCategory = "/dashboard/categories/add",
+    DashboardDeleteCategory = "/dashboard/categories/delete",
+    DashboardEditCategory = "/dashboard/categories/edit",
     DashboardGetQuiz = "/dashboard/quiz/get",
     DashboardGetAllQuizzes = "/dashboard/quiz/getAll",
     DashboardAddQuiz = "/dashboard/quiz/add",
@@ -24,8 +28,6 @@ export enum ApiEndpoint {
     DashboardGetAllGames = "/dashboard/game/getAll",
     DashboardAddGame = "/dashboard/game/add",
     DashboardDeleteGame = "/dashboard/game/delete",
-    DashboardNextQuestion = "/dashboard/game/nextQuestion",
-    DashboardShowLeaderboard = "/dashboard/game/showLeaderboard",
 }
 
 export enum GameState {
@@ -50,6 +52,11 @@ export type Question = {
     categoryId: string,
     startTime: string,
     seconds: number
+};
+
+export type Category = {
+    id: string,
+    name: string
 };
 
 export type QuestionWithAnswer = Question & {
