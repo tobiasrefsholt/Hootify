@@ -8,6 +8,7 @@ import {useUser} from "@/context/userContext.tsx";
 import {QuestionsProvider} from "@/context/questionsContext.tsx";
 import {GamesProvider} from "@/context/gamesContext.tsx";
 import {QuizzesProvider} from "@/context/quizzesContext.tsx";
+import {CategoriesProvider} from "@/context/categoriesContext.tsx";
 
 export default function DashboardPage() {
     const {userData} = useUser();
@@ -16,19 +17,21 @@ export default function DashboardPage() {
     return (
         <QuestionsProvider>
             <GamesProvider>
-                <QuizzesProvider>
-                    <div className="flex h-screen overflow-hidden">
-                        <Sidebar/>
-                        <div className="overflow-auto grow">
-                            <Routes>
-                                <Route index={true} element={<IndexPage/>}></Route>
-                                <Route path="games/*" element={<GamesPage/>}></Route>
-                                <Route path="quizzes/*" element={<QuizzesPage/>}></Route>
-                                <Route path="questions/*" element={<QuestionsPage/>}></Route>
-                            </Routes>
+                <CategoriesProvider>
+                    <QuizzesProvider>
+                        <div className="flex h-screen overflow-hidden">
+                            <Sidebar/>
+                            <div className="overflow-auto grow">
+                                <Routes>
+                                    <Route index={true} element={<IndexPage/>}></Route>
+                                    <Route path="games/*" element={<GamesPage/>}></Route>
+                                    <Route path="quizzes/*" element={<QuizzesPage/>}></Route>
+                                    <Route path="questions/*" element={<QuestionsPage/>}></Route>
+                                </Routes>
+                            </div>
                         </div>
-                    </div>
-                </QuizzesProvider>
+                    </QuizzesProvider>
+                </CategoriesProvider>
             </GamesProvider>
         </QuestionsProvider>
     )
