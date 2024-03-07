@@ -70,6 +70,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         deleteFetch.doFetch("POST", [], {id}, () => {
             // Fetch questions after deleting
             doFetch("POST", [], payload);
+            toast("Question deleted");
         });
     }
 

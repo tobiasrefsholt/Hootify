@@ -12,14 +12,16 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 
 type RemoveQuestionModalProps = {
+    open: boolean;
+    setOpen: (open: boolean) => void;
     children: ReactNode;
-    onCanceled: () => void;
-    onConfirmDelete: () => void;
+    onCanceled?: () => void;
+    onConfirmDelete?: () => void;
 };
 
-export default function RemoveQuestionModal({children, onCanceled, onConfirmDelete}: RemoveQuestionModalProps) {
+export default function RemoveQuestionModal({children, onCanceled, onConfirmDelete, open, setOpen}: RemoveQuestionModalProps) {
     return (
-        <AlertDialog>
+        <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>

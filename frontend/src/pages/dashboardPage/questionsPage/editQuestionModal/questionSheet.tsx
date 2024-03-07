@@ -17,10 +17,12 @@ import {useCategories} from "@/context/categoriesContext.tsx";
 type QuestionSheetProps = {
     question: QuestionWithAnswer;
     children: ReactNode;
+    open: boolean;
+    setOpen: (open: boolean) => void;
 }
 
-export default function QuestionSheet({question, children}: QuestionSheetProps) {
-    const [open, setOpen] = useState(false);
+export default function QuestionSheet({question, children, open, setOpen}: QuestionSheetProps) {
+    const [openRemoveModal, setOpenRemoveModal] = useState(false);
     const {edit: editQuestion, remove: removeQuestion} = useQuestions();
     const {categories} = useCategories();
 
@@ -41,10 +43,14 @@ export default function QuestionSheet({question, children}: QuestionSheetProps) 
                         Make changes to your question. All quizzes using this question will be updated.
                     </SheetDescription>
                 </SheetHeader>
-                <EditQuestionForm selectedQuestion={question} categories={categories} questionAction={editQuestion} afterSubmit={() => setOpen(false)}/>
+                <EditQuestionForm selectedQuestion={question} categories={categories} questionAction={editQuestion}
+                                  afterSubmit={() => setOpen(false)}/>
                 <SheetFooter className="mt-2.5">
-                    <RemoveQuestionModal onConfirmDelete={handleDeleteQuestion} onCanceled={() => {
-                    }}>
+                    <RemoveQuestionModal
+                        open={openRemoveModal}
+                        setOpen={setOpenRemoveModal}
+                        onConfirmDelete={handleDeleteQuestion}
+                    >
                         <Button
                             variant="ghost">
                             Remove question
