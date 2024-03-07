@@ -21,7 +21,7 @@ type QuestionSheetProps = {
     setOpen: (open: boolean) => void;
 }
 
-export default function QuestionSheet({question, children, open, setOpen}: QuestionSheetProps) {
+export default function EditQuestionSheet({question, children, open, setOpen}: QuestionSheetProps) {
     const [openRemoveModal, setOpenRemoveModal] = useState(false);
     const {edit: editQuestion, remove: removeQuestion} = useQuestions();
     const {categories} = useCategories();
@@ -43,8 +43,12 @@ export default function QuestionSheet({question, children, open, setOpen}: Quest
                         Make changes to your question. All quizzes using this question will be updated.
                     </SheetDescription>
                 </SheetHeader>
-                <EditQuestionForm selectedQuestion={question} categories={categories} questionAction={editQuestion}
-                                  afterSubmit={() => setOpen(false)}/>
+                <EditQuestionForm
+                    selectedQuestion={question}
+                    categories={categories}
+                    questionAction={editQuestion}
+                    afterSubmit={() => setOpen(false)}
+                />
                 <SheetFooter className="mt-2.5">
                     <RemoveQuestionModal
                         open={openRemoveModal}

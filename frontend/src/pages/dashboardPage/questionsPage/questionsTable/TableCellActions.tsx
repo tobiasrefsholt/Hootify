@@ -8,7 +8,7 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {MoreHorizontal} from "lucide-react";
 import {QuestionWithAnswer} from "@/Types.ts";
-import QuestionSheet from "@/pages/dashboardPage/questionsPage/editQuestionModal/questionSheet.tsx";
+import EditQuestionSheet from "@/pages/dashboardPage/questionsPage/editQuestionModal/editQuestionSheet.tsx";
 import {useState} from "react";
 import RemoveQuestionModal from "@/pages/dashboardPage/questionsPage/removeQuestionModal.tsx";
 import {useQuestions} from "@/context/questionsContext.tsx";
@@ -40,7 +40,7 @@ export default function TableCellActions({row}: TableCellActionsProps) {
                 <DropdownMenuItem onClick={() => setOpenEditSheet(true)}>Edit</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setOpenRemoveModal(true)}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
-            <QuestionSheet
+            <EditQuestionSheet
                 question={row.original}
                 children=""
                 open={openEditSheet}

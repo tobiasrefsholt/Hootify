@@ -5,9 +5,11 @@ import {tableColumns} from "@/pages/dashboardPage/questionsPage/questionsTable/T
 import {useQuestions} from "@/context/questionsContext.tsx";
 import {useEffect, useState} from "react";
 import {RowSelectionState} from "@tanstack/react-table";
+import NewQuestionSheet from "@/pages/dashboardPage/questionsPage/editQuestionModal/newQuestionSheet.tsx";
+import {Button} from "@/components/ui/button.tsx";
 
 export default function QuestionsPage() {
-    const {questions} = useQuestions();
+    const questionsContext = useQuestions();
     const [selectedQuestions, setSelectedQuestions] = useState<RowSelectionState>({});
 
     useEffect(() => {
@@ -17,7 +19,17 @@ export default function QuestionsPage() {
     return (
         <PageContainer>
             <PageHeader>Questions</PageHeader>
-            <DataTable columns={tableColumns} data={questions || []} rowSelection={selectedQuestions} setRowSelection={setSelectedQuestions}/>
+            <div className="mb-10">
+                <NewQuestionSheet>
+                    <Button>Create new</Button>
+                </NewQuestionSheet>
+            </div>
+            <DataTable
+                columns={tableColumns}
+                data={questionsContext.questions || []}
+                rowSelection={selectedQuestions}
+                setRowSelection={setSelectedQuestions}
+            />
         </PageContainer>
     )
 }
