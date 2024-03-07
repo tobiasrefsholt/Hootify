@@ -30,11 +30,12 @@ const FormSchema = z.object({
 
 type editQuestionFormProps = {
     questionId: string;
+    afterSubmit?: () => void;
 }
 
-export function EditQuestionForm({questionId}: editQuestionFormProps) {
+export function EditQuestionForm({questionId, afterSubmit}: editQuestionFormProps) {
     const {categories} = useCategories();
-    const {questions} = useQuestions();
+    const {questions, edit: editQuestion} = useQuestions();
     const selectedQuestion = questions.find(q => q.id === questionId);
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -54,6 +55,14 @@ export function EditQuestionForm({questionId}: editQuestionFormProps) {
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
+        editQuestion({
+            id: questionId,
+            title: data.title,
+            answers: data.answers.map(a => a.answer),
+            correctAnswer: data.correctAnswer,
+            categoryId: data.categoryId
+        })
+        afterSubmit?.();
     }
 
     return (
@@ -84,8 +93,8 @@ export function EditQuestionForm({questionId}: editQuestionFormProps) {
                                             <Input
                                                 {...field}
                                                 className={(form.watch("correctAnswer") === index)
-                                                    ? "border-green-500"
-                                                    : ""}
+                                                    ? "border-green-500 focus-visible:ring-green-500"
+                                                    : "outline-destructive"}
                                             />
                                         </FormControl>
                                     </FormItem>

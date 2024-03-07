@@ -1,12 +1,14 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, QuestionWithAnswer} from "@/Types.ts";
+import {ApiEndpoint, InsertQuestion, QuestionWithAnswer} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
+import {toast} from "sonner";
 
 type QuestionsContextType = {
     questions: QuestionWithAnswer[],
     isPending: boolean,
     error: string | null,
-    add: (question: QuestionWithAnswer) => void,
+    add: (question: InsertQuestion) => void,
+    edit: (question: InsertQuestion) => void,
     remove: (id: string) => void
 }
 
@@ -15,6 +17,8 @@ const QuestionContext = createContext<QuestionsContextType>({
     isPending: true,
     error: null,
     add: () => {
+    },
+    edit: () => {
     },
     remove: () => {
     }
@@ -34,6 +38,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
     } = useFetch<QuestionWithAnswer[]>(ApiEndpoint.DashboardGetAllQuestions, []);
 
     const addFetch = useFetch<null>(ApiEndpoint.DashboardAddQuestion, []);
+    const editFetch = useFetch<null>(ApiEndpoint.DashboardEditQuestion, []);
     const deleteFetch = useFetch<null>(ApiEndpoint.DashboardDeleteQuestion, []);
 
     const payload = {
@@ -46,10 +51,18 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         doFetch("POST", [], payload);
     }, []);
 
-    function add(question: QuestionWithAnswer) {
+    function add(question: InsertQuestion) {
         addFetch.doFetch("POST", [], question, () => {
             // Fetch questions after adding
             doFetch("POST", [], payload);
+        });
+    }
+
+    function edit(question: InsertQuestion) {
+        editFetch.doFetch("POST", [], question, () => {
+            // Fetch questions after change
+            doFetch("POST", [], payload);
+            toast("Question edited");
         });
     }
 
@@ -65,6 +78,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         isPending,
         error,
         add,
+        edit,
         remove
     };
 

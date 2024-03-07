@@ -31,7 +31,7 @@ export default function QuestionSheet({question, children}: QuestionSheetProps) 
                         Make changes to your question. All quizzes using this question will be updated.
                     </SheetDescription>
                 </SheetHeader>
-                <EditQuestionForm questionId={question.id}/>
+                <EditQuestionForm questionId={question.id} afterSubmit={() => setOpen(false)}/>
                 <SheetFooter className="mt-2.5">
                     <RemoveQuestionModal onConfirm={() => setOpen(false)} onCanceled={() => {
                     }}>

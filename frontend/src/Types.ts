@@ -44,6 +44,14 @@ export type Player = {
     score: number
 };
 
+export type InsertQuestion = {
+    id: string,
+    title: string,
+    answers: string[],
+    correctAnswer: number,
+    categoryId: string,
+};
+
 export type Question = {
     id: string,
     title: string,
@@ -54,13 +62,13 @@ export type Question = {
     seconds: number
 };
 
+export type QuestionWithAnswer = Question & {
+    correctAnswer: number
+};
+
 export type Category = {
     id: string,
     name: string
-};
-
-export type QuestionWithAnswer = Question & {
-    correctAnswer: number
 };
 
 export type User = {
