@@ -11,7 +11,7 @@ public class DashboardQuestionService
         _dbContext = dbContext;
     }
 
-    public void Add(ViewModel.QuestionWithAnswer viewQuestion, Guid userId)
+    public void Add(ViewModel.AddQuestion viewQuestion, Guid userId)
     {
         var dbQuestion = new Question
         {

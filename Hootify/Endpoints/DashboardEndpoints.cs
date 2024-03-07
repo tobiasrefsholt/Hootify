@@ -28,7 +28,7 @@ public static class DashboardEndpoints
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/questions/add",
-                (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
+                (AddQuestion question, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext);
                     var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
