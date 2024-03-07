@@ -14,10 +14,10 @@ import {
 type RemoveQuestionModalProps = {
     children: ReactNode;
     onCanceled: () => void;
-    onConfirm: () => void;
+    onConfirmDelete: () => void;
 };
 
-export default function RemoveQuestionModal({children, onCanceled, onConfirm}: RemoveQuestionModalProps) {
+export default function RemoveQuestionModal({children, onCanceled, onConfirmDelete}: RemoveQuestionModalProps) {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -32,7 +32,7 @@ export default function RemoveQuestionModal({children, onCanceled, onConfirm}: R
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={onCanceled}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm}>Delete</AlertDialogAction>
+                    <AlertDialogAction onClick={onConfirmDelete}>Delete</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

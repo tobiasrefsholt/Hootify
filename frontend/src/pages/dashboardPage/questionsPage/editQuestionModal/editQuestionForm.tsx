@@ -4,10 +4,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel} from "@/components/ui/form.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
-import {useQuestions} from "@/context/questionsContext.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {MoreHorizontal} from "lucide-react";
-import {useCategories} from "@/context/categoriesContext.tsx";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,6 +14,7 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import {Category, InsertQuestion, QuestionWithAnswer} from "@/Types.ts";
 
 const FormSchema = z.object({
     title: z.string().min(1),
@@ -29,15 +28,13 @@ const FormSchema = z.object({
 })
 
 type editQuestionFormProps = {
-    questionId: string;
+    selectedQuestion: QuestionWithAnswer;
+    categories: Category[];
+    questionAction: (question: InsertQuestion) => void;
     afterSubmit?: () => void;
 }
 
-export function EditQuestionForm({questionId, afterSubmit}: editQuestionFormProps) {
-    const {categories} = useCategories();
-    const {questions, edit: editQuestion} = useQuestions();
-    const selectedQuestion = questions.find(q => q.id === questionId);
-
+export function EditQuestionForm({selectedQuestion, categories, questionAction, afterSubmit}: editQuestionFormProps) {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -55,8 +52,8 @@ export function EditQuestionForm({questionId, afterSubmit}: editQuestionFormProp
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data);
-        editQuestion({
-            id: questionId,
+        questionAction({
+            id: selectedQuestion.id,
             title: data.title,
             answers: data.answers.map(a => a.answer),
             correctAnswer: data.correctAnswer,

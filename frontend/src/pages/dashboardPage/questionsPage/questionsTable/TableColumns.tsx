@@ -1,13 +1,13 @@
 "use client"
 
 import {ColumnDef} from "@tanstack/react-table"
-import {Question} from "@/Types.ts";
+import {QuestionWithAnswer} from "@/Types.ts";
 import {DataTableColumnHeader} from "@/components/ui/dataTable/DataTableColumnHeader.tsx";
 import TableCellQuestion from "@/pages/dashboardPage/questionsPage/questionsTable/TableCellQuestion.tsx";
 import TableCellActions from "@/pages/dashboardPage/questionsPage/questionsTable/TableCellActions.tsx";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 
-export const tableColumns: ColumnDef<Question>[] = [
+export const tableColumns: ColumnDef<QuestionWithAnswer>[] = [
     {
         id: "select",
         header: ({table}) => (
