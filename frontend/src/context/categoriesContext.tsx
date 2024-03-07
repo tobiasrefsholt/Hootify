@@ -1,14 +1,6 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, Category} from "@/Types.ts";
+import {ApiEndpoint, CategoriesContextType, Category} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
-
-type CategoriesContextType = {
-    categories: Category[],
-    isPending: boolean,
-    error: string | null,
-    add: (category: Category) => void,
-    remove: (id: string) => void
-}
 
 const CategoryContext = createContext<CategoriesContextType>({
     categories: [],

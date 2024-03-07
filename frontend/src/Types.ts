@@ -75,6 +75,39 @@ export type User = {
     email: string
 };
 
+export type CategoriesContextType = {
+    categories: Category[],
+    isPending: boolean,
+    error: string | null,
+    add: (category: Category) => void,
+    remove: (id: string) => void
+}
+
+export type GamesContextType = {
+    games: Game[],
+    isPending: boolean,
+    error: string | null,
+    add: (question: Game) => void,
+    remove: (id: string) => void
+}
+
+export type QuestionsContextType = {
+    questions: QuestionWithAnswer[],
+    isPending: boolean,
+    error: string | null,
+    add: (question: InsertQuestion) => void,
+    edit: (question: InsertQuestion) => void,
+    remove: (id: string) => void
+}
+
+export type QuizzesContextType = {
+    quizzes: Quiz[],
+    isPending: boolean,
+    error: string | null,
+    add: (question: Quiz) => void,
+    remove: (id: string) => void
+}
+
 export type UserContextType = {
     userData: User | null,
     login: (user: User) => void,

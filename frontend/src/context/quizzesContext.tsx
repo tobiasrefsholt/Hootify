@@ -1,14 +1,6 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, Quiz} from "@/Types.ts";
+import {ApiEndpoint, Quiz, QuizzesContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
-
-type QuizzesContextType = {
-    quizzes: Quiz[],
-    isPending: boolean,
-    error: string | null,
-    add: (question: Quiz) => void,
-    remove: (id: string) => void
-}
 
 const QuizContext = createContext<QuizzesContextType>({
     quizzes: [],

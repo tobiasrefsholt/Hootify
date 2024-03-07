@@ -1,14 +1,6 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, Game} from "@/Types.ts";
+import {ApiEndpoint, Game, GamesContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
-
-type GamesContextType = {
-    games: Game[],
-    isPending: boolean,
-    error: string | null,
-    add: (question: Game) => void,
-    remove: (id: string) => void
-}
 
 const GameContext = createContext<GamesContextType>({
     games: [],

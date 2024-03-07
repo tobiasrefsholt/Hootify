@@ -1,16 +1,7 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, InsertQuestion, QuestionWithAnswer} from "@/Types.ts";
+import {ApiEndpoint, InsertQuestion, QuestionsContextType, QuestionWithAnswer} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
 import {toast} from "sonner";
-
-type QuestionsContextType = {
-    questions: QuestionWithAnswer[],
-    isPending: boolean,
-    error: string | null,
-    add: (question: InsertQuestion) => void,
-    edit: (question: InsertQuestion) => void,
-    remove: (id: string) => void
-}
 
 const QuestionContext = createContext<QuestionsContextType>({
     questions: [],
