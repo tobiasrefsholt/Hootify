@@ -89,6 +89,7 @@ export function EditQuestionForm({selectedQuestion, categories, questionAction, 
                                         <FormControl>
                                             <Input
                                                 {...field}
+                                                placeholder={`Alternative ${index + 1}`}
                                                 className={(form.watch("correctAnswer") === index)
                                                     ? "border-green-500 focus-visible:ring-green-500"
                                                     : "outline-destructive"}
