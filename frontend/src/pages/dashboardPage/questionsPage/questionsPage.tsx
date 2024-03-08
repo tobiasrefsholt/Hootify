@@ -20,7 +20,7 @@ export default function QuestionsPage() {
     const {questions} = useQuestions();
     const {quizzes} = useQuizzes();
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    const [newQuestionIsOpen, setnewQuestionIsOpen] = useState(false);
+    const [newQuestionIsOpen, setNewQuestionIsOpen] = useState(false);
 
     const selectedIds = useMemo(() => {
         const indexes = Object.keys(rowSelection);
@@ -43,7 +43,7 @@ export default function QuestionsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => setnewQuestionIsOpen(true)}>
+                                <DropdownMenuItem onClick={() => setNewQuestionIsOpen(true)}>
                                     Add to new quiz
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator/>
@@ -58,7 +58,7 @@ export default function QuestionsPage() {
                         <Button variant="outline">Remove from all quizzes</Button>
                         <NewQuizSheet
                             open={newQuestionIsOpen}
-                            setOpen={setnewQuestionIsOpen}
+                            setOpen={setNewQuestionIsOpen}
                             questionIds={selectedIds}
                             children=""
                         />
