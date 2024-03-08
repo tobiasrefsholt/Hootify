@@ -105,6 +105,7 @@ export type QuizzesContextType = {
     isPending: boolean,
     error: string | null,
     add: (question: Quiz) => void,
+    edit: (question: Quiz) => void,
     remove: (id: string) => void
 }
 
@@ -134,6 +135,12 @@ export type Game = GameOptions & {
 
 export type Quiz = {
     id: string;
+    title: string;
+    description: string;
+    questionIds: string[];
+}
+
+export type InsertQuiz = {
     title: string;
     description: string;
     questionIds: string[];

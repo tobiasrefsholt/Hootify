@@ -1,5 +1,5 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
-import {ApiEndpoint, Quiz, QuizzesContextType} from "@/Types.ts";
+import {ApiEndpoint, InsertQuiz, Quiz, QuizzesContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
 
 const QuizContext = createContext<QuizzesContextType>({
@@ -7,6 +7,8 @@ const QuizContext = createContext<QuizzesContextType>({
     isPending: true,
     error: null,
     add: () => {
+    },
+    edit: () => {
     },
     remove: () => {
     }
@@ -27,6 +29,7 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
 
     const addFetch = useFetch<null>(ApiEndpoint.DashboardAddQuiz, []);
     const deleteFetch = useFetch<null>(ApiEndpoint.DashboardDeleteQuiz, []);
+    const editFetch = useFetch<null>(ApiEndpoint.DashboardEditQuiz, []);
 
     // Fetch questions on mount
     useEffect(() => {
@@ -37,8 +40,15 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
         console.log(quizzes)
     }, [quizzes]);
 
-    function add(game: Quiz) {
-        addFetch.doFetch("POST", [], game, () => {
+    function add(quiz: InsertQuiz) {
+        addFetch.doFetch("POST", [], quiz, () => {
+            // Fetch questions after adding
+            doFetch("POST", [], null);
+        });
+    }
+
+    function edit(quiz: Quiz) {
+        editFetch.doFetch("POST", [], quiz, () => {
             // Fetch questions after adding
             doFetch("POST", [], null);
         });
@@ -56,6 +66,7 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
         isPending,
         error,
         add,
+        edit,
         remove
     };
 
