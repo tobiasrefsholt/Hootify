@@ -18,7 +18,7 @@ public class DashboardQuizService
             Id = Guid.NewGuid(),
             UserId = userId,
             Title = quiz.Title,
-            Description = quiz.Title,
+            Description = quiz.Description,
             QuestionIds = quiz.QuestionIds
         };
         _dbContext.Quizzes.Add(dbQuiz);
