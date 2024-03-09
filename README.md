@@ -1,12 +1,14 @@
 
 # Hootify
 
-A quiz app inspired by Kahoot. Work in progress.
+A quiz game inspired by Kahoot. Work in progress.
+
+Try it out on [hootify.app](https://hootify.app)
 ## Tech Stack
 
-**Client:** React, Vite, TailwindCSS
+**Client:** React, Vite, TailwindCSS, shadcn/ui
 
-**Server:** ASP.NET, Entity Framework, Core Identity, MariaDB
+**Server:** ASP.NET, MariaDB, EF Core, Core Identity, SignalR
 ## Run Locally
 
 Clone the project.
