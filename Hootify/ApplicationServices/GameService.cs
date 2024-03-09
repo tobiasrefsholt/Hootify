@@ -370,30 +370,6 @@ public class GameService
             .Select(p => p.GameId)
             .FirstOrDefault();
     }
-
-    public ViewModel.Game New(ViewModel.GameOptions gameOptions)
-    {
-        var activeQuiz = _dbContext.Quizzes.FirstOrDefault(q => q.Id == gameOptions.QuizId);
-        if (activeQuiz == null) throw new Exception("Quiz not found");
-        var gameId = Guid.NewGuid();
-        var shareKey = GenerateShareKey();
-        var dbGame = new Game
-        {
-            Id = gameId,
-            ShareKey = shareKey,
-            QuizId = gameOptions.QuizId,
-            Title = gameOptions.Title,
-            RandomizeQuestions = gameOptions.RandomizeQuestions,
-            RandomizeAnswers = gameOptions.RandomizeAnswers,
-            SecondsPerQuestion = gameOptions.SecondsPerQuestion,
-            State = GameState.WaitingForPlayers,
-            RemainingQuestions = activeQuiz.QuestionIds
-        };
-        _dbContext.Games.Add(dbGame);
-        _dbContext.SaveChanges();
-        var viewGame = Get(gameId);
-        return viewGame ?? throw new Exception("Game not found");
-    }
     
     public ViewModel.GameOptions? GetGameOptions(Guid gameId)
     {
@@ -418,17 +394,6 @@ public class GameService
         game.RandomizeAnswers = options.RandomizeAnswers;
         game.SecondsPerQuestion = options.SecondsPerQuestion;
         await _dbContext.SaveChangesAsync();
-    }
-
-    private string GenerateShareKey()
-    {
-        while (true)
-        {
-            var key = _random.Next(100000, 999999).ToString();
-            if (_dbContext.Games.Any(g => g.ShareKey == key))
-                continue;
-            return key;
-        }
     }
 
     public async Task<ViewModel.Question?> SendNextQuestion(Guid gameId)
@@ -507,40 +472,7 @@ public class GameService
         await UpdateDashboardState(game.Id);
     }
 
-    public ViewModel.Game? Get(Guid gameId)
-    {
-        return _dbContext.Games
-            .Where(g => g.Id == gameId)
-            .Select(g => new ViewModel.Game
-            {
-                Id = g.Id,
-                ShareKey = g.ShareKey,
-                QuizId = g.QuizId,
-                Title = g.Title,
-                RandomizeQuestions = g.RandomizeQuestions,
-                RandomizeAnswers = g.RandomizeAnswers,
-                SecondsPerQuestion = g.SecondsPerQuestion,
-                State = g.State,
-                CurrentQuestionId = g.CurrentQuestionId,
-                CurrentQuestionNumber = g.CurrentQuestionNumber,
-                CurrentQuestionStartTime = g.CurrentQuestionStartTime,
-                RemainingQuestions = g.RemainingQuestions
-            })
-            .FirstOrDefault();
-    }
-
-    public List<ViewModel.Game> GetAll(GameState? gameState)
-    {
-        if (gameState == null)
-            return _dbContext.Games
-                .Select(g => GetViewModel(g))
-                .ToList();
-
-        return _dbContext.Games
-            .Where(g => g.State == gameState)
-            .Select(g => GetViewModel(g))
-            .ToList();
-    }
+    
 
     public async Task SendLeaderboard(Guid gameId)
     {
@@ -583,25 +515,6 @@ public class GameService
             Id = player.Id,
             Name = player.Name,
             Score = player.Score
-        };
-    }
-
-    private static ViewModel.Game GetViewModel(Game game)
-    {
-        return new ViewModel.Game
-        {
-            Id = game.Id,
-            ShareKey = game.ShareKey,
-            QuizId = game.QuizId,
-            Title = game.Title,
-            RandomizeQuestions = game.RandomizeQuestions,
-            RandomizeAnswers = game.RandomizeAnswers,
-            SecondsPerQuestion = game.SecondsPerQuestion,
-            State = game.State,
-            CurrentQuestionId = game.CurrentQuestionId,
-            CurrentQuestionNumber = game.CurrentQuestionNumber,
-            CurrentQuestionStartTime = game.CurrentQuestionStartTime,
-            RemainingQuestions = game.RemainingQuestions,
         };
     }
 }

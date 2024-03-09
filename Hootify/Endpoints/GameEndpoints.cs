@@ -1,6 +1,4 @@
 using Hootify.ApplicationServices;
-using Hootify.DbModel;
-using Microsoft.AspNetCore.SignalR;
 using Player = Hootify.ViewModel.Player;
 
 namespace Hootify.Endpoints;

@@ -2,36 +2,31 @@ using Hootify.DbModel;
 
 namespace Hootify.ApplicationServices;
 
-public class DashboardQuestionService
+public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpContext)
+    : DashboardService(dbContext, httpContext)
 {
-    private readonly AppDbContext _dbContext;
-
-    public DashboardQuestionService(AppDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
-    public void Add(ViewModel.AddQuestion viewQuestion, Guid userId)
+    public void Add(ViewModel.AddQuestion viewQuestion)
     {
         var dbQuestion = new Question
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
+            UserId = UserId,
             Title = viewQuestion.Title,
             Answers = viewQuestion.Answers,
             CorrectAnswer = viewQuestion.CorrectAnswer,
             CategoryId = viewQuestion.CategoryId
         };
 
-        _dbContext.Add(dbQuestion);
-        _dbContext.SaveChanges();
+        DbContext.Add(dbQuestion);
+        DbContext.SaveChanges();
     }
 
     public ViewModel.QuestionWithAnswer? Get(Guid id)
     {
         return (
-            from q in _dbContext.Questions
-            join c in _dbContext.Categories on q.CategoryId equals c.Id
+            from q in DbContext.Questions
+            where q.UserId == UserId
+            join c in DbContext.Categories on q.CategoryId equals c.Id
             select new ViewModel.QuestionWithAnswer
             {
                 Id = q.Id,
@@ -46,8 +41,9 @@ public class DashboardQuestionService
     public List<ViewModel.QuestionWithAnswer> GetAll()
     {
         var questions = (
-            from q in _dbContext.Questions
-            join c in _dbContext.Categories on q.CategoryId equals c.Id
+            from q in DbContext.Questions
+            where q.UserId == UserId
+            join c in DbContext.Categories on q.CategoryId equals c.Id
             select new ViewModel.QuestionWithAnswer
             {
                 Id = q.Id,
@@ -62,20 +58,24 @@ public class DashboardQuestionService
 
     public void Update(ViewModel.QuestionWithAnswer question)
     {
-        var dbQuestion = _dbContext.Questions.FirstOrDefault(e => e.Id == question.Id);
+        var dbQuestion = DbContext.Questions
+            .Where(q => q.UserId == UserId)
+            .FirstOrDefault(e => e.Id == question.Id);
         if (dbQuestion == null) return;
         dbQuestion.Title = question.Title;
         dbQuestion.Answers = question.Answers;
         dbQuestion.CorrectAnswer = question.CorrectAnswer;
         dbQuestion.CategoryId = question.CategoryId;
-        _dbContext.SaveChanges();
+        DbContext.SaveChanges();
     }
 
     public void Delete(Guid id)
     {
-        var question = _dbContext.Questions.FirstOrDefault(e => e.Id == id);
+        var question = DbContext.Questions
+            .Where(q => q.UserId == UserId)
+            .FirstOrDefault(e => e.Id == id);
         if (question == null) return;
-        _dbContext.Questions.Remove(question);
-        _dbContext.SaveChanges();
+        DbContext.Questions.Remove(question);
+        DbContext.SaveChanges();
     }
 }

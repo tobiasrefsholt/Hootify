@@ -1,43 +1,27 @@
-using System.Security.Claims;
 using Hootify.DbModel;
 
 namespace Hootify.ApplicationServices;
 
-public class DashboardCategoryService
+public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpContext)
+    : DashboardService(dbContext, httpContext)
 {
-    private readonly AppDbContext _dbContext;
-
-    public DashboardCategoryService(AppDbContext dbContext)
+    public void Add(ViewModel.Category category)
     {
-        _dbContext = dbContext;
-    }
-
-    public void Add(ViewModel.Category category, Guid userId)
-    {
-        var dbcategory = new Category
+        var dbCategory = new Category
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
+            UserId = UserId,
             Name = category.Name
         };
-        _dbContext.Categories.Add(dbcategory);
-        _dbContext.SaveChanges();
-    }
-
-    public ViewModel.Category? Get(Guid id)
-    {
-        var dbCategory = _dbContext.Categories.FirstOrDefault(e => e.Id == id);
-        if (dbCategory == null) return null;
-        return new ViewModel.Category
-        {
-            Id = dbCategory.Id,
-            Name = dbCategory.Name
-        };
+        DbContext.Categories.Add(dbCategory);
+        DbContext.SaveChanges();
     }
 
     public List<ViewModel.Category> GetAll()
     {
-        var dbCategories =  _dbContext.Categories.ToList<Category>();
+        var dbCategories =  DbContext.Categories
+            .Where(c => c.UserId == UserId)
+            .ToList<Category>();
         return dbCategories.Select(c => new ViewModel.Category
         {
             Id = c.Id,
@@ -47,16 +31,21 @@ public class DashboardCategoryService
 
     public void Update(ViewModel.Category category)
     {
-        var dbCategory = _dbContext.Categories.FirstOrDefault(e => e.Id == category.Id);
+        var dbCategory = DbContext.Categories
+            .Where(c => c.UserId == UserId)
+            .FirstOrDefault(e => e.Id == category.Id);
+        if (dbCategory == null) return;
         dbCategory.Name = category.Name;
-        _dbContext.SaveChanges();
+        DbContext.SaveChanges();
     }
 
     public void Delete(Guid id)
     {
-        var dbCategory = _dbContext.Categories.FirstOrDefault(c => c.Id == id);
+        var dbCategory = DbContext.Categories
+            .Where(c => c.UserId == UserId)
+            .FirstOrDefault(c => c.Id == id);
         if (dbCategory == null) return;
-        _dbContext.Categories.Remove(dbCategory);
-        _dbContext.SaveChanges();
+        DbContext.Categories.Remove(dbCategory);
+        DbContext.SaveChanges();
     }
 }

@@ -1,4 +1,3 @@
-using Hootify;
 using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.Endpoints;

@@ -3,6 +3,7 @@ namespace Hootify.DbModel;
 public class Game
 {
     public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     public string ShareKey { get; set; }
     public Guid QuizId { get; set; }
     public string Title { get; set; }
