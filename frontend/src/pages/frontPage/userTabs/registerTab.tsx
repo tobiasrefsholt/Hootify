@@ -48,7 +48,7 @@ const FormSchema = z.object({
 export default function RegisterTab() {
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(true);
+    const [success, setSuccess] = useState(false);
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -89,14 +89,18 @@ export default function RegisterTab() {
                 },
                 body: JSON.stringify(data)
             });
+
             setIsPending(false);
-            const json = await response.json() as RegisterErrorResponse | true;
+
             // Handle successful response
-            if (json === true) {
+            if (response.status === 200) {
                 setSuccess(true)
                 return;
             }
+
             // Handle error response
+            if (!response.ok) throw new Error();
+            const json = await response.json() as RegisterErrorResponse;
             showErrorResponse(json.errors);
         } catch (e) {
             setError("Something went wrong. Please try again later.");
