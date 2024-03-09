@@ -15,7 +15,7 @@ export function UserTabsCard() {
     const {userData} = useUser();
     const [tab, setTab] = useState("register");
     return (
-        <Card className="w-80">
+        <Card className="w-full sm:w-80">
             <CardHeader>
                 <CardTitle>Access dashboard</CardTitle>
                 <CardDescription>Create a new account or log in to host your own quiz!</CardDescription>

@@ -29,7 +29,7 @@ export default function JoinGameCard() {
     }, [player?.id])
 
     return (
-        <Card className="w-80">
+        <Card className="w-full sm:w-80">
             <form action="" onSubmit={handleJoinGame}>
                 <CardHeader>
                     <CardTitle>Join game</CardTitle>

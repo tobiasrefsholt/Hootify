@@ -8,7 +8,7 @@ export default function LoggedInTab() {
     return (
         <>
             <h2>Welcome back, {user.userData?.email}</h2>
-            <div className="space-x-2.5 mt-5">
+            <div className="flex gap-2.5 flex-wrap mt-5">
                 <Button variant="secondary" onClick={() => navigate("/dashboard")}>
                     Open dashboard
                 </Button>
