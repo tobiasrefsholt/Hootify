@@ -4,6 +4,28 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {ApiEndpoint} from "@/Types.ts";
+import {useState} from "react";
+import {Loader2} from "lucide-react";
+
+type RegisterErrorResponse = {
+    type: string;
+    title: string;
+    status: number;
+    errors: ErrorObject;
+}
+
+type ErrorObject = {
+    InvalidEmail?: string[];
+    DuplicateEmail?: string[];
+    DuplicateUserName?: string[];
+    PasswordTooShort?: string[];
+    PasswordRequiresNonAlphanumeric?: string[];
+    PasswordRequiresDigit?: string[];
+    PasswordRequiresLower?: string[];
+    PasswordRequiresUpper?: string[];
+    PasswordRequiresUniqueChars?: string[];
+}
 
 const FormSchema = z.object({
     email: z.string().email(),
@@ -24,6 +46,10 @@ const FormSchema = z.object({
 });
 
 export default function RegisterTab() {
+    const [isPending, setIsPending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(true);
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -32,9 +58,60 @@ export default function RegisterTab() {
         }
     })
 
-    function onsubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
+    function showErrorResponse(errors: ErrorObject) {
+        for (const key in errors) {
+            if (key.includes("Password")) {
+                const passwordErrors = errors[key as keyof ErrorObject];
+                if (!passwordErrors) continue;
+                form.setError("password", {
+                    message: passwordErrors[0]
+                })
+            }
+            if (key.includes("Email") || key.includes("UserName")) {
+                const emailErrors = errors[key as keyof ErrorObject];
+                if (!emailErrors) continue;
+                form.setError("email", {
+                    message: emailErrors[0]
+                })
+            }
+        }
     }
+
+    async function onsubmit(data: z.infer<typeof FormSchema>) {
+        setIsPending(true);
+        setError(null);
+        try {
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + ApiEndpoint.Register, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            setIsPending(false);
+            const json = await response.json() as RegisterErrorResponse | true;
+            // Handle successful response
+            if (json === true) {
+                setSuccess(true)
+                return;
+            }
+            // Handle error response
+            showErrorResponse(json.errors);
+        } catch (e) {
+            setError("Something went wrong. Please try again later.");
+            setIsPending(false);
+            return;
+        }
+    }
+
+    // If registration was successful, show success message
+    if (success) return (
+        <>
+            <h3 className="text-lg font-bold mt-5">Registration successful!</h3>
+            <p>Please check your email to verify the account.</p>
+        </>
+    )
 
     return (
         <Form {...form}>
@@ -65,8 +142,9 @@ export default function RegisterTab() {
                         </FormItem>
                     )}
                 />
+                {error && <FormMessage>{error}</FormMessage>}
                 <Button variant="secondary">
-                    Register
+                    {isPending ? <Loader2/> : "Register"}
                 </Button>
             </form>
         </Form>
