@@ -3,7 +3,9 @@ using Hootify.ApplicationServices;
 using Hootify.DbModel;
 using Hootify.Endpoints;
 using Hootify.Hubs;
+using Hootify.Properties;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,11 +32,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<GameService>();
+builder.Services.Configure<Brevo>(
+    builder.Configuration.GetSection("Brevo"));
+builder.Services.AddTransient<IEmailSender, EmailService>();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {
-        // Configure identity options if needed
-        //options.SignIn.RequireConfirmedEmail = true;
+        options.SignIn.RequireConfirmedEmail = true;
         options.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<AuthDbContext>();
