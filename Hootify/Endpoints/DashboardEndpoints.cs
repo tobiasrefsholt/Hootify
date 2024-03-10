@@ -99,20 +99,20 @@ public static class DashboardEndpoints
             endpoints.MapPost("/dashboard/quiz/delete", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                quizService.Delete(quiz.Id);
+                return quizService.Delete(quiz.Id);
             }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/quiz/edit", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                quizService.Update(quiz);
+                return quizService.Update(quiz);
             }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/add",
                 (GameOptions gameOptions, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var service = new DashboardGameService(dbContext, httpContext);
-                    service.New(gameOptions);
+                    return service.New(gameOptions);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/game/get/{gameId:guid}",

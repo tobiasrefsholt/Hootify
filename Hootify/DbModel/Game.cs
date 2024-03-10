@@ -15,4 +15,23 @@ public class Game
     public int CurrentQuestionNumber { get; set; }
     public DateTime CurrentQuestionStartTime { get; set; }
     public List<Guid>? RemainingQuestions { get; set; }
+
+    public Game(Guid id, Guid userId, string shareKey, Guid quizId, string title, bool randomizeQuestions,
+        bool randomizeAnswers, int secondsPerQuestion, GameState state, List<Guid>? remainingQuestions)
+    {
+        Id = id;
+        UserId = userId;
+        ShareKey = shareKey;
+        QuizId = quizId;
+        Title = title;
+        RandomizeQuestions = randomizeQuestions;
+        RandomizeAnswers = randomizeAnswers;
+        SecondsPerQuestion = secondsPerQuestion;
+        State = state;
+        RemainingQuestions = remainingQuestions;
+    }
+
+    public Game()
+    {
+    }
 }

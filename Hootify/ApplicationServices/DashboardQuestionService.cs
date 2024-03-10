@@ -7,54 +7,40 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
 {
     public void Add(ViewModel.AddQuestion viewQuestion)
     {
-        var dbQuestion = new Question
-        {
-            Id = Guid.NewGuid(),
-            UserId = UserId,
-            Title = viewQuestion.Title,
-            Answers = viewQuestion.Answers,
-            CorrectAnswer = viewQuestion.CorrectAnswer,
-            CategoryId = viewQuestion.CategoryId
-        };
-
+        var dbQuestion = new Question(
+            Guid.NewGuid(),
+            UserId,
+            viewQuestion.Title,
+            viewQuestion.Answers,
+            viewQuestion.CorrectAnswer,
+            viewQuestion.CategoryId
+        );
         DbContext.Add(dbQuestion);
         DbContext.SaveChanges();
     }
 
-    public ViewModel.QuestionWithAnswer? Get(Guid id)
+    private IQueryable<ViewModel.QuestionWithAnswer> QuestionsWithAnswerQuery(Guid? id)
     {
-        return (
+        return
             from q in DbContext.Questions
-            where q.UserId == UserId
             join c in DbContext.Categories on q.CategoryId equals c.Id
-            select new ViewModel.QuestionWithAnswer
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                CorrectAnswer = q.CorrectAnswer,
-                Category = c.Name,
-                CategoryId = q.CategoryId
-            }).FirstOrDefault(q => q.Id == id);
+            where q.UserId == UserId
+            where id == null || q.Id == id
+            select new ViewModel.QuestionWithAnswer(
+                q.Id,
+                q.Title,
+                q.Answers,
+                c.Name,
+                q.CategoryId,
+                q.CorrectAnswer
+            );
     }
 
-    public List<ViewModel.QuestionWithAnswer> GetAll()
-    {
-        var questions = (
-            from q in DbContext.Questions
-            where q.UserId == UserId
-            join c in DbContext.Categories on q.CategoryId equals c.Id
-            select new ViewModel.QuestionWithAnswer
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                CorrectAnswer = q.CorrectAnswer,
-                Category = c.Name,
-                CategoryId = q.CategoryId
-            }).ToList();
-        return questions;
-    }
+    public ViewModel.QuestionWithAnswer? Get(Guid id) =>
+        QuestionsWithAnswerQuery(id).FirstOrDefault();
+
+    public List<ViewModel.QuestionWithAnswer> GetAll() =>
+        QuestionsWithAnswerQuery(null).ToList();
 
     public void Update(ViewModel.QuestionWithAnswer question)
     {

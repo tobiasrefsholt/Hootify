@@ -7,26 +7,17 @@ public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpCo
 {
     public void Add(ViewModel.Category category)
     {
-        var dbCategory = new Category
-        {
-            Id = Guid.NewGuid(),
-            UserId = UserId,
-            Name = category.Name
-        };
+        var dbCategory = new Category(Guid.NewGuid(), UserId, category.Name);
         DbContext.Categories.Add(dbCategory);
         DbContext.SaveChanges();
     }
 
     public List<ViewModel.Category> GetAll()
     {
-        var dbCategories =  DbContext.Categories
+        return DbContext.Categories
             .Where(c => c.UserId == UserId)
-            .ToList<Category>();
-        return dbCategories.Select(c => new ViewModel.Category
-        {
-            Id = c.Id,
-            Name = c.Name
-        }).ToList();
+            .Select(c => new ViewModel.Category(c.Id, c.Name))
+            .ToList();
     }
 
     public void Update(ViewModel.Category category)

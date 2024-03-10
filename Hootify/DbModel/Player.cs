@@ -6,4 +6,16 @@ public class Player
     public Guid GameId { get; set; }
     public string Name { get; set; }
     public int Score { get; set; }
+
+    public Player(Guid id, Guid gameId, string name, int score)
+    {
+        Id = id;
+        GameId = gameId;
+        Name = name;
+        Score = score;
+    }
+
+    public Player()
+    {
+    }
 }

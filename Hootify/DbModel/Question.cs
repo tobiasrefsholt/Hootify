@@ -8,4 +8,18 @@ public class Question
     public string[] Answers { get; set; }
     public int CorrectAnswer { get; set; }
     public Guid CategoryId { get; set; }
+
+    public Question(Guid id, Guid userId, string title, string[] answers, int correctAnswer, Guid categoryId)
+    {
+        Id = id;
+        UserId = userId;
+        Title = title;
+        Answers = answers;
+        CorrectAnswer = correctAnswer;
+        CategoryId = categoryId;
+    }
+
+    public Question()
+    {
+    }
 }

@@ -22,15 +22,10 @@ public class GameService
         _dashboardHubContext = dashboardHubContext;
     }
 
-    public ViewModel.Game? GetGameByPin(string shareKey)
+    public Guid? GetGameByPin(string shareKey)
     {
         var dbGame = _dbContext.Games.FirstOrDefault(g => g.ShareKey == shareKey);
-        if (dbGame == null) return null;
-        return new ViewModel.Game
-        {
-            Id = dbGame.Id,
-            Title = dbGame.Title
-        };
+        return dbGame?.Id;
     }
 
     public ViewModel.Player? AddPlayerToGame(Guid gameId, ViewModel.Player player)
@@ -49,12 +44,7 @@ public class GameService
         _dbContext.Players.Add(dbPlayer);
         _dbContext.SaveChanges();
 
-        return new ViewModel.Player
-        {
-            Id = dbPlayer.Id,
-            Name = dbPlayer.Name,
-            Score = dbPlayer.Score
-        };
+        return new ViewModel.Player(dbPlayer.Id, dbPlayer.Name, dbPlayer.Score);
     }
 
     public async Task GetGameState(Guid playerId)
@@ -84,7 +74,8 @@ public class GameService
             case GameState.WaitingForPlayers:
             default:
                 await SendLeaderBoard(gameId, recipientGroup);
-                await _dashboardHubContext.Clients.Group("dashboard_" + gameId).ReceiveLeaderBoard(GetLeaderBoard(gameId));
+                await _dashboardHubContext.Clients.Group("dashboard_" + gameId)
+                    .ReceiveLeaderBoard(GetLeaderBoard(gameId));
                 await SendWaitingPlayers(gameId, recipientGroup);
                 break;
         }
@@ -181,7 +172,7 @@ public class GameService
 
         // Check if answer is correct, update player score and send message
         await CheckAnswer(playerId, questionId, answer);
-        
+
         // Send updated leaderboard to dashboard
         var dashboardHub = _dashboardHubContext.Clients.Group("dashboard_" + gameId);
         await dashboardHub.ReceiveLeaderBoard(GetLeaderBoard(gameId));
@@ -274,13 +265,13 @@ public class GameService
             .ExecuteUpdateAsync(b =>
                 b.SetProperty(g => g.State, GameState.ShowAnswer)
             );
-        
+
         // Send answer to players
         var currentQuestionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
         var clients = _playerHubContext.Clients.Group(gameId.ToString());
         await clients.ReceiveAnswer(currentQuestionWithAnswer);
         await clients.ReceiveGameState(GameState.ShowAnswer);
-        
+
         // Update dashboard state
         await UpdateDashboardState(gameId);
     }
@@ -294,16 +285,13 @@ public class GameService
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
             where (q.Id == currentQuestionId)
-            select new ViewModel.Question
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                Category = c.Name,
-                CategoryId = c.Id,
-                StartTime = g.CurrentQuestionStartTime,
-                Seconds = g.SecondsPerQuestion
-            }
+            select new ViewModel.Question(g.Id,
+                g.Title,
+                q.Answers,
+                c.Name,
+                c.Id,
+                g.CurrentQuestionStartTime,
+                g.SecondsPerQuestion)
         ).FirstOrDefault();
     }
 
@@ -316,17 +304,16 @@ public class GameService
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
             where (q.Id == currentQuestionId)
-            select new ViewModel.QuestionWithAnswer
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                CorrectAnswer = q.CorrectAnswer,
-                Category = c.Name,
-                CategoryId = c.Id,
-                StartTime = g.CurrentQuestionStartTime,
-                Seconds = g.SecondsPerQuestion
-            }
+            select new ViewModel.QuestionWithAnswer(
+                g.Id,
+                g.Title,
+                q.Answers,
+                c.Name,
+                c.Id,
+                g.CurrentQuestionStartTime,
+                g.SecondsPerQuestion,
+                q.CorrectAnswer
+            )
         ).FirstOrDefault();
     }
 
@@ -370,21 +357,20 @@ public class GameService
             .Select(p => p.GameId)
             .FirstOrDefault();
     }
-    
+
     public ViewModel.GameOptions? GetGameOptions(Guid gameId)
     {
         return _dbContext.Games
             .Where(g => g.Id == gameId)
-            .Select(g => new ViewModel.GameOptions
-            {
-                Title = g.Title,
-                RandomizeQuestions = g.RandomizeQuestions,
-                RandomizeAnswers = g.RandomizeAnswers,
-                SecondsPerQuestion = g.SecondsPerQuestion
-            })
+            .Select(g => new ViewModel.GameOptions(gameId,
+                g.Title,
+                g.RandomizeQuestions,
+                g.RandomizeAnswers,
+                g.SecondsPerQuestion
+            ))
             .FirstOrDefault();
     }
-    
+
     public async Task UpdateGameOptions(Guid gameId, ViewModel.GameOptions options)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
@@ -446,16 +432,15 @@ public class GameService
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals nextQuestionId
             where (q.Id == nextQuestionId)
-            select new ViewModel.Question
-            {
-                Id = q.Id,
-                Title = q.Title,
-                Answers = q.Answers,
-                Category = c.Name,
-                CategoryId = c.Id,
-                StartTime = g.CurrentQuestionStartTime,
-                Seconds = g.SecondsPerQuestion
-            }
+            select new ViewModel.Question(
+                g.Id,
+                g.Title,
+                q.Answers,
+                c.Name,
+                c.Id,
+                g.CurrentQuestionStartTime,
+                g.SecondsPerQuestion
+            )
         ).FirstOrDefault();
     }
 
@@ -465,14 +450,12 @@ public class GameService
         game.CurrentQuestionId = Guid.Empty;
         game.CurrentQuestionStartTime = DateTime.MinValue;
         await _dbContext.SaveChangesAsync();
-        
+
         var clients = _playerHubContext.Clients.Group(game.Id.ToString());
         await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(game.State);
         await UpdateDashboardState(game.Id);
     }
-
-    
 
     public async Task SendLeaderboard(Guid gameId)
     {
@@ -481,7 +464,7 @@ public class GameService
         game.ShareKey = string.Empty;
         game.State = GameState.ShowLeaderboard;
         await _dbContext.SaveChangesAsync();
-        
+
         var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
         await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(GameState.ShowLeaderboard);
@@ -508,13 +491,8 @@ public class GameService
             .ToArray();
     }
 
-    private static ViewModel.Player GetViewModel(DbModel.Player player)
+    private static ViewModel.Player GetViewModel(Player player)
     {
-        return new ViewModel.Player
-        {
-            Id = player.Id,
-            Name = player.Name,
-            Score = player.Score
-        };
+        return new ViewModel.Player(player.Id, player.Name, player.Score);
     }
 }

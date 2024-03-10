@@ -7,14 +7,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
 {
     public void Add(ViewModel.Quiz quiz)
     {
-        var dbQuiz = new Quiz
-        {
-            Id = Guid.NewGuid(),
-            UserId = UserId,
-            Title = quiz.Title,
-            Description = quiz.Description,
-            QuestionIds = quiz.QuestionIds
-        };
+        var dbQuiz = new Quiz(Guid.NewGuid(), UserId, quiz.Title, quiz.Description, quiz.QuestionIds);
         DbContext.Quizzes.Add(dbQuiz);
         DbContext.SaveChanges();
     }
@@ -24,14 +17,9 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         var dbQuiz = DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .FirstOrDefault(e => e.Id == id);
-        if (dbQuiz == null) return null;
-        return new ViewModel.Quiz
-        {
-            Id = dbQuiz.Id,
-            Title = dbQuiz.Title,
-            Description = dbQuiz.Description,
-            QuestionIds = dbQuiz.QuestionIds
-        };
+        return dbQuiz != null
+            ? new ViewModel.Quiz(dbQuiz.Id, dbQuiz.Title, dbQuiz.Description, dbQuiz.QuestionIds)
+            : null;
     }
 
     public List<ViewModel.Quiz> GetAll()
@@ -39,16 +27,12 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         var dbQuizzes = DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .ToList();
-        return dbQuizzes.Select(q => new ViewModel.Quiz
-        {
-            Id = q.Id,
-            Title = q.Title,
-            Description = q.Description,
-            QuestionIds = q.QuestionIds
-        }).ToList();
+        return dbQuizzes
+            .Select(q => new ViewModel.Quiz(q.Id, q.Title, q.Description, q.QuestionIds))
+            .ToList();
     }
 
-    public void Update(ViewModel.Quiz quiz)
+    public bool Update(ViewModel.Quiz quiz)
     {
         var dbQuiz = DbContext.Quizzes
             .Where(q => q.UserId == UserId)
@@ -56,16 +40,18 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         dbQuiz.Title = quiz.Title;
         dbQuiz.Description = quiz.Description;
         dbQuiz.QuestionIds = quiz.QuestionIds;
-        DbContext.SaveChanges();
+        var changes = DbContext.SaveChanges();
+        return changes > 0;
     }
 
-    public void Delete(Guid id)
+    public bool Delete(Guid id)
     {
         var dbQuiz = DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .FirstOrDefault(q => q.Id == id);
-        if (dbQuiz == null) return;
+        if (dbQuiz == null) return false;
         DbContext.Quizzes.Remove(dbQuiz);
-        DbContext.SaveChanges();
+        var changes = DbContext.SaveChanges();
+        return changes > 0;
     }
 }
