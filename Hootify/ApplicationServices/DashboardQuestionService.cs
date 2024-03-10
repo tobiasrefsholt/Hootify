@@ -76,6 +76,10 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
             .FirstOrDefault(e => e.Id == id);
         if (question == null) return;
         DbContext.Questions.Remove(question);
+        DbContext.Quizzes
+            .Where(q => q.UserId == UserId)
+            .ToList()
+            .ForEach(q => q.QuestionIds.Remove(id));
         DbContext.SaveChanges();
     }
 }
