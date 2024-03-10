@@ -98,10 +98,15 @@ export default function RegisterTab() {
                 return;
             }
 
+            if (response.status === 400) {
+                const json = await response.json() as RegisterErrorResponse;
+                showErrorResponse(json.errors);
+                return;
+            }
+
             // Handle error response
             if (!response.ok) throw new Error();
-            const json = await response.json() as RegisterErrorResponse;
-            showErrorResponse(json.errors);
+
         } catch (e) {
             setError("Something went wrong. Please try again later.");
             setIsPending(false);
