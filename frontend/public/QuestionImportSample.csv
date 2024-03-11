@@ -1,0 +1,4 @@
+question,answers,correctAnswer,category
+What is ReactJS?,"A programming language;A JavaScript library for building user interfaces;A database management system;An operating system",1,Programming
+What is JSX?,"JavaScript Syntax Extension;JavaScript XML;JavaScript Extended;JavaScript XML Syntax;",0,Programming
+What are the key features of ReactJS?,"Component-based architecture;Virtual DOM;JSX syntax;All of the above;",3,Programming
