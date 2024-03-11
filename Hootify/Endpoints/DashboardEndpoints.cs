@@ -24,14 +24,16 @@ public static class DashboardEndpoints
                     return questionService.GetAll();
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/questions/add",
-                (AddQuestion question, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/add", async (AddQuestion question, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
-                    var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
-                        out var userId);
-                    if (!success) return;
-                    questionService.Add(question);
+                    return await questionService.Add(new AddQuestion[] { question });
+                }).RequireAuthorization();
+            
+            endpoints.MapPost("/dashboard/questions/addMultiple", async (AddQuestion[] questions, AppDbContext dbContext, HttpContext httpContext) =>
+                {
+                    var questionService = new DashboardQuestionService(dbContext, httpContext);
+                    return await questionService.Add(questions);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/questions/delete",

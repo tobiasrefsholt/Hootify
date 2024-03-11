@@ -1,22 +1,26 @@
 using Hootify.DbModel;
+using Hootify.ViewModel;
+using Question = Hootify.DbModel.Question;
 
 namespace Hootify.ApplicationServices;
 
 public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpContext)
     : DashboardService(dbContext, httpContext)
 {
-    public void Add(ViewModel.AddQuestion viewQuestion)
+    public async Task<bool> Add(IEnumerable<AddQuestion> viewQuestions)
     {
-        var dbQuestion = new Question(
-            Guid.NewGuid(),
-            UserId,
-            viewQuestion.Title,
-            viewQuestion.Answers,
-            viewQuestion.CorrectAnswer,
-            viewQuestion.CategoryId
+        var dbQuestions = viewQuestions.Select(viewQuestion =>
+            new Question(
+                Guid.NewGuid(),
+                UserId,
+                viewQuestion.Title,
+                viewQuestion.Answers,
+                viewQuestion.CorrectAnswer,
+                viewQuestion.CategoryId)
         );
-        DbContext.Add(dbQuestion);
-        DbContext.SaveChanges();
+        DbContext.Questions.AddRange(dbQuestions);
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
     }
 
     private IQueryable<ViewModel.QuestionWithAnswer> QuestionsWithAnswerQuery(Guid? id)
