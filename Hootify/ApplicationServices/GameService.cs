@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Hootify.DbModel;
 using Hootify.Hubs;
 using Hootify.Hubs.ClientInterfaces;
@@ -47,12 +46,13 @@ public class GameService
         return new ViewModel.Player(dbPlayer.Id, dbPlayer.Name, dbPlayer.Score);
     }
 
-    public async Task GetGameState(Guid playerId)
+    public async Task SendGameData(Guid playerId)
     {
         var gameId = GetGameIdByPlayer(playerId);
         var gameState = GetState(gameId);
         var recipientGroup = playerId.ToString();
-
+        await SendGameState(gameState, recipientGroup);
+        
         switch (gameState)
         {
             case GameState.QuestionInProgress:
@@ -73,14 +73,62 @@ public class GameService
 
             case GameState.WaitingForPlayers:
             default:
-                await SendLeaderBoard(gameId, recipientGroup);
-                await _dashboardHubContext.Clients.Group("dashboard_" + gameId)
-                    .ReceiveLeaderBoard(GetLeaderBoard(gameId));
                 await SendWaitingPlayers(gameId, recipientGroup);
                 break;
         }
     }
+    
+    private async Task SendGameState(GameState gameState, string recipientGroup)
+    {
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveGameState(gameState);
+    }
+    
+    private async Task SendQuestion(Guid gameId, string recipientGroup)
+    {
+        var currentQuestion = GetCurrentQuestion(gameId);
+        // Check if question has expired and handle it
+        if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
+        {
+            // Question has expired
+            await PushFinishedQuestion(gameId);
+            await UpdateDashboardState(gameId);
+            return;
+        }
 
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveNewQuestion(currentQuestion);
+    }
+    
+    private async Task SendAnswer(Guid gameId, string recipientGroup)
+    {
+        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveAnswer(questionWithAnswer);
+    }
+
+    public async Task SendLeaderBoard(Guid gameId, string recipientGroup)
+    {
+        var leaderBoard = GetLeaderBoard(gameId);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveLeaderBoard(leaderBoard);
+    }
+    
+    private async Task SendGameComplete(Guid gameId, string recipientGroup)
+    {
+        var leaderBoard = GetLeaderBoard(gameId);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveLeaderBoard(leaderBoard);
+        await clients.ReceiveGameState(GameState.GameComplete);
+    }
+    
+    private async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
+    {
+        var players = GetPlayers(gameId);
+        var clients = _playerHubContext.Clients.Group(recipientGroup);
+        await clients.ReceiveLeaderBoard(players);
+    }
+    
     public async Task UpdateDashboardState(Guid gameId)
     {
         var recipientGroup = "dashboard_" + gameId;
@@ -91,61 +139,32 @@ public class GameService
         await client.ReceiveGameOptions(GetGameOptions(gameId));
     }
 
-    public async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
+    public async Task BroadcastChatMessage(Guid gameId, string message, string sender)
     {
-        var players = GetPlayers(gameId);
-        var clients = _playerHubContext.Clients.Group(recipientGroup);
-        await clients.ReceiveGameState(GameState.WaitingForPlayers);
-        await clients.ReceiveLeaderBoard(players);
-    }
+        await _playerHubContext.Clients
+            .Group(gameId.ToString())
+            .ReceiveChat(message, sender);
 
-    public async Task SendQuestion(Guid gameId, string recipientGroup)
-    {
-        var currentQuestion = GetCurrentQuestion(gameId);
-        // Check if question has expired and handle it
-        if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
-        {
-            // Question has expired
-            await HandleFinishedQuestion(gameId);
-            await UpdateDashboardState(gameId);
-            return;
-        }
-
-        var clients = _playerHubContext.Clients.Group(recipientGroup);
-        await clients.ReceiveNewQuestion(currentQuestion);
-        await clients.ReceiveGameState(GameState.QuestionInProgress);
-    }
-
-    public async Task SendAnswer(Guid gameId, string recipientGroup)
-    {
-        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
-        var clients = _playerHubContext.Clients.Group(recipientGroup);
-        await clients.ReceiveAnswer(questionWithAnswer);
-        await clients.ReceiveGameState(GameState.ShowAnswer);
-    }
-
-    public async Task SendLeaderBoard(Guid gameId, string recipientGroup)
-    {
-        var leaderBoard = GetLeaderBoard(gameId);
-        var clients = _playerHubContext.Clients.Group(recipientGroup);
-        await clients.ReceiveLeaderBoard(leaderBoard);
-        await clients.ReceiveGameState(GameState.ShowLeaderboard);
-    }
-
-    public async Task SendGameComplete(Guid gameId, string recipientGroup)
-    {
-        var leaderBoard = GetLeaderBoard(gameId);
-        var clients = _playerHubContext.Clients.Group(recipientGroup);
-        await clients.ReceiveLeaderBoard(leaderBoard);
-        await clients.ReceiveGameState(GameState.GameComplete);
+        await _dashboardHubContext.Clients
+            .Group("dashboard_" + gameId)
+            .ReceiveChat(message, sender);
     }
 
     public async Task SendWelcomeMessage(Guid playerId, Guid gameId, string connectionId)
     {
         var player = GetPlayer(playerId);
-        await _playerHubContext.Clients
-            .GroupExcept(gameId.ToString(), connectionId)
-            .ReceiveMessage($"{player!.Name} has joined the game!");
+        var message = $"{player!.Name} has joined the game!";
+        
+        var playerClients = _playerHubContext
+            .Clients
+            .GroupExcept(gameId.ToString(), connectionId);
+
+        await playerClients.ReceiveLeaderBoard(GetLeaderBoard(gameId));
+        await playerClients.ReceiveMessage(message);
+        
+        await _dashboardHubContext.Clients
+            .Group("dashboard_" + gameId)
+            .ReceiveMessage(message);
     }
 
     public async Task SendDisconnectMessage(Guid playerId)
@@ -254,10 +273,10 @@ public class GameService
 
         if (!players.All(p => answers.Contains(p))) return;
 
-        await HandleFinishedQuestion(gameId);
+        await PushFinishedQuestion(gameId);
     }
 
-    public async Task HandleFinishedQuestion(Guid gameId)
+    public async Task PushFinishedQuestion(Guid gameId)
     {
         // Update game state to show answer
         await _dbContext.Games
@@ -273,6 +292,20 @@ public class GameService
         await clients.ReceiveGameState(GameState.ShowAnswer);
 
         // Update dashboard state
+        await UpdateDashboardState(gameId);
+    }
+    
+    public async Task PushLeaderBoard(Guid gameId)
+    {
+        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        if (game == null) return;
+        game.ShareKey = string.Empty;
+        game.State = GameState.ShowLeaderboard;
+        await _dbContext.SaveChangesAsync();
+
+        var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
+        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
+        await clients.ReceiveGameState(GameState.ShowLeaderboard);
         await UpdateDashboardState(gameId);
     }
 
@@ -380,7 +413,7 @@ public class GameService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ViewModel.Question?> SendNextQuestion(Guid gameId)
+    public async Task<ViewModel.Question?> PushNextQuestion(Guid gameId)
     {
         var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
         if (game == null) return null;
@@ -453,31 +486,6 @@ public class GameService
         await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(game.State);
         await UpdateDashboardState(game.Id);
-    }
-
-    public async Task SendLeaderboard(Guid gameId)
-    {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
-        if (game == null) return;
-        game.ShareKey = string.Empty;
-        game.State = GameState.ShowLeaderboard;
-        await _dbContext.SaveChangesAsync();
-
-        var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
-        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
-        await clients.ReceiveGameState(GameState.ShowLeaderboard);
-        await UpdateDashboardState(gameId);
-    }
-
-    public async Task SendChatMessage(Guid gameId, string message, string sender)
-    {
-        await _playerHubContext.Clients
-            .Group(gameId.ToString())
-            .ReceiveChat(message, sender);
-
-        await _dashboardHubContext.Clients
-            .Group("dashboard_" + gameId)
-            .ReceiveChat(message, sender);
     }
 
     private ViewModel.Player[] GetLeaderBoard(Guid gameId)

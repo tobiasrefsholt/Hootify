@@ -29,25 +29,25 @@ public class DashboardHub : Hub<IDashboardHub>
     public async Task SendChatMessage(string message, string sender)
     {
         var gameId = await GetGameId();
-        await _gameService.SendChatMessage(gameId, message, sender);
+        await _gameService.BroadcastChatMessage(gameId, message, sender);
     }
 
     public async Task SendNextQuestion()
     {
         var gameId = await GetGameId();
-        await _gameService.SendNextQuestion(gameId);
+        await _gameService.PushNextQuestion(gameId);
     }
 
     public async Task SendLeaderBoard()
     {
         var gameId = await GetGameId();
-        await _gameService.SendLeaderboard(gameId);
+        await _gameService.PushLeaderBoard(gameId);
     }
     
     public async Task SendAnswer()
     {
         var gameId = await GetGameId();
-        await _gameService.HandleFinishedQuestion(gameId);
+        await _gameService.PushFinishedQuestion(gameId);
     }
 
     public async Task GetFullGameState()

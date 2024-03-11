@@ -25,8 +25,10 @@ public class PlayerHub : Hub<IPlayerHub>
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
         await Groups.AddToGroupAsync(Context.ConnectionId, playerId.ToString());
+        
+        await GetGameData(playerId);
+        await _gameService.UpdateDashboardState(gameId);
         await _gameService.SendWelcomeMessage(playerId, gameId, Context.ConnectionId);
-        await GetGameState(playerId);
 
         await base.OnConnectedAsync();
     }
@@ -49,12 +51,12 @@ public class PlayerHub : Hub<IPlayerHub>
     {
         var playerId = await GetPlayerId();
         var gameId = _gameService.GetGameIdByPlayer(playerId);
-        await _gameService.SendChatMessage(gameId, message, sender);
+        await _gameService.BroadcastChatMessage(gameId, message, sender);
     }
     
-    public async Task GetGameState(Guid playerId)
+    public async Task GetGameData(Guid playerId)
     {
-        await _gameService.GetGameState(playerId);
+        await _gameService.SendGameData(playerId);
     }
 
     private async Task<Guid> GetPlayerId()
