@@ -59,17 +59,21 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
         DbContext.SaveChanges();
     }
 
-    public void Delete(Guid id)
+    public async Task<bool> Delete(Guid[] ids)
     {
-        var question = DbContext.Questions
+        var questions = DbContext.Questions
             .Where(q => q.UserId == UserId)
-            .FirstOrDefault(e => e.Id == id);
-        if (question == null) return;
-        DbContext.Questions.Remove(question);
+            .Where(q => ids.Contains(q.Id))
+            .ToList();
+
+        DbContext.Questions.RemoveRange(questions);
+
         DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .ToList()
-            .ForEach(q => q.QuestionIds.Remove(id));
-        DbContext.SaveChanges();
+            .ForEach(q => q.QuestionIds = q.QuestionIds.Except(ids).ToList());
+
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
     }
 }

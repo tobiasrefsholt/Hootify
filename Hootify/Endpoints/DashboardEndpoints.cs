@@ -36,11 +36,10 @@ public static class DashboardEndpoints
                     return await questionService.Add(questions);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/questions/delete",
-                (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/delete", async (Guid[] questionIds, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
-                    questionService.Delete(question.Id);
+                    return await questionService.Delete(questionIds);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/questions/edit",
