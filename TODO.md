@@ -1,10 +1,10 @@
 # Dashboard
 
 ## Questions
-- [ ] Import from csv
-- [ ] Better delete handling
-  - Remove question from quizzes containing it 
-- [ ] Batch delete
+- [x] Import from csv
+- [x] Better delete handling
+  - [x] Remove question from quizzes containing it 
+  - [x] Batch delete
 - [ ] Batch remove from quizzes
 
 ## Quizzes
