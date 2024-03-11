@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import {useQuizzes} from "@/context/quizzesContext.tsx";
 import NewQuizSheet from "@/pages/dashboardPage/quizzesPage/newQuizModal/newQuizSheet.tsx";
+import ImportQuestionsSheet from "@/pages/dashboardPage/questionsPage/importQuestionsModal/importQuestionsSheet.tsx";
+
 
 export default function QuestionsPage() {
     const {questions} = useQuestions();
@@ -34,7 +36,9 @@ export default function QuestionsPage() {
                 <NewQuestionSheet>
                     <Button>Create new</Button>
                 </NewQuestionSheet>
-                <Button variant="outline">Import from file</Button>
+                <ImportQuestionsSheet>
+                    <Button variant="outline">Import from file</Button>
+                </ImportQuestionsSheet>
                 {selectedIds.length > 0 && (
                     <>
                         <DropdownMenu>
