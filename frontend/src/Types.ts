@@ -13,6 +13,7 @@ export enum ApiEndpoint {
     DashboardGetQuestions = "/dashboard/questions/get",
     DashboardGetAllQuestions = "/dashboard/questions/getAll",
     DashboardAddQuestion = "/dashboard/questions/add",
+    DashboardAddMultipleQuestions = "/dashboard/questions/addMultiple",
     DashboardDeleteQuestion = "/dashboard/questions/delete",
     DashboardEditQuestion = "/dashboard/questions/edit",
     DashboardGetAllCategories = "/dashboard/categories/getAll",
@@ -45,7 +46,7 @@ export type Player = {
 };
 
 export type InsertQuestion = {
-    id: string,
+    id?: string,
     title: string,
     answers: string[],
     correctAnswer: number,
@@ -96,6 +97,7 @@ export type QuestionsContextType = {
     isPending: boolean,
     error: string | null,
     add: (question: InsertQuestion) => void,
+    addMultiple: (questions: InsertQuestion[]) => void,
     edit: (question: InsertQuestion) => void,
     remove: (id: string) => void
 }

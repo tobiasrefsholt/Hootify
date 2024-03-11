@@ -9,6 +9,8 @@ const QuestionContext = createContext<QuestionsContextType>({
     error: null,
     add: () => {
     },
+    addMultiple: () => {
+    },
     edit: () => {
     },
     remove: () => {
@@ -29,6 +31,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
     } = useFetch<QuestionWithAnswer[]>(ApiEndpoint.DashboardGetAllQuestions, []);
 
     const addFetch = useFetch<null>(ApiEndpoint.DashboardAddQuestion, []);
+    const addMultipleFetch = useFetch<null>(ApiEndpoint.DashboardAddMultipleQuestions, []);
     const editFetch = useFetch<null>(ApiEndpoint.DashboardEditQuestion, []);
     const deleteFetch = useFetch<null>(ApiEndpoint.DashboardDeleteQuestion, []);
 
@@ -44,6 +47,15 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
 
     function add(question: InsertQuestion) {
         addFetch.doFetch("POST", [], question, () => {
+            // Fetch questions after adding
+            doFetch("POST", [], payload);
+        });
+    }
+
+    function addMultiple(questions: InsertQuestion[]) {
+        console.log(questions);
+        addMultipleFetch.doFetch("POST", [], questions, () => {
+            toast(`Added ${questions.length} questions`);
             // Fetch questions after adding
             doFetch("POST", [], payload);
         });
@@ -70,6 +82,7 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         isPending,
         error,
         add,
+        addMultiple,
         edit,
         remove
     };
