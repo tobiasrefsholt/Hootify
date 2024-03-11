@@ -19,7 +19,8 @@
 - [ ] View questions per category
 
 ## User
-- [ ] Add a view for registrering an account
+- [x] Add a view for registrering an account
+  - [ ] Handle account not verified
 - [ ] Manage account page
   - [ ] Change password
   - [ ] 2fa
