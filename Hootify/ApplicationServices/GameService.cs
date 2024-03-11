@@ -286,27 +286,25 @@ public class GameService
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
             where (q.Id == currentQuestionId)
             select new ViewModel.Question(g.Id,
-                g.Title,
+                q.Title,
                 q.Answers,
                 c.Name,
                 c.Id,
                 g.CurrentQuestionStartTime,
-                g.SecondsPerQuestion)
+                g.SecondsPerQuestion
+            )
         ).FirstOrDefault();
     }
 
     private ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
     {
-        var currentQuestionId = CurrentQuestionId(gameId);
-
         return (
             from q in _dbContext.Questions
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
-            where (q.Id == currentQuestionId)
             select new ViewModel.QuestionWithAnswer(
-                g.Id,
-                g.Title,
+                q.Id,
+                q.Title,
                 q.Answers,
                 c.Name,
                 c.Id,
@@ -418,7 +416,7 @@ public class GameService
         return nextQuestion;
     }
 
-    private ViewModel.Question? GetNextQuestion([DisallowNull] Game game)
+    private ViewModel.Question? GetNextQuestion(Game game)
     {
         var nextQuestionId = game.RandomizeQuestions
             ? game.RemainingQuestions?[_random.Next(game.RemainingQuestions.Count)]
@@ -433,8 +431,8 @@ public class GameService
             join g in _dbContext.Games on q.Id equals nextQuestionId
             where (q.Id == nextQuestionId)
             select new ViewModel.Question(
-                g.Id,
-                g.Title,
+                q.Id,
+                q.Title,
                 q.Answers,
                 c.Name,
                 c.Id,
