@@ -27,7 +27,7 @@ export default function EditQuestionSheet({question, children, open, setOpen}: Q
     const {categories} = useCategories();
 
     function handleDeleteQuestion() {
-        removeQuestion(question.id);
+        removeQuestion([question.id]);
         setOpen(false)
     }
 

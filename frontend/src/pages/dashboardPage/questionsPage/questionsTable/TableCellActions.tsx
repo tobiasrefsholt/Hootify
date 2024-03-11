@@ -49,7 +49,7 @@ export default function TableCellActions({row}: TableCellActionsProps) {
             <RemoveQuestionModal
                 open={openRemoveModal}
                 setOpen={setOpenRemoveModal}
-                onConfirmDelete={() => removeQuestion(row.original.id)}
+                onConfirmDelete={() => removeQuestion([row.original.id])}
                 children=""
             />
         </DropdownMenu>

@@ -99,7 +99,7 @@ export type QuestionsContextType = {
     add: (question: InsertQuestion) => void,
     addMultiple: (questions: InsertQuestion[]) => void,
     edit: (question: InsertQuestion) => void,
-    remove: (id: string) => void
+    remove: (ids: string[]) => void
 }
 
 export type QuizzesContextType = {

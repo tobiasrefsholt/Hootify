@@ -69,11 +69,12 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
         });
     }
 
-    function remove(id: string) {
-        deleteFetch.doFetch("POST", [], {id}, () => {
+    function remove(ids: string[]) {
+        console.log(ids);
+        deleteFetch.doFetch("POST", [], ids, () => {
             // Fetch questions after deleting
             doFetch("POST", [], payload);
-            toast("Question deleted");
+            toast(`${ids.length} question(s) deleted`);
         });
     }
 

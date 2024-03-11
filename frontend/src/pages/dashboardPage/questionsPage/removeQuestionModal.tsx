@@ -29,7 +29,7 @@ export default function RemoveQuestionModal({children, onCanceled, onConfirmDele
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. The question will be permanently removed and all quizzes using this question will be updated.
+                        This action is irreversible. The question(s) will be permanently deleted, and any quizzes utilizing this/these question(s) will be automatically updated.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

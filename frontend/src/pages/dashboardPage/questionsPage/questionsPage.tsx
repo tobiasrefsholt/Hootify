@@ -16,13 +16,15 @@ import {
 import {useQuizzes} from "@/context/quizzesContext.tsx";
 import NewQuizSheet from "@/pages/dashboardPage/quizzesPage/newQuizModal/newQuizSheet.tsx";
 import ImportQuestionsSheet from "@/pages/dashboardPage/questionsPage/importQuestionsModal/importQuestionsSheet.tsx";
+import RemoveQuestionModal from "@/pages/dashboardPage/questionsPage/removeQuestionModal.tsx";
 
 
 export default function QuestionsPage() {
-    const {questions} = useQuestions();
+    const {questions, remove: removeQuestions} = useQuestions();
     const {quizzes} = useQuizzes();
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
     const [newQuestionIsOpen, setNewQuestionIsOpen] = useState(false);
+    const [openRemoveModal, setOpenRemoveModal] = useState(false);
 
     const selectedIds = useMemo(() => {
         const indexes = Object.keys(rowSelection);
@@ -58,7 +60,16 @@ export default function QuestionsPage() {
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <Button variant="outline">Delete</Button>
+                        <RemoveQuestionModal
+                            open={openRemoveModal}
+                            setOpen={setOpenRemoveModal}
+                            onConfirmDelete={() => {
+                                removeQuestions(selectedIds);
+                                setRowSelection({});
+                            }}
+                        >
+                            <Button variant="outline">Delete</Button>
+                        </RemoveQuestionModal>
                         <Button variant="outline">Remove from all quizzes</Button>
                         <NewQuizSheet
                             open={newQuestionIsOpen}
