@@ -1,42 +1,53 @@
 using Hootify.DbModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hootify.ApplicationServices;
 
 public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpContext)
     : DashboardService(dbContext, httpContext)
 {
-    public void Add(ViewModel.Category category)
+    public async Task<bool> Add(ViewModel.Category category)
     {
         var dbCategory = new Category(Guid.NewGuid(), UserId, category.Name);
         DbContext.Categories.Add(dbCategory);
-        DbContext.SaveChanges();
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
     }
 
-    public List<ViewModel.Category> GetAll()
+    public async Task<List<ViewModel.Category>> GetAll()
     {
-        return DbContext.Categories
+        return await DbContext.Categories
             .Where(c => c.UserId == UserId)
             .Select(c => new ViewModel.Category(c.Id, c.Name))
-            .ToList();
+            .ToListAsync();
     }
 
-    public void Update(ViewModel.Category category)
+    public async Task<bool> Update(ViewModel.Category category)
     {
-        var dbCategory = DbContext.Categories
+        var dbCategory = await DbContext.Categories
             .Where(c => c.UserId == UserId)
-            .FirstOrDefault(e => e.Id == category.Id);
-        if (dbCategory == null) return;
+            .FirstOrDefaultAsync(e => e.Id == category.Id);
+        if (dbCategory == null) return false;
         dbCategory.Name = category.Name;
-        DbContext.SaveChanges();
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
     }
 
-    public void Delete(Guid id)
+    public async Task<bool> Delete(Guid[] ids)
     {
-        var dbCategory = DbContext.Categories
+        var dbCategories = await DbContext.Categories
             .Where(c => c.UserId == UserId)
-            .FirstOrDefault(c => c.Id == id);
-        if (dbCategory == null) return;
-        DbContext.Categories.Remove(dbCategory);
-        DbContext.SaveChanges();
+            .Where(c => ids.Contains(c.Id))
+            .ToListAsync();
+
+        var questions = await DbContext.Questions
+            .Where(q => q.UserId == UserId)
+            .Where(q => ids.Contains(q.CategoryId))
+            .ToListAsync();
+
+        DbContext.Categories.RemoveRange(dbCategories);
+        DbContext.Questions.RemoveRange(questions);
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
     }
 }

@@ -24,19 +24,22 @@ public static class DashboardEndpoints
                     return questionService.GetAll();
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/questions/add", async (AddQuestion question, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/add",
+                async (AddQuestion question, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
                     return await questionService.Add(new AddQuestion[] { question });
                 }).RequireAuthorization();
-            
-            endpoints.MapPost("/dashboard/questions/addMultiple", async (AddQuestion[] questions, AppDbContext dbContext, HttpContext httpContext) =>
+
+            endpoints.MapPost("/dashboard/questions/addMultiple",
+                async (AddQuestion[] questions, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
                     return await questionService.Add(questions);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/questions/delete", async (Guid[] questionIds, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/delete",
+                async (Guid[] questionIds, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
                     return await questionService.Delete(questionIds);
@@ -49,31 +52,30 @@ public static class DashboardEndpoints
                     questionService.Update(question);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/categories/getAll", (AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/categories/getAll", async (AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var categoryService = new DashboardCategoryService(dbContext, httpContext);
-                return categoryService.GetAll();
+                return await categoryService.GetAll();
             }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/categories/add",
-                (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+                async (Category category, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var categoryService = new DashboardCategoryService(dbContext, httpContext);
-                    categoryService.Add(category);
+                    return await categoryService.Add(category);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/categories/delete",
-                (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+                async (Guid[] categoryIds, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var categoryService = new DashboardCategoryService(dbContext, httpContext);
-                    categoryService.Delete(category.Id);
+                    return await categoryService.Delete(categoryIds);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/categories/edit",
-                (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/categories/edit", async (Category category, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var categoryService = new DashboardCategoryService(dbContext, httpContext);
-                    categoryService.Update(category);
+                    return await categoryService.Update(category);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/quiz/add", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
