@@ -35,7 +35,7 @@
 
 ## Leaderboard
 - [ ] Finsh leaderboard view
-- [ ] Fix updating of leaderboard on waiting for players screen. It is not updated after the initial load
+- [x] Fix updating of leaderboard on waiting for players screen. It is not updated after the initial load
 
 ## State on join
 - [ ] Check why the client is not loading on specific game states
