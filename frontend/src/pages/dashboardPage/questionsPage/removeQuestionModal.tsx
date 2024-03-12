@@ -1,7 +1,6 @@
 import {ReactNode} from "react";
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
@@ -10,6 +9,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
+import {Button} from "@/components/ui/button.tsx";
 
 type RemoveQuestionModalProps = {
     open: boolean;
@@ -34,7 +34,15 @@ export default function RemoveQuestionModal({children, onCanceled, onConfirmDele
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={onCanceled}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirmDelete}>Delete</AlertDialogAction>
+                    <Button
+                        onClick={() => {
+                            onConfirmDelete && onConfirmDelete();
+                            setOpen(false);
+                        }}
+                        variant="destructive"
+                    >
+                        Delete
+                    </Button>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
