@@ -41,8 +41,8 @@ export const CategoriesProvider = ({children}: UserProviderProps) => {
         });
     }
 
-    function remove(id: string) {
-        deleteFetch.doFetch("POST", [], {id}, () => {
+    function remove(ids: string[]) {
+        deleteFetch.doFetch("POST", [], ids, () => {
             // Fetch categories after deleting
             doFetch("POST", [], null);
         });

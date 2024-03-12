@@ -10,6 +10,9 @@ import {Button} from "@/components/ui/button.tsx";
 import {MoreHorizontal} from "lucide-react";
 import {Category} from "@/Types.ts";
 import {useNavigate} from "react-router";
+import RemoveCategoryModal from "@/pages/dashboardPage/categoriesPage/removeCategoryModal.tsx";
+import {useState} from "react";
+import {useCategories} from "@/context/categoriesContext.tsx";
 
 type TableCellActionsProps = {
     row: { original: Category };
@@ -17,6 +20,8 @@ type TableCellActionsProps = {
 
 export default function TableCellActions({row}: TableCellActionsProps) {
     const navigate = useNavigate();
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const {remove: removeCategory} = useCategories();
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -33,8 +38,9 @@ export default function TableCellActions({row}: TableCellActionsProps) {
                 >
                     Open
                 </DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOpenDeleteModal(true)}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
+            <RemoveCategoryModal open={openDeleteModal} setOpen={setOpenDeleteModal} onConfirmDelete={() => removeCategory([row.original.id])} children=""/>
         </DropdownMenu>
     )
 }

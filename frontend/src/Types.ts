@@ -81,7 +81,7 @@ export type CategoriesContextType = {
     isPending: boolean,
     error: string | null,
     add: (category: Category) => void,
-    remove: (id: string) => void
+    remove: (ids: string[]) => void
 }
 
 export type GamesContextType = {
