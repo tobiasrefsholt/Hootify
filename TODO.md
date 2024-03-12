@@ -38,7 +38,7 @@
 - [x] Fix updating of leaderboard on waiting for players screen. It is not updated after the initial load
 
 ## State on join
-- [ ] Check why the client is not loading on specific game states
+- [x] Check why the client is not loading on specific game states
 
 # Other ideas
 - [ ] Created and lastModifies fields in database, to make games, quizzes, categories and questions sortable by date.
