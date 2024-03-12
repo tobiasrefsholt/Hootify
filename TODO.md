@@ -16,7 +16,7 @@
 ## Categories
 - [x] A view to manage question categories
 - [x] Add
-- [ ] Remove
+- [x] Remove
 - [ ] View questions per category
 
 ## User
