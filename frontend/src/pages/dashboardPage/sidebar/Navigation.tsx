@@ -17,6 +17,9 @@ export default function Navigation() {
                     <Link to="/dashboard/questions" className="text-white">Questions</Link>
                 </li>
                 <li>
+                    <Link to="/dashboard/categories" className="text-white">Categories</Link>
+                </li>
+                <li>
                     <Link to="/" className="text-white">Exit dashboard</Link>
                 </li>
             </ul>
