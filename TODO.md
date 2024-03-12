@@ -14,8 +14,9 @@
   - [ ] Duplicate
 
 ## Categories
-- [ ] A view to manage question categories
-- [ ] Add / remove
+- [x] A view to manage question categories
+- [x] Add
+- [ ] Remove
 - [ ] View questions per category
 
 ## User
