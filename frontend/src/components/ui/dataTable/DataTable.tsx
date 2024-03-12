@@ -28,9 +28,19 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
     rowSelection: RowSelectionState,
     setRowSelection: Dispatch<SetStateAction<RowSelectionState>>;
+    filterByColumn?: string;
+    filterText?: string;
 }
 
-export function DataTable<TData, TValue>({columns, data, rowSelection, setRowSelection}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>(
+    {
+        columns,
+        data,
+        rowSelection,
+        setRowSelection,
+        filterByColumn,
+        filterText
+    }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -54,15 +64,16 @@ export function DataTable<TData, TValue>({columns, data, rowSelection, setRowSel
     return (
         <div className="space-y-5">
             <div className="flex items-center">
-                <Input
-                    placeholder="Filter questions..."
-                    value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("title")?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <DataTableViewOptions table={table} />
+                {filterByColumn && filterText &&
+                    <Input
+                        placeholder={"Filter " + filterText + "..."}
+                        value={(table.getColumn(filterByColumn)?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn(filterByColumn)?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-sm"
+                    />}
+                <DataTableViewOptions table={table}/>
             </div>
             <div className="rounded-md border">
                 <Table>

@@ -85,6 +85,8 @@ export default function QuestionsPage() {
                 data={questions || []}
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
+                filterByColumn={"title"}
+                filterText={"questions"}
             />
         </PageContainer>
     )

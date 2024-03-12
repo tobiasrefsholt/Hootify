@@ -18,6 +18,8 @@ export default function QuizzesPage() {
                 data={quizzes || []}
                 rowSelection={selectedQuizzes}
                 setRowSelection={setSelectedQuizzes}
+                filterByColumn={"title"}
+                filterText={"quizzes"}
             />
         </PageContainer>
     )

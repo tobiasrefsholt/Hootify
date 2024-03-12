@@ -23,6 +23,8 @@ export default function GameArchivePage() {
                     data={gamesContext.games}
                     rowSelection={selectedGames}
                     setRowSelection={setSelectedGames}
+                    filterByColumn={"title"}
+                    filterText={"games"}
                 />
             </div>
         </PageContainer>
