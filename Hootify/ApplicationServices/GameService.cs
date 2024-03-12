@@ -21,15 +21,15 @@ public class GameService
         _dashboardHubContext = dashboardHubContext;
     }
 
-    public Guid? GetGameByPin(string shareKey)
+    public async Task<Guid?> GetGameByPin(string shareKey)
     {
-        var dbGame = _dbContext.Games.FirstOrDefault(g => g.ShareKey == shareKey);
+        var dbGame = await _dbContext.Games.FirstOrDefaultAsync(g => g.ShareKey == shareKey);
         return dbGame?.Id;
     }
 
-    public ViewModel.Player? AddPlayerToGame(Guid gameId, ViewModel.Player player)
+    public async Task<ViewModel.Player?> AddPlayerToGame(Guid gameId, ViewModel.Player player)
     {
-        var gameExists = _dbContext.Games.Any(g => g.Id == gameId);
+        var gameExists = await _dbContext.Games.AnyAsync(g => g.Id == gameId);
         if (!gameExists) return null;
 
         var dbPlayer = new Player
@@ -41,18 +41,18 @@ public class GameService
         };
 
         _dbContext.Players.Add(dbPlayer);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
 
         return new ViewModel.Player(dbPlayer.Id, dbPlayer.Name, dbPlayer.Score);
     }
 
     public async Task SendGameData(Guid playerId)
     {
-        var gameId = GetGameIdByPlayer(playerId);
-        var gameState = GetState(gameId);
+        var gameId = await GetGameIdByPlayer(playerId);
+        var gameState = await GetState(gameId);
         var recipientGroup = playerId.ToString();
         await SendGameState(gameState, recipientGroup);
-        
+
         switch (gameState)
         {
             case GameState.QuestionInProgress:
@@ -77,16 +77,16 @@ public class GameService
                 break;
         }
     }
-    
+
     private async Task SendGameState(GameState gameState, string recipientGroup)
     {
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveGameState(gameState);
     }
-    
+
     private async Task SendQuestion(Guid gameId, string recipientGroup)
     {
-        var currentQuestion = GetCurrentQuestion(gameId);
+        var currentQuestion = await GetCurrentQuestion(gameId);
         // Check if question has expired and handle it
         if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
         {
@@ -99,44 +99,44 @@ public class GameService
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveNewQuestion(currentQuestion);
     }
-    
+
     private async Task SendAnswer(Guid gameId, string recipientGroup)
     {
-        var questionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+        var questionWithAnswer = await GetCurrentQuestionWithAnswer(gameId);
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveAnswer(questionWithAnswer);
     }
 
     public async Task SendLeaderBoard(Guid gameId, string recipientGroup)
     {
-        var leaderBoard = GetLeaderBoard(gameId);
+        var leaderBoard = await GetLeaderBoard(gameId);
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveLeaderBoard(leaderBoard);
     }
-    
+
     private async Task SendGameComplete(Guid gameId, string recipientGroup)
     {
-        var leaderBoard = GetLeaderBoard(gameId);
+        var leaderBoard = await GetLeaderBoard(gameId);
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveLeaderBoard(leaderBoard);
         await clients.ReceiveGameState(GameState.GameComplete);
     }
-    
+
     private async Task SendWaitingPlayers(Guid gameId, string recipientGroup)
     {
-        var players = GetPlayers(gameId);
+        var players = await GetPlayers(gameId);
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveLeaderBoard(players);
     }
-    
+
     public async Task UpdateDashboardState(Guid gameId)
     {
         var recipientGroup = "dashboard_" + gameId;
         var client = _dashboardHubContext.Clients.Group(recipientGroup);
-        await client.ReceiveGameState(GetState(gameId));
-        await client.ReceiveAnswer(GetCurrentQuestionWithAnswer(gameId));
-        await client.ReceiveLeaderBoard(GetLeaderBoard(gameId));
-        await client.ReceiveGameOptions(GetGameOptions(gameId));
+        await client.ReceiveGameState(await GetState(gameId));
+        await client.ReceiveAnswer(await GetCurrentQuestionWithAnswer(gameId));
+        await client.ReceiveLeaderBoard(await GetLeaderBoard(gameId));
+        await client.ReceiveGameOptions(await GetGameOptions(gameId));
     }
 
     public async Task BroadcastChatMessage(Guid gameId, string message, string sender)
@@ -152,16 +152,16 @@ public class GameService
 
     public async Task SendWelcomeMessage(Guid playerId, Guid gameId, string connectionId)
     {
-        var player = GetPlayer(playerId);
+        var player = await GetPlayer(playerId);
         var message = $"{player!.Name} has joined the game!";
-        
+
         var playerClients = _playerHubContext
             .Clients
             .GroupExcept(gameId.ToString(), connectionId);
 
-        await playerClients.ReceiveLeaderBoard(GetLeaderBoard(gameId));
+        await playerClients.ReceiveLeaderBoard(await GetLeaderBoard(gameId));
         await playerClients.ReceiveMessage(message);
-        
+
         await _dashboardHubContext.Clients
             .Group("dashboard_" + gameId)
             .ReceiveMessage(message);
@@ -169,8 +169,8 @@ public class GameService
 
     public async Task SendDisconnectMessage(Guid playerId)
     {
-        var player = GetPlayer(playerId);
-        var gameId = GetGameIdByPlayer(playerId);
+        var player = await GetPlayer(playerId);
+        var gameId = await GetGameIdByPlayer(playerId);
         var message = $"{player!.Name} has left the game!";
 
         await _playerHubContext.Clients
@@ -183,7 +183,7 @@ public class GameService
 
     public async Task AnswerQuestion(Guid playerId, Guid gameId, Guid questionId, int answer)
     {
-        if (!CanAnswerQuestion(playerId, gameId, questionId))
+        if (!await CanAnswerQuestion(playerId, gameId, questionId))
         {
             await _playerHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Failed to answer question");
             return;
@@ -194,7 +194,7 @@ public class GameService
 
         // Send updated leaderboard to dashboard
         var dashboardHub = _dashboardHubContext.Clients.Group("dashboard_" + gameId);
-        await dashboardHub.ReceiveLeaderBoard(GetLeaderBoard(gameId));
+        await dashboardHub.ReceiveLeaderBoard(await GetLeaderBoard(gameId));
 
         // Save answer to database
         var dbAnswer = new GameAnswer
@@ -213,10 +213,10 @@ public class GameService
 
     private async Task CheckAnswer(Guid playerId, Guid questionId, int answer)
     {
-        var answerIsCorrect = _dbContext.Questions
+        var answerIsCorrect = await _dbContext.Questions
             .Where(q => q.Id == questionId)
             .Select(q => q.CorrectAnswer)
-            .FirstOrDefault() == answer;
+            .FirstOrDefaultAsync() == answer;
 
         if (!answerIsCorrect)
         {
@@ -236,9 +236,9 @@ public class GameService
         await _playerHubContext.Clients.Group(playerId.ToString()).ReceiveMessage("Correct answer");
     }
 
-    private bool CanAnswerQuestion(Guid playerId, Guid gameId, Guid questionId)
+    private async Task<bool> CanAnswerQuestion(Guid playerId, Guid gameId, Guid questionId)
     {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Id == gameId);
         if (game == null ||
             // Question is not the current question
             game.CurrentQuestionId != questionId ||
@@ -251,25 +251,26 @@ public class GameService
             return false;
 
         // Player has already answered this question
-        var answerExists = _dbContext.GameAnswers.Any(a => a.QuestionId == questionId && a.PlayerId == playerId);
+        var answerExists =
+            await _dbContext.GameAnswers.AnyAsync(a => a.QuestionId == questionId && a.PlayerId == playerId);
         if (answerExists) return false;
 
         // Player and question exist
-        return _dbContext.Players.Any(p => p.Id == playerId) &&
-               _dbContext.Questions.Any(q => q.Id == questionId);
+        return await _dbContext.Players.AnyAsync(p => p.Id == playerId)
+               && await _dbContext.Questions.AnyAsync(q => q.Id == questionId);
     }
 
     private async Task CheckIfAllPlayersAnswered(Guid gameId, Guid questionId)
     {
-        var players = _dbContext.Players
+        var players = await _dbContext.Players
             .Where(p => p.GameId == gameId)
             .Select(p => p.Id)
-            .ToArray();
+            .ToArrayAsync();
 
-        var answers = _dbContext.GameAnswers
+        var answers = await _dbContext.GameAnswers
             .Where(a => a.GameId == gameId && a.QuestionId == questionId)
             .Select(a => a.PlayerId)
-            .ToArray();
+            .ToArrayAsync();
 
         if (!players.All(p => answers.Contains(p))) return;
 
@@ -286,7 +287,7 @@ public class GameService
             );
 
         // Send answer to players
-        var currentQuestionWithAnswer = GetCurrentQuestionWithAnswer(gameId);
+        var currentQuestionWithAnswer = await GetCurrentQuestionWithAnswer(gameId);
         var clients = _playerHubContext.Clients.Group(gameId.ToString());
         await clients.ReceiveAnswer(currentQuestionWithAnswer);
         await clients.ReceiveGameState(GameState.ShowAnswer);
@@ -294,31 +295,30 @@ public class GameService
         // Update dashboard state
         await UpdateDashboardState(gameId);
     }
-    
+
     public async Task PushLeaderBoard(Guid gameId)
     {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Id == gameId);
         if (game == null) return;
         game.ShareKey = string.Empty;
         game.State = GameState.ShowLeaderboard;
         await _dbContext.SaveChangesAsync();
 
         var clients = _playerHubContext.Clients.Groups(game.Id.ToString());
-        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
+        await clients.ReceiveLeaderBoard(await GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(GameState.ShowLeaderboard);
         await UpdateDashboardState(gameId);
     }
 
-    private ViewModel.Question? GetCurrentQuestion(Guid gameId)
+    private async Task<ViewModel.Question?> GetCurrentQuestion(Guid gameId)
     {
-        var currentQuestionId = CurrentQuestionId(gameId);
-
-        return (
+        return await (
             from q in _dbContext.Questions
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
-            where (q.Id == currentQuestionId)
-            select new ViewModel.Question(g.Id,
+            where (g.Id == gameId)
+            select new ViewModel.Question(
+                q.Id,
                 q.Title,
                 q.Answers,
                 c.Name,
@@ -326,15 +326,16 @@ public class GameService
                 g.CurrentQuestionStartTime,
                 g.SecondsPerQuestion
             )
-        ).FirstOrDefault();
+        ).FirstOrDefaultAsync();
     }
 
-    private ViewModel.QuestionWithAnswer? GetCurrentQuestionWithAnswer(Guid gameId)
+    private async Task<ViewModel.QuestionWithAnswer?> GetCurrentQuestionWithAnswer(Guid gameId)
     {
-        return (
+        return await (
             from q in _dbContext.Questions
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals g.CurrentQuestionId
+            where g.Id == gameId
             select new ViewModel.QuestionWithAnswer(
                 q.Id,
                 q.Title,
@@ -345,53 +346,53 @@ public class GameService
                 g.SecondsPerQuestion,
                 q.CorrectAnswer
             )
-        ).FirstOrDefault();
+        ).FirstOrDefaultAsync();
     }
 
-    private Guid CurrentQuestionId(Guid gameId)
+    private async Task<Guid> CurrentQuestionId(Guid gameId)
     {
-        var currentQuestionId = _dbContext.Games
+        var currentQuestionId = await _dbContext.Games
             .Where(g => g.Id == gameId)
             .Select(g => g.CurrentQuestionId)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
         return currentQuestionId;
     }
 
-    private GameState GetState(Guid gameId)
+    private async Task<GameState> GetState(Guid gameId)
     {
-        return _dbContext.Games
+        return await _dbContext.Games
             .Where(g => g.Id == gameId)
             .Select(g => g.State)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
-    private ViewModel.Player[] GetPlayers(Guid gameId)
+    private async Task<ViewModel.Player[]> GetPlayers(Guid gameId)
     {
-        return _dbContext.Players
+        return await _dbContext.Players
             .Where(p => p.GameId == gameId)
             .Select(p => GetViewModel(p))
-            .ToArray();
+            .ToArrayAsync();
     }
 
-    private ViewModel.Player? GetPlayer(Guid playerId)
+    private async Task<ViewModel.Player?> GetPlayer(Guid playerId)
     {
-        return _dbContext.Players
+        return await _dbContext.Players
             .Where(p => p.Id == playerId)
             .Select(p => GetViewModel(p))
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
-    public Guid GetGameIdByPlayer(Guid playerId)
+    public async Task<Guid> GetGameIdByPlayer(Guid playerId)
     {
-        return _dbContext.Players
+        return await _dbContext.Players
             .Where(p => p.Id == playerId)
             .Select(p => p.GameId)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
-    public ViewModel.GameOptions? GetGameOptions(Guid gameId)
+    public async Task<ViewModel.GameOptions?> GetGameOptions(Guid gameId)
     {
-        return _dbContext.Games
+        return await _dbContext.Games
             .Where(g => g.Id == gameId)
             .Select(g => new ViewModel.GameOptions(gameId,
                 g.Title,
@@ -399,12 +400,12 @@ public class GameService
                 g.RandomizeAnswers,
                 g.SecondsPerQuestion
             ))
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
     public async Task UpdateGameOptions(Guid gameId, ViewModel.GameOptions options)
     {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
+        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Id == gameId);
         if (game == null) return;
         game.Title = options.Title;
         game.RandomizeQuestions = options.RandomizeQuestions;
@@ -413,10 +414,10 @@ public class GameService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ViewModel.Question?> PushNextQuestion(Guid gameId)
+    public async Task PushNextQuestion(Guid gameId)
     {
-        var game = _dbContext.Games.FirstOrDefault(g => g.Id == gameId);
-        if (game == null) return null;
+        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+        if (game == null) return;
 
         game.ShareKey = string.Empty;
         game.State = GameState.QuestionInProgress;
@@ -425,12 +426,12 @@ public class GameService
         if (gameComplete)
         {
             await HandleGameComplete(game);
-            return null;
+            return;
         }
 
-        var nextQuestion = GetNextQuestion(game);
+        var nextQuestion = await GetNextQuestion(game);
         if (nextQuestion == null)
-            return null;
+            return;
 
         var timestamp = DateTime.Now;
 
@@ -443,13 +444,11 @@ public class GameService
         nextQuestion.Seconds = game.SecondsPerQuestion;
 
         await UpdateDashboardState(gameId);
-        var clients = _playerHubContext.Clients.Group(game.Id.ToString());
-        await clients.ReceiveNewQuestion(nextQuestion);
-        await clients.ReceiveGameState(GameState.QuestionInProgress);
-        return nextQuestion;
+        await SendGameState(GameState.QuestionInProgress, gameId.ToString());
+        await SendQuestion(gameId, gameId.ToString());
     }
 
-    private ViewModel.Question? GetNextQuestion(Game game)
+    private async Task<ViewModel.Question?> GetNextQuestion(Game game)
     {
         var nextQuestionId = game.RandomizeQuestions
             ? game.RemainingQuestions?[_random.Next(game.RemainingQuestions.Count)]
@@ -458,7 +457,7 @@ public class GameService
         if (nextQuestionId == null)
             return null;
 
-        return (
+        return await (
             from q in _dbContext.Questions
             join c in _dbContext.Categories on q.CategoryId equals c.Id
             join g in _dbContext.Games on q.Id equals nextQuestionId
@@ -472,7 +471,7 @@ public class GameService
                 g.CurrentQuestionStartTime,
                 g.SecondsPerQuestion
             )
-        ).FirstOrDefault();
+        ).FirstOrDefaultAsync();
     }
 
     private async Task HandleGameComplete(Game game)
@@ -483,18 +482,18 @@ public class GameService
         await _dbContext.SaveChangesAsync();
 
         var clients = _playerHubContext.Clients.Group(game.Id.ToString());
-        await clients.ReceiveLeaderBoard(GetLeaderBoard(game.Id));
+        await clients.ReceiveLeaderBoard(await GetLeaderBoard(game.Id));
         await clients.ReceiveGameState(game.State);
         await UpdateDashboardState(game.Id);
     }
 
-    private ViewModel.Player[] GetLeaderBoard(Guid gameId)
+    private async Task<ViewModel.Player[]> GetLeaderBoard(Guid gameId)
     {
-        return _dbContext.Players
+        return await _dbContext.Players
             .Where(p => p.GameId == gameId)
             .OrderByDescending(p => p.Score)
             .Select(p => GetViewModel(p))
-            .ToArray();
+            .ToArrayAsync();
     }
 
     private static ViewModel.Player GetViewModel(Player player)

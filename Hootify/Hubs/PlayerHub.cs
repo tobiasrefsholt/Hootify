@@ -16,7 +16,7 @@ public class PlayerHub : Hub<IPlayerHub>
     public override async Task OnConnectedAsync()
     {
         var playerId = await GetPlayerId();
-        var gameId = _gameService.GetGameIdByPlayer(playerId);
+        var gameId = await _gameService.GetGameIdByPlayer(playerId);
         if (playerId == Guid.Empty || gameId == Guid.Empty)
         {
             await Clients.Client(Context.ConnectionId).ReceiveMessage("Cannot find player with that id");
@@ -43,14 +43,14 @@ public class PlayerHub : Hub<IPlayerHub>
     public async Task AnswerQuestion(Guid questionId, int answerIndex)
     {
         var playerId = await GetPlayerId();
-        var gameId = _gameService.GetGameIdByPlayer(playerId);
+        var gameId = await _gameService.GetGameIdByPlayer(playerId);
         await _gameService.AnswerQuestion(playerId, gameId, questionId, answerIndex);
     }
 
     public async Task SendChatMessage(string message, string sender)
     {
         var playerId = await GetPlayerId();
-        var gameId = _gameService.GetGameIdByPlayer(playerId);
+        var gameId = await _gameService.GetGameIdByPlayer(playerId);
         await _gameService.BroadcastChatMessage(gameId, message, sender);
     }
     

@@ -11,17 +11,16 @@ public static class DashboardEndpoints
     {
         return builder.UseEndpoints(endpoints =>
         {
-            endpoints.MapPost("/dashboard/questions/get", (Guid id, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/get", async (Guid id, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var questionService = new DashboardQuestionService(dbContext, httpContext);
-                return questionService.Get(id);
+                return await questionService.Get(id);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/questions/getAll",
-                (QuestionFilterOptions filterOptions, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/questions/getAll", async (QuestionFilterOptions filterOptions, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
-                    return questionService.GetAll();
+                    return await questionService.GetAll();
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/questions/add",
@@ -46,10 +45,10 @@ public static class DashboardEndpoints
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/questions/edit",
-                (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
+                async (QuestionWithAnswer question, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var questionService = new DashboardQuestionService(dbContext, httpContext);
-                    questionService.Update(question);
+                    return await questionService.Update(question);
                 }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/categories/getAll", async (AppDbContext dbContext, HttpContext httpContext) =>
@@ -72,71 +71,66 @@ public static class DashboardEndpoints
                     return await categoryService.Delete(categoryIds);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/categories/edit", async (Category category, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/categories/edit",
+                async (Category category, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var categoryService = new DashboardCategoryService(dbContext, httpContext);
                     return await categoryService.Update(category);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/add", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/add", async (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                var success = Guid.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
-                    out var userId);
-                if (!success) return;
-                quizService.Add(quiz);
+                return await quizService.Add(quiz);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/get", (Guid id, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/get", async (Guid id, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                return quizService.Get(id);
+                return await quizService.Get(id);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/getAll", (AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/getAll", async (AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                return quizService.GetAll();
+                return await quizService.GetAll();
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/delete", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/delete", async (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                return quizService.Delete(quiz.Id);
+                return await quizService.Delete(quiz.Id);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/edit", (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/edit", async (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                return quizService.Update(quiz);
+                return await quizService.Update(quiz);
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/add",
-                (GameOptions gameOptions, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/game/add", async (GameOptions gameOptions, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var service = new DashboardGameService(dbContext, httpContext);
-                    return service.New(gameOptions);
+                    return await service.New(gameOptions);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/get/{gameId:guid}",
-                (Guid gameId, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/game/get/{gameId:guid}", async (Guid gameId, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var service = new DashboardGameService(dbContext, httpContext);
-                    return service.Get(gameId);
+                    return await service.Get(gameId);
                 }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/getAll", (AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/game/getAll", async (AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var service = new DashboardGameService(dbContext, httpContext);
-                    return service.GetAll(null);
+                    return await service.GetAll(null);
                 })
                 .RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/game/getAll/{gameState}",
-                (GameState gameState, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/game/getAll/{gameState}", async (GameState gameState, AppDbContext dbContext, HttpContext httpContext) =>
                 {
                     var service = new DashboardGameService(dbContext, httpContext);
-                    return service.GetAll(gameState);
+                    return await service.GetAll(gameState);
                 }).RequireAuthorization();
         });
     }

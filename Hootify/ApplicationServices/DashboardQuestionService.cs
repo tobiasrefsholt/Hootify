@@ -1,5 +1,6 @@
 using Hootify.DbModel;
 using Hootify.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using Question = Hootify.DbModel.Question;
 
 namespace Hootify.ApplicationServices;
@@ -40,39 +41,40 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
             );
     }
 
-    public ViewModel.QuestionWithAnswer? Get(Guid id) =>
-        QuestionsWithAnswerQuery(id).FirstOrDefault();
+    public async Task<ViewModel.QuestionWithAnswer?> Get(Guid id) =>
+        await QuestionsWithAnswerQuery(id).FirstOrDefaultAsync();
 
-    public List<ViewModel.QuestionWithAnswer> GetAll() =>
-        QuestionsWithAnswerQuery(null).ToList();
+    public async Task<List<ViewModel.QuestionWithAnswer>> GetAll() =>
+        await QuestionsWithAnswerQuery(null).ToListAsync();
 
-    public void Update(ViewModel.QuestionWithAnswer question)
+    public async Task<bool> Update(ViewModel.QuestionWithAnswer question)
     {
-        var dbQuestion = DbContext.Questions
+        var dbQuestion = await DbContext.Questions
             .Where(q => q.UserId == UserId)
-            .FirstOrDefault(e => e.Id == question.Id);
-        if (dbQuestion == null) return;
+            .FirstOrDefaultAsync(e => e.Id == question.Id);
+        if (dbQuestion == null) return false;
         dbQuestion.Title = question.Title;
         dbQuestion.Answers = question.Answers;
         dbQuestion.CorrectAnswer = question.CorrectAnswer;
         dbQuestion.CategoryId = question.CategoryId;
-        DbContext.SaveChanges();
+        var changes = await DbContext.SaveChangesAsync();
+        return changes < 0;
     }
 
     public async Task<bool> Delete(Guid[] ids)
     {
-        var questions = DbContext.Questions
+        var questions = await DbContext.Questions
             .Where(q => q.UserId == UserId)
             .Where(q => ids.Contains(q.Id))
-            .ToList();
+            .ToListAsync();
 
         DbContext.Questions.RemoveRange(questions);
 
-        DbContext.Quizzes
+        var quizzes = await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
-            .ToList()
-            .ForEach(q => q.QuestionIds = q.QuestionIds.Except(ids).ToList());
+            .ToListAsync();
 
+        quizzes.ForEach(q => q.QuestionIds = q.QuestionIds.Except(ids).ToList());
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }

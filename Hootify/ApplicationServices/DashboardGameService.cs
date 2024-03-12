@@ -1,4 +1,5 @@
 using Hootify.DbModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hootify.ApplicationServices;
 
@@ -7,9 +8,9 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
 {
     private readonly Random _random = new();
 
-    public bool New(ViewModel.GameOptions gameOptions)
+    public async Task<bool> New(ViewModel.GameOptions gameOptions)
     {
-        var activeQuiz = DbContext.Quizzes.FirstOrDefault(q => q.Id == gameOptions.QuizId);
+        var activeQuiz = await DbContext.Quizzes.FirstOrDefaultAsync(q => q.Id == gameOptions.QuizId);
         if (activeQuiz == null) throw new Exception("Quiz not found");
         var gameId = Guid.NewGuid();
         var shareKey = GenerateShareKey();
@@ -26,31 +27,31 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
             activeQuiz.QuestionIds
         );
         DbContext.Games.Add(dbGame);
-        var changes = DbContext.SaveChanges();
+        var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }
 
-    public ViewModel.Game? Get(Guid gameId)
+    public async Task<ViewModel.Game?> Get(Guid gameId)
     {
-        return DbContext.Games
+        return await DbContext.Games
             .Where(g => g.UserId == UserId && g.Id == gameId)
             .Select(g => GetViewModel(g))
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 
-    public List<ViewModel.Game> GetAll(GameState? gameState)
+    public async Task<List<ViewModel.Game>> GetAll(GameState? gameState)
     {
         if (gameState == null)
-            return DbContext.Games
+            return await DbContext.Games
                 .Where(g => g.UserId == UserId)
                 .Select(g => GetViewModel(g))
-                .ToList();
+                .ToListAsync();
 
-        return DbContext.Games
+        return await DbContext.Games
             .Where(g => g.UserId == UserId)
             .Where(g => g.State == gameState)
             .Select(g => GetViewModel(g))
-            .ToList();
+            .ToListAsync();
     }
 
     private string GenerateShareKey()

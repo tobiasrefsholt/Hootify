@@ -9,11 +9,11 @@ public static class GameEndpoints
     {
         return builder.UseEndpoints(endpoints =>
         {
-            endpoints.MapPost("/game/join/{shareKey}", (string shareKey, Player player, GameService gameService) =>
+            endpoints.MapPost("/game/join/{shareKey}", async (string shareKey, Player player, GameService gameService) =>
             {
-                var gameId = gameService.GetGameByPin(shareKey);
+                var gameId = await gameService.GetGameByPin(shareKey);
                 return gameId != null
-                    ? gameService.AddPlayerToGame((Guid)gameId, player)
+                    ? await gameService.AddPlayerToGame((Guid)gameId, player)
                     : null;
             });
         });
