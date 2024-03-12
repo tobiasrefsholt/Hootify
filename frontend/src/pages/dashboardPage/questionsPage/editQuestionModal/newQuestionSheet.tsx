@@ -36,7 +36,7 @@ export default function NewQuestionSheet({children}: QuestionSheetProps) {
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger>
+            <SheetTrigger asChild>
                 {children}
             </SheetTrigger>
             <SheetContent>
@@ -53,7 +53,7 @@ export default function NewQuestionSheet({children}: QuestionSheetProps) {
                     afterSubmit={() => setOpen(false)}
                 />
                 <SheetFooter>
-                    <SheetClose>
+                    <SheetClose asChild>
                         <Button
                             variant="ghost">
                             Cancel
