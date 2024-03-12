@@ -26,6 +26,7 @@ import {Button} from "@/components/ui/button.tsx";
 import Papa, {ParseResult} from "papaparse";
 import {InsertQuestion} from "@/Types.ts";
 import {Link} from "react-router-dom";
+import csvSampleLink from "@/assets/QuestionImportSample.csv?url";
 
 type QuestionSheetProps = {
     children: ReactNode;
@@ -118,7 +119,7 @@ export default function ImportQuestionsSheet({children}: QuestionSheetProps) {
                     variant="outline"
                     className="mt-5"
                 >
-                    <Link to="/public/QuestionImportSample.csv" target="_blank" download>Download sample file</Link>
+                    <Link to={csvSampleLink} target="_blank" download>Download sample file</Link>
                 </Button>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5 space-y-2.5">
