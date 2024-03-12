@@ -21,16 +21,6 @@ public class AppDbContext : DbContext
     public DbSet<Question> Questions { get; set; }
     public DbSet<Quiz> Quizzes { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        
-        // Global query filter
-        modelBuilder.Entity<Quiz>().HasQueryFilter(e => e.UserId == GetUserId());
-        modelBuilder.Entity<Question>().HasQueryFilter(e => e.UserId == GetUserId());
-        modelBuilder.Entity<Category>().HasQueryFilter(e => e.UserId == GetUserId());
-    }
-
     private Guid GetUserId()
     {
         var idString = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
