@@ -56,11 +56,22 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
 
     public async Task<object> Delete(Guid[] gameIds)
     {
-        var dbGames = await DbContext.Games
+        var games = await DbContext.Games
             .Where(g => g.UserId == UserId)
             .Where(g => gameIds.Contains(g.Id))
             .ToArrayAsync();
-        DbContext.Games.RemoveRange(dbGames);
+        
+        var players = await DbContext.Players
+            .Where(p => gameIds.Contains(p.GameId))
+            .ToArrayAsync();
+        
+        var answers = await DbContext.GameAnswers
+            .Where(a => gameIds.Contains(a.GameId))
+            .ToArrayAsync();
+        
+        DbContext.Games.RemoveRange(games);
+        DbContext.Players.RemoveRange(players);
+        DbContext.GameAnswers.RemoveRange(answers);
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }
