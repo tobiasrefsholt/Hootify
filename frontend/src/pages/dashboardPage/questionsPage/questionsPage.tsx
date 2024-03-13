@@ -39,7 +39,7 @@ export default function QuestionsPage() {
                     <Button>Create new</Button>
                 </NewQuestionSheet>
                 <ImportQuestionsSheet>
-                    <Button variant="outline">Import from file</Button>
+                    <Button variant="secondary">Import from file</Button>
                 </ImportQuestionsSheet>
                 {selectedIds.length > 0 && (
                     <>
