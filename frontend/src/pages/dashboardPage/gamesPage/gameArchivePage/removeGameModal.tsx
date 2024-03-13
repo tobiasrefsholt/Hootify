@@ -29,7 +29,7 @@ export default function RemoveGameModal({children, onCanceled, onConfirmDelete, 
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action is irreversible. The question(s) will be permanently deleted, and any quizzes utilizing this/these question(s) will be automatically updated.
+                        This action is irreversible. The games(s) will be permanently deleted.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
