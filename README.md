@@ -32,12 +32,16 @@ GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-Configure appsettings.json
+Configure appsettings.json with a database connection string and api credentials for [brevo](https://www.brevo.com/) (mail service)
 
 ```json
-// Example configuration
 "ConnectionStrings": {
   "MariaDB": "server=localhost;user=username;password=password;database=database_name"
+},
+"Brevo": {
+    "ApiKey": "your-apiKey-here",
+    "SenderName": "",
+    "SenderEmail": "noreply@somedomain.tld"
 },
 ```
 
@@ -54,15 +58,10 @@ Run dev server
 ```
 dotnet run
 ```
-## Lessons Learned
-
-What did you learn while building this project? What challenges did you face and how did you overcome them?
-
 
 ## Dependencies
 - Dotnet core 8
 - MariaDB
 - Nodejs (for running dev server)
 ## Roadmap
-
-- Everything
+[TODO](TODO.md)
