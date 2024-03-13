@@ -12,6 +12,9 @@ import {CategoriesProvider} from "@/context/categoriesContext.tsx";
 import CategoriesPage from "@/pages/dashboardPage/categoriesPage/categoriesPage.tsx";
 import {useNavigate} from "react-router";
 import {useEffect} from "react";
+import AccountPage from "@/pages/dashboardPage/account/accountPage.tsx";
+import PageContainer from "@/components/ui/pageContainer.tsx";
+import PageHeader from "@/components/ui/pageHeader.tsx";
 
 export default function DashboardPage() {
     const {userData, isPending} = useUser();
@@ -40,6 +43,8 @@ export default function DashboardPage() {
                                     <Route path="quizzes/*" element={<QuizzesPage/>}></Route>
                                     <Route path="questions/*" element={<QuestionsPage/>}></Route>
                                     <Route path="categories/*" element={<CategoriesPage/>}></Route>
+                                    <Route path="account/*" element={<AccountPage/>}></Route>
+                                    <Route path="*" element={<PageContainer><PageHeader>Page Not found</PageHeader></PageContainer>}></Route>
                                 </Routes>
                             </div>
                         </div>

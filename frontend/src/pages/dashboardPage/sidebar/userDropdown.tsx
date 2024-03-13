@@ -9,10 +9,11 @@ import {
 import {useUser} from "@/context/userContext.tsx";
 import {LogOut, Settings, Shield, User} from "lucide-react";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar.tsx";
+import {useNavigate} from "react-router";
 
 export default function UserDropdown() {
     const {userData, logout} = useUser();
-
+    const navigate = useNavigate();
 
     return (
         <div className="flex gap-2.5">
@@ -27,15 +28,15 @@ export default function UserDropdown() {
                 <DropdownMenuContent className="w-full min-w-52">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator/>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/account/profile")}>
                         <User className="mr-2 h-4 w-4"/>
                         <span>My Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/account/security")}>
                         <Shield className="mr-2 h-4 w-4"/>
                         <span>Security</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/account/settings")}>
                         <Settings className="mr-2 h-4 w-4"/>
                         <span>Settings</span>
                     </DropdownMenuItem>
