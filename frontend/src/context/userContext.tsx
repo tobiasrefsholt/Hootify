@@ -5,6 +5,7 @@ import {useFetch} from "@/hooks/useFetch.ts";
 const UserContext = createContext<UserContextType>({
     userData: null,
     isPending: false,
+    responseCode: null,
     login: () => {
     },
     logout: () => {
@@ -35,6 +36,7 @@ export const UserProvider = ({children}: UserProviderProps) => {
     useEffect(() => {
         if (fetchUser.error) logout();
         if (fetchUser.data) login({email: fetchUser.data.email});
+        console.log(fetchUser);
     }, [fetchUser.data?.email, fetchUser.error]);
 
     const login = (user: User) => {
@@ -49,6 +51,7 @@ export const UserProvider = ({children}: UserProviderProps) => {
     const userContextValue: UserContextType = {
         userData: user,
         isPending: fetchUser.isPending,
+        responseCode: fetchUser.responseCode,
         login,
         logout
     };

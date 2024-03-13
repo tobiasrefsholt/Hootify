@@ -11,23 +11,21 @@ import {QuizzesProvider} from "@/context/quizzesContext.tsx";
 import {CategoriesProvider} from "@/context/categoriesContext.tsx";
 import CategoriesPage from "@/pages/dashboardPage/categoriesPage/categoriesPage.tsx";
 import {useNavigate} from "react-router";
-import {useEffect} from "react";
+import {useMemo} from "react";
 import AccountPage from "@/pages/dashboardPage/account/accountPage.tsx";
 import PageContainer from "@/components/ui/pageContainer.tsx";
 import PageHeader from "@/components/ui/pageHeader.tsx";
 
 export default function DashboardPage() {
-    const {userData, isPending} = useUser();
+    const {userData, isPending, responseCode} = useUser();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!userData?.email && !isPending) navigate("/");
-    }, [isPending, userData?.email]);
+    const doRedirect = useMemo(
+        () => !userData?.email && !isPending && responseCode !== 200,
+        [userData?.email, isPending, responseCode]
+    );
 
-    if (!userData?.email && isPending) return "Logging in...";
-    if (!userData?.email) {
-        return "Redirecting...";
-    }
+    if (doRedirect) navigate("/");
 
     return (
         <QuestionsProvider>
