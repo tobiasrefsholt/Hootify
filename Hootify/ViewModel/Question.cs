@@ -7,10 +7,10 @@ public class Question
     public string[] Answers { get; set; }
     public string Category { get; set; }
     public Guid CategoryId { get; set; }
-    public DateTime StartTime { get; set; }
+    public long StartTime { get; set; }
     public int Seconds { get; set; }
 
-    public Question(Guid id, string title, string[] answers, string category, Guid categoryId, DateTime startTime,
+    public Question(Guid id, string title, string[] answers, string category, Guid categoryId, long startTime,
         int seconds)
     {
         Id = id;

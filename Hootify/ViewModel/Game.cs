@@ -12,12 +12,12 @@ public class Game
     public GameState State { get; set; }
     public Guid CurrentQuestionId { get; set; }
     public int CurrentQuestionNumber { get; set; }
-    public DateTime CurrentQuestionStartTime { get; set; }
+    public long CurrentQuestionStartTime { get; set; }
     public List<Guid>? RemainingQuestions { get; set; }
 
     public Game(Guid id, string shareKey, Guid quizId, string title, bool randomizeQuestions, bool randomizeAnswers,
         int secondsPerQuestion, GameState state, Guid currentQuestionId, int currentQuestionNumber,
-        DateTime currentQuestionStartTime, List<Guid>? remainingQuestions)
+        long currentQuestionStartTime, List<Guid>? remainingQuestions)
     {
         Id = id;
         ShareKey = shareKey;

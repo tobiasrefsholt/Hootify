@@ -87,15 +87,6 @@ public class GameService
     private async Task SendQuestion(Guid gameId, string recipientGroup)
     {
         var currentQuestion = await GetCurrentQuestion(gameId);
-        // Check if question has expired and handle it
-        if (currentQuestion?.StartTime.AddSeconds(currentQuestion.Seconds) < DateTime.Now)
-        {
-            // Question has expired
-            await PushFinishedQuestion(gameId);
-            await UpdateDashboardState(gameId);
-            return;
-        }
-
         var clients = _playerHubContext.Clients.Group(recipientGroup);
         await clients.ReceiveNewQuestion(currentQuestion);
     }
@@ -239,13 +230,14 @@ public class GameService
     private async Task<bool> CanAnswerQuestion(Guid playerId, Guid gameId, Guid questionId)
     {
         var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+        var timestamp = GetUnixTimeMilliseconds();
         if (game == null ||
             // Question is not the current question
             game.CurrentQuestionId != questionId ||
             // Question has expired
-            game.CurrentQuestionStartTime.AddSeconds(game.SecondsPerQuestion) < DateTime.Now ||
+            game.CurrentQuestionStartTime + game.SecondsPerQuestion * 1000 < timestamp ||
             // Question has not started
-            game.CurrentQuestionStartTime > DateTime.Now ||
+            game.CurrentQuestionStartTime > timestamp ||
             // Game is not in progress
             game.State != GameState.QuestionInProgress)
             return false;
@@ -349,7 +341,7 @@ public class GameService
         ).FirstOrDefaultAsync();
     }
 
-    private async Task<Guid> CurrentQuestionId(Guid gameId)
+    private async Task<Guid?> CurrentQuestionId(Guid gameId)
     {
         var currentQuestionId = await _dbContext.Games
             .Where(g => g.Id == gameId)
@@ -433,7 +425,7 @@ public class GameService
         if (nextQuestion == null)
             return;
 
-        var timestamp = DateTime.Now;
+        var timestamp = GetUnixTimeMilliseconds();
 
         game.CurrentQuestionId = nextQuestion.Id;
         game.CurrentQuestionStartTime = timestamp;
@@ -478,7 +470,7 @@ public class GameService
     {
         game.State = GameState.GameComplete;
         game.CurrentQuestionId = Guid.Empty;
-        game.CurrentQuestionStartTime = DateTime.MinValue;
+        game.CurrentQuestionStartTime = GetUnixTimeMilliseconds();
         await _dbContext.SaveChangesAsync();
 
         var clients = _playerHubContext.Clients.Group(game.Id.ToString());
@@ -499,5 +491,10 @@ public class GameService
     private static ViewModel.Player GetViewModel(Player player)
     {
         return new ViewModel.Player(player.Id, player.Name, player.Score);
+    }
+
+    private static long GetUnixTimeMilliseconds()
+    {
+        return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 }
