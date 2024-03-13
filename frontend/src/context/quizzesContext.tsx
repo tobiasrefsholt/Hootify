@@ -54,8 +54,8 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
         });
     }
 
-    function remove(id: string) {
-        deleteFetch.doFetch("POST", [], {id}, () => {
+    function remove(ids: string[]) {
+        deleteFetch.doFetch("POST", [], ids, () => {
             // Fetch questions after deleting
             doFetch("POST", [], null);
         });

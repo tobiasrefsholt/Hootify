@@ -108,7 +108,7 @@ export type QuizzesContextType = {
     error: string | null,
     add: (question: Quiz) => void,
     edit: (question: Quiz) => void,
-    remove: (id: string) => void
+    remove: (ids: string[]) => void
 }
 
 export type UserContextType = {

@@ -45,13 +45,13 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         return changes > 0;
     }
 
-    public async Task<bool> Delete(Guid id)
+    public async Task<bool> Delete(Guid[] ids)
     {
         var dbQuiz = await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
-            .FirstOrDefaultAsync(q => q.Id == id);
-        if (dbQuiz == null) return false;
-        DbContext.Quizzes.Remove(dbQuiz);
+            .Where(q => ids.Contains(q.Id))
+            .ToArrayAsync();
+        DbContext.Quizzes.RemoveRange(dbQuiz);
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }

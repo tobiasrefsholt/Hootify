@@ -96,10 +96,10 @@ public static class DashboardEndpoints
                 return await quizService.GetAll();
             }).RequireAuthorization();
 
-            endpoints.MapPost("/dashboard/quiz/delete", async (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
+            endpoints.MapPost("/dashboard/quiz/delete", async (Guid[] quizIds, AppDbContext dbContext, HttpContext httpContext) =>
             {
                 var quizService = new DashboardQuizService(dbContext, httpContext);
-                return await quizService.Delete(quiz.Id);
+                return await quizService.Delete(quizIds);
             }).RequireAuthorization();
 
             endpoints.MapPost("/dashboard/quiz/edit", async (Quiz quiz, AppDbContext dbContext, HttpContext httpContext) =>
