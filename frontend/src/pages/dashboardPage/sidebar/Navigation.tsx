@@ -7,7 +7,7 @@ import {HTMLProps, ReactNode} from "react";
 export default function Navigation() {
     return (
         <nav>
-            <ul className="flex flex-col gap-2.5">
+            <ul className="flex flex-col gap-1.5">
                 <NavigationItem to={"/dashboard"}>Dashboard</NavigationItem>
                 <NavigationItem to={"/dashboard/games"}>Games</NavigationItem>
                 <NavigationItem to={"/dashboard/quizzes"}>Quizzes</NavigationItem>
@@ -27,15 +27,15 @@ type NavigationItemProps = {
 };
 
 function NavigationItem({to, icon, children}: NavigationItemProps) {
-    const baseClasses: HTMLProps<HTMLElement>["className"] = "flex items-center gap-2.5 px-2.5 py-1 rounded-md";
+    const baseClasses: HTMLProps<HTMLElement>["className"] = "flex items-center gap-2.5 p-2.5 rounded-md border";
     return (
         <li>
             <NavLink
                 to={to}
                 end
-                className={({isActive}) => isActive
+                className={({isActive, isPending}) => (isActive || isPending)
                     ? cn(baseClasses, "text-primary-foreground bg-secondary")
-                    : cn(baseClasses, "text-muted-foreground")
+                    : cn(baseClasses, "text-muted-foreground border-background hover:border-secondary")
                 }
             >
                 {icon}
