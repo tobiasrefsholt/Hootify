@@ -132,6 +132,12 @@ public static class DashboardEndpoints
                     var service = new DashboardGameService(dbContext, httpContext);
                     return await service.GetAll(gameState);
                 }).RequireAuthorization();
+            
+            endpoints.MapPost("/dashboard/game/delete", async (Guid[] gameIds, AppDbContext dbContext, HttpContext httpContext) =>
+                {
+                    var service = new DashboardGameService(dbContext, httpContext);
+                    return await service.Delete(gameIds);
+                }).RequireAuthorization();
         });
     }
 }

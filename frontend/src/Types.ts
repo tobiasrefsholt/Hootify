@@ -89,7 +89,7 @@ export type GamesContextType = {
     isPending: boolean,
     error: string | null,
     add: (question: Game) => void,
-    remove: (id: string) => void
+    remove: (ids: string[]) => void
 }
 
 export type QuestionsContextType = {

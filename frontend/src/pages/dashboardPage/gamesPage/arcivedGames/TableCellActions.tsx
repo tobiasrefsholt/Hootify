@@ -10,6 +10,9 @@ import {Button} from "@/components/ui/button.tsx";
 import {MoreHorizontal} from "lucide-react";
 import {Game, GameState} from "@/Types.ts";
 import {useNavigate} from "react-router";
+import RemoveGameModal from "@/pages/dashboardPage/gamesPage/gameArchivePage/removeGameModal.tsx";
+import {useState} from "react";
+import {useGames} from "@/context/gamesContext.tsx";
 
 type TableCellActionsProps = {
     row: { original: Game };
@@ -17,6 +20,8 @@ type TableCellActionsProps = {
 
 export default function TableCellActions({row}: TableCellActionsProps) {
     const navigate = useNavigate();
+    const {remove: removeGames} = useGames();
+    const [openRemoveModal, setOpenRemoveModal] = useState(false);
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -35,13 +40,18 @@ export default function TableCellActions({row}: TableCellActionsProps) {
                     </DropdownMenuItem>
                 }
                 <DropdownMenuSeparator/>
-                <DropdownMenuItem
-                    onClick={() => navigate(row.original.id)}
-                >
+                <DropdownMenuItem onClick={() => navigate(row.original.id)}>
                     Open
                 </DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOpenRemoveModal(true)}>
+                    Delete
+                </DropdownMenuItem>
             </DropdownMenuContent>
+            <RemoveGameModal
+                open={openRemoveModal}
+                setOpen={setOpenRemoveModal}
+                onConfirmDelete={() => removeGames([row.original.id])} children={""}
+            />
         </DropdownMenu>
     )
 }

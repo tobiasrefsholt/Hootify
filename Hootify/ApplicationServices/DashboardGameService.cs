@@ -54,6 +54,17 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
             .ToListAsync();
     }
 
+    public async Task<object> Delete(Guid[] gameIds)
+    {
+        var dbGames = await DbContext.Games
+            .Where(g => g.UserId == UserId)
+            .Where(g => gameIds.Contains(g.Id))
+            .ToArrayAsync();
+        DbContext.Games.RemoveRange(dbGames);
+        var changes = await DbContext.SaveChangesAsync();
+        return changes > 0;
+    }
+
     private string GenerateShareKey()
     {
         while (true)
