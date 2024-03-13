@@ -8,6 +8,7 @@
 - [ ] Batch remove from quizzes
 
 ## Quizzes
+- [x] Option to delete
 - [ ] Add a view for quizz details
   - [ ] Table of questions
   - [ ] Option to remove questions
@@ -30,7 +31,7 @@
 - [ ] Delete all user data
 
 ## Games
-- [ ] A way to delete games
+- [x] A way to delete games
 
 # Client view
 
