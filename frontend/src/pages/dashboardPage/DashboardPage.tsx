@@ -10,10 +10,21 @@ import {GamesProvider} from "@/context/gamesContext.tsx";
 import {QuizzesProvider} from "@/context/quizzesContext.tsx";
 import {CategoriesProvider} from "@/context/categoriesContext.tsx";
 import CategoriesPage from "@/pages/dashboardPage/categoriesPage/categoriesPage.tsx";
+import {useNavigate} from "react-router";
+import {useEffect} from "react";
 
 export default function DashboardPage() {
-    const {userData} = useUser();
-    if (!userData?.email) return "Unauthorized";
+    const {userData, isPending} = useUser();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!userData?.email && !isPending) navigate("/");
+    }, [isPending, userData?.email]);
+
+    if (!userData?.email && isPending) return "Logging in...";
+    if (!userData?.email) {
+        return "Redirecting...";
+    }
 
     return (
         <QuestionsProvider>

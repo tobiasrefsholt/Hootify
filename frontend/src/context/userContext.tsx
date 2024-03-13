@@ -4,6 +4,7 @@ import {useFetch} from "@/hooks/useFetch.ts";
 
 const UserContext = createContext<UserContextType>({
     userData: null,
+    isPending: false,
     login: () => {
     },
     logout: () => {
@@ -45,7 +46,12 @@ export const UserProvider = ({children}: UserProviderProps) => {
         setUser(null);
     };
 
-    const userContextValue: UserContextType = {userData: user, login, logout};
+    const userContextValue: UserContextType = {
+        userData: user,
+        isPending: fetchUser.isPending,
+        login,
+        logout
+    };
 
     return (
         <UserContext.Provider value={userContextValue}>

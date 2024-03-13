@@ -113,6 +113,7 @@ export type QuizzesContextType = {
 
 export type UserContextType = {
     userData: User | null,
+    isPending: boolean,
     login: (user: User) => void,
     logout: () => void
 };
