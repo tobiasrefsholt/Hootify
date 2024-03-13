@@ -4,7 +4,7 @@ import Countdown, {CountdownTimeDelta, zeroPad} from "react-countdown";
 import ShowQuestionWithAnswer
     from "@/pages/dashboardPage/gamesPage/gameDetailsPage/activeStateCards/ShowQuestionWithAnswer.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {useEffect, useState} from "react";
+import {useMemo} from "react";
 
 type CurrentQuestionCardProps = {
     question: QuestionWithAnswer | null
@@ -20,13 +20,11 @@ export default function QuestionInProgressActions(
         sendNextQuestion,
         sendLeaderboard
     }: CurrentQuestionCardProps) {
-    const [endDate, setEndDate] = useState<Date>();
 
-    useEffect(() => {
-        if (!question?.id) return;
-        const startDate = new Date(question.startTime);
-        setEndDate(new Date(startDate.getTime() + (question.seconds || 0) * 1000));
-    }, [question?.id, question?.seconds, question?.startTime]);
+    const endTimestamp = useMemo(
+        () => new Date().getTime() + (question?.seconds || 0) * 1000,
+        [question?.seconds, question?.id]
+    );
 
     function handleOutOfTime(_timeDelta: CountdownTimeDelta, completedOnStart: boolean) {
         if (!completedOnStart) {
@@ -38,12 +36,12 @@ export default function QuestionInProgressActions(
         <Card className="bg-neutral-900">
             <CardHeader>Current Question</CardHeader>
             <CardContent>
-                {endDate &&
+                {endTimestamp &&
                     <div className="mb-5">
                         <p>Time left:</p>
                         <Countdown
-                            key={endDate.toString()}
-                            date={endDate}
+                            key={endTimestamp.toString()}
+                            date={endTimestamp}
                             renderer={({minutes, seconds}) => (
                                 <span>{zeroPad(minutes)}:{zeroPad(seconds)}</span>
                             )}
