@@ -58,7 +58,7 @@ export default function ChangePasswordCard() {
 
     function showErrorResponse(errors: ErrorObject) {
         for (const key in errors) {
-            if (key === "PasswordMismatch") {
+            if (key === "PasswordMismatch" || key === "OldPasswordRequired") {
                 const oldPasswordErrors = errors[key as keyof ErrorObject];
                 if (!oldPasswordErrors) continue;
                 form.setError("oldPassword", {
