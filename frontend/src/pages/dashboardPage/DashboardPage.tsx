@@ -11,21 +11,19 @@ import {QuizzesProvider} from "@/context/quizzesContext.tsx";
 import {CategoriesProvider} from "@/context/categoriesContext.tsx";
 import CategoriesPage from "@/pages/dashboardPage/categoriesPage/categoriesPage.tsx";
 import {useNavigate} from "react-router";
-import {useMemo} from "react";
 import AccountPage from "@/pages/dashboardPage/account/accountPage.tsx";
 import PageContainer from "@/components/ui/pageContainer.tsx";
 import PageHeader from "@/components/ui/pageHeader.tsx";
+import {useEffect} from "react";
 
 export default function DashboardPage() {
-    const {userData, isPending, responseCode} = useUser();
+    const {isPending: isPendingLogin, responseCode: loginResponse} = useUser();
     const navigate = useNavigate();
 
-    const doRedirect = useMemo(
-        () => !userData?.email && !isPending && responseCode !== 200,
-        [userData?.email, isPending, responseCode]
-    );
-
-    if (doRedirect) navigate("/");
+    useEffect(() => {
+        if (!isPendingLogin && loginResponse !== 200)
+            navigate("/");
+    }, [isPendingLogin, loginResponse]);
 
     return (
         <QuestionsProvider>
@@ -42,7 +40,8 @@ export default function DashboardPage() {
                                     <Route path="questions/*" element={<QuestionsPage/>}></Route>
                                     <Route path="categories/*" element={<CategoriesPage/>}></Route>
                                     <Route path="account/*" element={<AccountPage/>}></Route>
-                                    <Route path="*" element={<PageContainer><PageHeader>Page Not found</PageHeader></PageContainer>}></Route>
+                                    <Route path="*" element={<PageContainer><PageHeader>Page Not
+                                        found</PageHeader></PageContainer>}></Route>
                                 </Routes>
                             </div>
                         </div>

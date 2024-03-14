@@ -58,8 +58,7 @@ export default function LoginTab() {
         }
 
         setIsPending(false);
-
-        user.login({email: data.email});
+        user.fetch();
         navigate("/dashboard");
     }
 

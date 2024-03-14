@@ -12,7 +12,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {useUser} from "@/context/userContext.tsx";
 
 export function UserTabsCard() {
-    const {userData} = useUser();
+    const {responseCode: loginResponse} = useUser();
     const [tab, setTab] = useState("register");
     return (
         <Card className="w-full sm:w-80">
@@ -21,8 +21,10 @@ export function UserTabsCard() {
                 <CardDescription>Create a new account or log in to host your own quiz!</CardDescription>
             </CardHeader>
             <CardContent>
-                {userData === null
+                {loginResponse === 200
                     ?
+                    <LoggedInTab/>
+                    :
                     <Tabs value={tab} onValueChange={setTab} className="">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="register">Register</TabsTrigger>
@@ -38,8 +40,6 @@ export function UserTabsCard() {
                             <LoggedInTab/>
                         </TabsContent>
                     </Tabs>
-                    :
-                    <LoggedInTab/>
                 }
             </CardContent>
         </Card>

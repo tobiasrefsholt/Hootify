@@ -1,12 +1,12 @@
-import {createContext, ReactNode, useContext, useEffect, useState} from "react";
-import {ApiEndpoint, User, UserContextType} from "@/Types.ts";
+import {createContext, ReactNode, useContext, useEffect} from "react";
+import {ApiEndpoint, UserContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
 
 const UserContext = createContext<UserContextType>({
     userData: null,
     isPending: false,
     responseCode: null,
-    login: () => {
+    fetch: () => {
     },
     logout: () => {
     }
@@ -23,36 +23,39 @@ type ManageInfoResponse = {
 }
 
 export const UserProvider = ({children}: UserProviderProps) => {
-    const [user, setUser] = useState<User | null>(null);
-    const fetchUser = useFetch<ManageInfoResponse>(ApiEndpoint.ManageInfo, []);
-    const fetchLogout = useFetch<null>(ApiEndpoint.Logout, []);
+    const {doFetch: logOutUser, isPending: pendingLogout} = useFetch<null>(ApiEndpoint.Logout, []);
+    const {
+        data: user,
+        doFetch: fetchUser,
+        isPending,
+        responseCode,
+        error
+    } = useFetch<ManageInfoResponse>(ApiEndpoint.ManageInfo, [pendingLogout]);
 
     // Fetch user data on mount
     useEffect(() => {
-        fetchUser.doFetch("GET", [], null);
+        fetch();
     }, []);
 
     // Set user data on fetch response
     useEffect(() => {
-        if (fetchUser.error) logout();
-        if (fetchUser.data) login({email: fetchUser.data.email});
+        if (error) logout();
         console.log(fetchUser);
-    }, [fetchUser.data?.email, fetchUser.error]);
+    }, [user?.email, error]);
 
-    const login = (user: User) => {
-        setUser(user);
+    const fetch = () => {
+        fetchUser("GET", [], null);
     };
 
     const logout = () => {
-        fetchLogout.doFetch("POST", [], null);
-        setUser(null);
+        logOutUser("POST", [], null);
     };
 
     const userContextValue: UserContextType = {
         userData: user,
-        isPending: fetchUser.isPending,
-        responseCode: fetchUser.responseCode,
-        login,
+        isPending: isPending,
+        responseCode: responseCode,
+        fetch,
         logout
     };
 
