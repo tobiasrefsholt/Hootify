@@ -24,7 +24,8 @@
 - [x] Add a view for registrering an account
   - [ ] Handle account not verified
 - [ ] Manage account page
-  - [ ] Change password
+  - [x] Change password
+  - [x] Change email
   - [ ] 2fa
   - [ ] Edit username
 - [ ] Forgot password
