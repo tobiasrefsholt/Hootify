@@ -1,7 +1,11 @@
 import {useEffect, useState} from "react";
 import {ApiEndpoint} from "@/Types.ts";
 
-export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.DependencyList | undefined, fetchError: string | null = null) {
+export function useFetch<fetchResponse>(
+    apiEndpoint: ApiEndpoint,
+    deps: React.DependencyList | undefined,
+    fetchError: string | null = null,
+) {
     const [error, setError] = useState<string | null>(null);
     const [isPending, setIsPending] = useState(false);
     const [data, setData] = useState<fetchResponse | null>(null);
@@ -18,7 +22,7 @@ export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.De
         fetchMethod: "GET" | "POST",
         urlParameters: string[] = [],
         requestBody: object | null = null,
-        callback: () => void | undefined = () => {
+        callback: (statusCode:number) => void = () => {
         }
     ) => {
         const path = import.meta.env.VITE_BACKEND_URL + apiEndpoint + urlParameters.map((part) => "/" + part).join("");
@@ -33,6 +37,7 @@ export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.De
         })
             .then((res) => {
                 setResponseCode(res.status);
+                callback(res.status);
                 const contentType = res.headers.get("content-type");
                 const isJsonResponse = contentType && (
                     (contentType.indexOf("application/json") !== -1) ||
@@ -70,7 +75,6 @@ export function useFetch<fetchResponse>(apiEndpoint: ApiEndpoint, deps: React.De
                 setData(error);
                 console.log(error);
             })
-            .finally(() => callback())
     }
 
     return {responseCode, error, isPending, data, doFetch};
