@@ -26,7 +26,7 @@
 - [ ] Manage account page
   - [x] Change password
   - [x] Change email
-  - [ ] 2fa
+  - [x] 2fa
   - [ ] Edit username
 - [ ] Forgot password
 - [ ] Delete all user data
