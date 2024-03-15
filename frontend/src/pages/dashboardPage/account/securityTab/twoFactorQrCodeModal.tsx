@@ -27,7 +27,7 @@ export default function TwoFactorQrCodeModal({secret, email}: TwoFactorQrCodeMod
                     </DialogDescription>
                 </DialogHeader>
                 <QRCodeSVG
-                    className="w-full max-w-60 h-auto mx-auto"
+                    className="w-full max-w-60 h-auto mx-auto p-5 bg-white rounded-md"
                     value={qrCodeUrl}
                 />
                 <DialogFooter>
