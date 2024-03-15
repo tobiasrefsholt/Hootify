@@ -16,6 +16,8 @@ import {
 import {Switch} from "@/components/ui/switch"
 import {InputOTP, InputOTPGroup, InputOTPSlot} from "@/components/ui/input-otp.tsx";
 import {Button} from "@/components/ui/button.tsx";
+import TwoFactorQrCodeModal from "@/pages/dashboardPage/account/securityTab/twoFactorQrCodeModal.tsx";
+import {useUser} from "@/context/userContext.tsx";
 
 const FormSchema = z.object({
     enable: z.boolean().default(false).optional(),
@@ -31,6 +33,7 @@ type TwoFactorResponse = {
 }
 
 export default function TwoFactorCard() {
+    const {userData} = useUser();
     const {data, doFetch} = useFetch<TwoFactorResponse>(ApiEndpoint.ManageTwoFactor, []);
 
     useEffect(() => {
@@ -118,7 +121,10 @@ export default function TwoFactorCard() {
                                     )}
                                 />
                                 <div className="space-x-2.5 mt-2.5">
-                                    <Button variant="secondary">Show QR-code</Button>
+                                    <TwoFactorQrCodeModal
+                                        secret={data?.sharedKey || ""}
+                                        email={userData?.email || ""}
+                                    />
                                     <Button
                                         variant="outline"
                                         onClick={(e) => {
