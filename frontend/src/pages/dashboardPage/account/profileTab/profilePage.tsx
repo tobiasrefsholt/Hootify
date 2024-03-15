@@ -10,6 +10,7 @@ import {useFetch} from "@/hooks/useFetch.ts";
 import {ApiEndpoint} from "@/Types.ts";
 import {useState} from "react";
 import {Loader} from "lucide-react";
+import CardGrid from "@/components/ui/cardGrid.tsx";
 
 const FormSchema = z.object({
     newEmail: z.string().email()
@@ -38,7 +39,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="grid grid-cols-3">
+        <CardGrid>
             <Card>
                 <CardHeader>Change your profile details</CardHeader>
                 <CardContent>
@@ -69,6 +70,6 @@ export default function ProfilePage() {
                         </Form>}
                 </CardContent>
             </Card>
-        </div>
+        </CardGrid>
     )
 }

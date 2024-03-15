@@ -1,11 +1,12 @@
 import {Card, CardHeader} from "@/components/ui/card.tsx";
+import CardGrid from "@/components/ui/cardGrid.tsx";
 
 export default function SettingsPage() {
     return (
-        <div className="grid grid-cols-3">
+        <CardGrid>
             <Card>
                 <CardHeader>Settings</CardHeader>
             </Card>
-        </div>
+        </CardGrid>
     )
 }
