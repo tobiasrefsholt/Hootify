@@ -19,7 +19,7 @@ export default function GamePage() {
     } = usePlayerWebSocket(playerId || "");
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen gap-10 px-10">
+        <div className="min-h-screen flex flex-col justify-center py-20">
             {gameState === null && <h1 className="text-6xl text-center font-bold">Connecting to server...</h1>}
             {gameState === GameState.WaitingForPlayers &&
                 <WaitingForPlayers

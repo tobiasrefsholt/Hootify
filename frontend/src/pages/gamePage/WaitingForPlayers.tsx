@@ -21,25 +21,25 @@ export default function WaitingForPlayers({players, currentPlayerId, sendChatMes
     }
 
     return (
-        <>
+        <div className="container space-y-10">
             <h1 className="text-6xl text-center font-bold">Waiting for players</h1>
-            <form onSubmit={(e) => handleGreet(e)}>
-                <div className="flex gap-5">
+            <div className="max-w-sm space-y-5 mx-auto">
+                <form className="flex gap-5 max-w-sm" onSubmit={(e) => handleGreet(e)}>
                     <Input type="text" placeholder="Say something" value={message}
                            onChange={(e) => setMessage(e.target.value)}/>
                     <Button>Send!</Button>
-                </div>
-            </form>
-            <Card>
-                <CardHeader className="text-lg font-bold">{players.length} players have joined</CardHeader>
-                <CardContent>
-                    <ul>
-                        {players.map(player => (
-                            <li key={player.id} className="text-center">{player.name}</li>
-                        ))}
-                    </ul>
-                </CardContent>
-            </Card>
-        </>
+                </form>
+                <Card>
+                    <CardHeader className="text-lg font-bold text-center">{players.length} players have joined</CardHeader>
+                    <CardContent>
+                        <ul>
+                            {players.map(player => (
+                                <li key={player.id} className="text-center">{player.name}</li>
+                            ))}
+                        </ul>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
     )
 }
