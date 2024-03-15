@@ -31,7 +31,11 @@ const FormSchema = z.object({
     twoFactorCode: z.string().optional()
 });
 
-export default function LoginTab() {
+type LoginTabProps = {
+    setTab: (value: string) => void;
+}
+
+export default function LoginTab({setTab}: LoginTabProps) {
     const user = useUser();
     const navigate = useNavigate();
 
@@ -155,9 +159,20 @@ export default function LoginTab() {
                     </>}
                 {form.formState.errors.root?.message &&
                     <FormMessage>{form.formState.errors.root?.message}</FormMessage>}
-                <Button variant="secondary">
-                    {isPending ? <Loader2/> : "Login"}
-                </Button>
+                <div className="flex gap-2.5">
+                    <Button variant="secondary">
+                        {isPending ? <Loader2/> : "Login"}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setTab("forgotPassword")
+                        }}
+                    >
+                        Forgot password
+                    </Button>
+                </div>
             </form>
         </Form>
     )

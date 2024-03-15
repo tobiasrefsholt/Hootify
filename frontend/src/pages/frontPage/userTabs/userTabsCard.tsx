@@ -10,6 +10,7 @@ import LoginTab from "@/pages/frontPage/userTabs/loginTab.tsx";
 import LoggedInTab from "@/pages/frontPage/userTabs/loggedInTab.tsx";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {useUser} from "@/context/userContext.tsx";
+import ForgotPasswordTab from "@/pages/frontPage/userTabs/forgotPasswordTab.tsx";
 
 export function UserTabsCard() {
     const {responseCode: loginResponse} = useUser();
@@ -34,10 +35,13 @@ export function UserTabsCard() {
                             <RegisterTab/>
                         </TabsContent>
                         <TabsContent value="login">
-                            <LoginTab/>
+                            <LoginTab setTab={setTab}/>
                         </TabsContent>
                         <TabsContent value="loggedin">
                             <LoggedInTab/>
+                        </TabsContent>
+                        <TabsContent value="forgotPassword">
+                            <ForgotPasswordTab/>
                         </TabsContent>
                     </Tabs>
                 }
