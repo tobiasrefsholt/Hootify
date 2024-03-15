@@ -28,7 +28,7 @@ export default function ShowQuestion({question, getGameState, answerQuestion}: S
 
     if (!question) return <h1>No question</h1>
     return (
-        <div className="w-full xl:w-8/12 space-y-10">
+        <div className="container space-y-10">
             <h1 className="text-4xl md:text-6xl text-center font-bold">{question.title}</h1>
             {(progressPercentage === 100)
                 ? <h1 className="text-center">Time's up!</h1>
