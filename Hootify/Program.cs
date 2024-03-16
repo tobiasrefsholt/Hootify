@@ -57,7 +57,7 @@ if (!string.IsNullOrEmpty(builder.Configuration["AllowedOrigins"]))
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityApi<AppUser>();
+app.MapCustomIdentityApi<AppUser>();
 app.UseGameEndpoints();
 app.UseDashboardEndpoints();
 
