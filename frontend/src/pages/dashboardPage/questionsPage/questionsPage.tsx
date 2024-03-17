@@ -14,7 +14,7 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {useQuizzes} from "@/context/quizzesContext.tsx";
-import NewQuizSheet from "@/pages/dashboardPage/quizzesPage/newQuizModal/newQuizSheet.tsx";
+import NewQuizSheet from "@/pages/dashboardPage/quizzesPage/quizzesArchive/newQuizModal/newQuizSheet.tsx";
 import ImportQuestionsSheet from "@/pages/dashboardPage/questionsPage/importQuestionsModal/importQuestionsSheet.tsx";
 import RemoveQuestionModal from "@/pages/dashboardPage/questionsPage/removeQuestionModal.tsx";
 

@@ -9,7 +9,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {MoreHorizontal} from "lucide-react";
 import {Quiz} from "@/Types.ts";
 import {useNavigate} from "react-router";
-import RemoveQuizModal from "@/pages/dashboardPage/quizzesPage/removeQuizModal.tsx";
+import RemoveQuizModal from "@/pages/dashboardPage/quizzesPage/quizzesArchive/removeQuizModal.tsx";
 import {useQuizzes} from "@/context/quizzesContext.tsx";
 import {useState} from "react";
 

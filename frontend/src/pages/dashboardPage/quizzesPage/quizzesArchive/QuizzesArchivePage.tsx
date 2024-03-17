@@ -1,15 +1,15 @@
-import PageContainer from "@/components/ui/pageContainer";
+import PageContainer from "@/components/ui/pageContainer.tsx";
 import PageHeader from "@/components/ui/pageHeader.tsx";
 import {useMemo, useState} from "react";
 import {DataTable} from "@/components/ui/dataTable/DataTable.tsx";
-import {tableColumns} from "@/pages/dashboardPage/quizzesPage/quizzesTable/TableColumns.tsx";
+import {tableColumns} from "@/pages/dashboardPage/quizzesPage/quizzesArchive/quizzesTable/TableColumns.tsx";
 import {RowSelectionState} from "@tanstack/react-table";
 import {useQuizzes} from "@/context/quizzesContext.tsx";
-import RemoveQuizModal from "@/pages/dashboardPage/quizzesPage/removeQuizModal.tsx";
+import RemoveQuizModal from "@/pages/dashboardPage/quizzesPage/quizzesArchive/removeQuizModal.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router";
 
-export default function QuizzesPage() {
+export default function QuizzesArchivePage() {
     const {quizzes, remove: removeQuizzes} = useQuizzes();
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
     const navigate = useNavigate();

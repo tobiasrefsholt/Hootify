@@ -3,7 +3,7 @@ import {Route, Routes} from "react-router-dom";
 import GamesPage from "@/pages/dashboardPage/gamesPage/GamesPage.tsx";
 import IndexPage from "@/pages/dashboardPage/indexPage/indexPage.tsx";
 import QuestionsPage from "@/pages/dashboardPage/questionsPage/questionsPage.tsx";
-import QuizzesPage from "@/pages/dashboardPage/quizzesPage/QuizzesPage.tsx";
+import QuizzesPage from "@/pages/dashboardPage/quizzesPage/quizzesPage.tsx";
 import {useUser} from "@/context/userContext.tsx";
 import {QuestionsProvider} from "@/context/questionsContext.tsx";
 import {GamesProvider} from "@/context/gamesContext.tsx";

@@ -6,7 +6,7 @@ export default function GamesPage() {
     return (
         <Routes>
             <Route index={true} element={<GameArchivePage/>}/>
-            <Route path=":gameId" element={<GameDetailsPage/>}></Route>
+            <Route path=":gameId" element={<GameDetailsPage/>}/>
         </Routes>
     )
 }

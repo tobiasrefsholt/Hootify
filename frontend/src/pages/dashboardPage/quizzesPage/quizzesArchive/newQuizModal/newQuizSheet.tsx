@@ -10,7 +10,7 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {Quiz} from "@/Types.ts";
 import {useQuizzes} from "@/context/quizzesContext.tsx";
-import {EditQuizForm} from "@/pages/dashboardPage/quizzesPage/newQuizModal/editQuizForm.tsx";
+import {EditQuizForm} from "@/pages/dashboardPage/quizzesPage/quizzesArchive/newQuizModal/editQuizForm.tsx";
 import {ReactNode} from "react";
 
 type QuestionSheetProps = {

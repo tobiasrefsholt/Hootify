@@ -3,8 +3,8 @@
 import {ColumnDef} from "@tanstack/react-table"
 import {Quiz} from "@/Types.ts";
 import {DataTableColumnHeader} from "@/components/ui/dataTable/DataTableColumnHeader.tsx";
-import TableCellActions from "@/pages/dashboardPage/quizzesPage/quizzesTable/TableCellActions.tsx";
-import TableCellQuizTitle from "./TableCellQuizTitle";
+import TableCellActions from "@/pages/dashboardPage/quizzesPage/quizzesArchive/quizzesTable/TableCellActions.tsx";
+import TableCellQuizTitle from "./TableCellQuizTitle.tsx";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 
 export const tableColumns: ColumnDef<Quiz>[] = [
