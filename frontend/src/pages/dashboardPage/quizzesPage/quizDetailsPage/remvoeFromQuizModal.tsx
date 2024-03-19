@@ -6,12 +6,13 @@ import {
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
+import {ReactNode} from "react";
 
 type RemoveFromQuizModalProps = {
     open: boolean;
     setOpen: (open: boolean) => void;
     onConfirmDelete: () => void;
-    children: string;
+    children: ReactNode;
 }
 export default function RemoveFromQuizModal({open, setOpen, onConfirmDelete, children}: RemoveFromQuizModalProps) {
     return (

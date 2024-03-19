@@ -2,7 +2,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel, DropdownMenuSeparator,
+    DropdownMenuLabel,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {Button} from "@/components/ui/button.tsx";
@@ -19,9 +19,17 @@ type TableCellActionsProps = {
 
 export default function TableCellActions({row}: TableCellActionsProps) {
     const {quizId} = useParams();
-    const {quizzes} = useQuizzes();
+    const {quizzes, edit: editQuizzes} = useQuizzes();
     const currentQuiz = useMemo(() => quizzes.find(quiz => quiz.id === quizId), [quizzes, quizId]);
     const [openRemoveModal, setOpenRemoveModal] = useState(false);
+
+    function handleRemoveQuestionFromQuiz() {
+        if (!currentQuiz) return;
+        const newQuestionIds = currentQuiz.questionIds
+            .filter(questionId => questionId !== row.original.id);
+        editQuizzes({...currentQuiz, questionIds: newQuestionIds});
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -31,22 +39,18 @@ export default function TableCellActions({row}: TableCellActionsProps) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Quiz Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem
                     onClick={() => setOpenRemoveModal(true)}
                 >
                     Remove from quiz
                 </DropdownMenuItem>
-                <DropdownMenuSeparator/>
-                <DropdownMenuLabel>Global actions</DropdownMenuLabel>
-                <DropdownMenuItem>Edit</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
             </DropdownMenuContent>
             <RemoveFromQuizModal
                 open={openRemoveModal}
                 setOpen={setOpenRemoveModal}
                 children={""}
-                onConfirmDelete={() => {console.log(`remove question: ${row.original.title} from quiz + ${currentQuiz?.id})}`)}}
+                onConfirmDelete={() => handleRemoveQuestionFromQuiz}
             />
         </DropdownMenu>
     )
