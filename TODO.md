@@ -9,8 +9,8 @@
 
 ## Quizzes
 - [x] Option to delete
-- [ ] Add a view for quizz details
-  - [ ] Table of questions
+- [x] Add a view for quizz details
+  - [x] Table of questions
   - [ ] Option to remove questions
   - [ ] Duplicate
 
