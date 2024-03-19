@@ -11,7 +11,7 @@
 - [x] Option to delete
 - [x] Add a view for quizz details
   - [x] Table of questions
-  - [ ] Option to remove questions
+  - [x] Option to remove questions
   - [ ] Duplicate
 
 ## Categories
