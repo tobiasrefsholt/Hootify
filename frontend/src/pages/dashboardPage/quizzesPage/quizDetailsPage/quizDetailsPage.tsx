@@ -1,6 +1,6 @@
 import {useQuizzes} from "@/context/quizzesContext.tsx";
 import PageContainer from "@/components/ui/pageContainer.tsx";
-import {useParams} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import PageHeader from "@/components/ui/pageHeader.tsx";
 import {ArrowLeft} from "lucide-react";
 import {Link} from "react-router-dom";
@@ -11,9 +11,10 @@ import {tableColumns} from "@/pages/dashboardPage/quizzesPage/quizDetailsPage/qu
 import {QuestionWithAnswer} from "@/Types.ts";
 import {Button} from "@/components/ui/button.tsx";
 import RemoveFromQuizModal from "@/pages/dashboardPage/quizzesPage/quizDetailsPage/remvoeFromQuizModal.tsx";
+import RemoveQuizModal from "@/pages/dashboardPage/quizzesPage/quizzesArchive/removeQuizModal.tsx";
 
 export default function QuizDetailsPage() {
-    const {quizzes, edit:editQuizzes} = useQuizzes();
+    const {quizzes, edit: editQuizzes, remove: removeQuiz} = useQuizzes();
     const {questions} = useQuestions();
     const {quizId} = useParams();
     const selectedQuiz = useMemo(
@@ -32,12 +33,19 @@ export default function QuizDetailsPage() {
         return indexes.map(index => questions[parseInt(index)].id);
     }, [rowSelection]);
 
-    const [openRemoveModal, setOpenRemoveModal] = useState(false);
-
-    function handleRemoveSelected() {
+    const [openRemoveQuestionsModal, setOpenRemoveQuestionsModal] = useState(false);
+    const [openRemoveQuizModal, setOpenRemoveQuizModal] = useState(false);
+    const navigate = useNavigate();
+    function handleRemoveSelectedQuestions() {
         if (!selectedQuiz) return;
         const newQuestionIds = selectedQuiz.questionIds.filter(questionId => !selectedIds.includes(questionId));
         editQuizzes({...selectedQuiz, questionIds: newQuestionIds});
+    }
+
+    function handleRemoveQuiz() {
+        if (!selectedQuiz) return;
+        removeQuiz([selectedQuiz.id]);
+        navigate("/dashboard/quizzes");
     }
 
     if (!selectedQuiz)
@@ -48,12 +56,14 @@ export default function QuizDetailsPage() {
             <Link to=".." className="flex mb-5 gap-2.5"><ArrowLeft/>Return to quizzes</Link>
             <PageHeader>{selectedQuiz.title}</PageHeader>
             <div className="mb-10 flex gap-2.5">
-                <Button variant="secondary">Delete quiz</Button>
+                <RemoveQuizModal open={openRemoveQuizModal} setOpen={setOpenRemoveQuizModal} onConfirmDelete={handleRemoveQuiz}>
+                    <Button variant="secondary">Delete quiz</Button>
+                </RemoveQuizModal>
                 {selectedIds.length > 0 && <>
                     <RemoveFromQuizModal
-                        open={openRemoveModal}
-                        setOpen={setOpenRemoveModal}
-                        onConfirmDelete={() => handleRemoveSelected()}
+                        open={openRemoveQuestionsModal}
+                        setOpen={setOpenRemoveQuestionsModal}
+                        onConfirmDelete={() => handleRemoveSelectedQuestions()}
                     >
                         <Button
                             variant="outline"
