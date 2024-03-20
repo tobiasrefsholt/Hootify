@@ -1,6 +1,7 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
 import {ApiEndpoint, CategoriesContextType, Category} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
+import {toast} from "sonner";
 
 const CategoryContext = createContext<CategoriesContextType>({
     categories: [],
@@ -36,6 +37,7 @@ export const CategoriesProvider = ({children}: UserProviderProps) => {
 
     function add(category: Category) {
         addFetch.doFetch("POST", [], category, () => {
+            toast("Category added");
             // Fetch categories after adding
             doFetch("POST", [], null);
         });
@@ -43,6 +45,7 @@ export const CategoriesProvider = ({children}: UserProviderProps) => {
 
     function remove(ids: string[]) {
         deleteFetch.doFetch("POST", [], ids, () => {
+            toast(ids.length > 1 ? ids.length + " categories deleted" : "Category deleted");
             // Fetch categories after deleting
             doFetch("POST", [], null);
         });

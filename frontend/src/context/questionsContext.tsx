@@ -47,13 +47,13 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
 
     function add(question: InsertQuestion) {
         addFetch.doFetch("POST", [], question, () => {
+            toast("Question added");
             // Fetch questions after adding
             doFetch("POST", [], payload);
         });
     }
 
     function addMultiple(questions: InsertQuestion[]) {
-        console.log(questions);
         addMultipleFetch.doFetch("POST", [], questions, () => {
             toast(`Added ${questions.length} questions`);
             // Fetch questions after adding
@@ -63,18 +63,17 @@ export const QuestionsProvider = ({children}: UserProviderProps) => {
 
     function edit(question: InsertQuestion) {
         editFetch.doFetch("POST", [], question, () => {
+            toast("Question edited");
             // Fetch questions after change
             doFetch("POST", [], payload);
-            toast("Question edited");
         });
     }
 
     function remove(ids: string[]) {
-        console.log(ids);
         deleteFetch.doFetch("POST", [], ids, () => {
+            toast(ids.length > 1 ? ids.length + " questions deleted" : "Question deleted");
             // Fetch questions after deleting
             doFetch("POST", [], payload);
-            toast(`${ids.length} question(s) deleted`);
         });
     }
 

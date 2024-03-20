@@ -1,6 +1,7 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
 import {ApiEndpoint, InsertQuiz, Quiz, QuizzesContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
+import {toast} from "sonner";
 
 const QuizContext = createContext<QuizzesContextType>({
     quizzes: [],
@@ -42,6 +43,7 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
 
     function add(quiz: InsertQuiz) {
         addFetch.doFetch("POST", [], quiz, () => {
+            toast("Quiz added");
             // Fetch questions after adding
             doFetch("POST", [], null);
         });
@@ -49,6 +51,7 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
 
     function edit(quiz: Quiz) {
         editFetch.doFetch("POST", [], quiz, () => {
+            toast("Quiz edited");
             // Fetch questions after adding
             doFetch("POST", [], null);
         });
@@ -56,6 +59,7 @@ export const QuizzesProvider = ({children}: UserProviderProps) => {
 
     function remove(ids: string[]) {
         deleteFetch.doFetch("POST", [], ids, () => {
+            toast(ids.length > 1 ? ids.length + " quizzes deleted" : "Quiz deleted");
             // Fetch questions after deleting
             doFetch("POST", [], null);
         });

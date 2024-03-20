@@ -1,6 +1,7 @@
 import {createContext, ReactNode, useContext, useEffect} from "react";
 import {ApiEndpoint, Game, GamesContextType} from "@/Types.ts";
 import {useFetch} from "@/hooks/useFetch.ts";
+import {toast} from "sonner";
 
 const GameContext = createContext<GamesContextType>({
     games: [],
@@ -35,6 +36,7 @@ export const GamesProvider = ({children}: UserProviderProps) => {
 
     function add(game: Game) {
         addFetch.doFetch("POST", [], game, () => {
+            toast("Game added");
             // Fetch questions after adding
             doFetch("POST", [], null);
         });
@@ -42,6 +44,7 @@ export const GamesProvider = ({children}: UserProviderProps) => {
 
     function remove(ids: string[]) {
         deleteFetch.doFetch("POST", [], ids, () => {
+            toast(ids.length > 1 ? ids.length + " games deleted" : "Game deleted");
             // Fetch questions after deleting
             doFetch("POST", [], null);
         });
