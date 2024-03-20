@@ -22,7 +22,10 @@ export default function QuestionInProgressActions(
     }: CurrentQuestionCardProps) {
 
     const endTimestamp = useMemo(
-        () => new Date().getTime() + (question?.seconds || 0) * 1000,
+        () => {
+            if (!question?.seconds || !question.startTime) return null;
+            return new Date(question.startTime).getTime() + question.seconds * 1000;
+        },
         [question?.seconds, question?.id]
     );
 
