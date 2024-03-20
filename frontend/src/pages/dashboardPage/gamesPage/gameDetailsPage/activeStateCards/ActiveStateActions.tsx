@@ -32,7 +32,7 @@ export default function ActiveStateActions(
             {gameState === GameState.QuestionInProgress &&
                 <QuestionInProgressActions
                     question={questionWithAnswer}
-                    onComplete={sendAnswer}
+                    sendAnswer={sendAnswer}
                     sendNextQuestion={sendNextQuestion}
                     sendLeaderboard={sendLeaderboard}
                 />}
@@ -44,10 +44,13 @@ export default function ActiveStateActions(
                 />}
             {gameState === GameState.ShowLeaderboard &&
                 <ShowLeaderBoardActions
+                    sendAnswer={sendAnswer}
                     sendNextQuestion={sendNextQuestion}
                 />}
             {gameState === GameState.GameComplete &&
-                <GameComplete/>}
+                <GameComplete
+                    sendLeaderboard={sendLeaderboard}
+                />}
         </>
     )
 }

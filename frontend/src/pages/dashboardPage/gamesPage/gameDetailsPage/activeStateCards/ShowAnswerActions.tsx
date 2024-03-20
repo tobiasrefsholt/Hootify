@@ -17,9 +17,9 @@ export default function ShowAnswerActions({question, sendNextQuestion, sendLeade
             <CardContent>
                 <ShowQuestionWithAnswer question={question}/>
             </CardContent>
-            <CardFooter className="space-x-2.5">
-                <Button variant="secondary" onClick={sendLeaderboard}>Send leaderboard</Button>
-                <Button variant="outline" onClick={sendNextQuestion}>Send next question</Button>
+            <CardFooter className="flex gap-2.5 flex-wrap">
+                <Button onClick={sendLeaderboard}>Send leaderboard</Button>
+                <Button variant="secondary" onClick={sendNextQuestion}>Send next question</Button>
             </CardFooter>
         </Card>
     )

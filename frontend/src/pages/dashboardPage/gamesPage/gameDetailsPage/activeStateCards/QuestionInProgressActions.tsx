@@ -1,4 +1,4 @@
-import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card.tsx";
+import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
 import {QuestionWithAnswer} from "@/Types.ts";
 import Countdown, {CountdownTimeDelta, zeroPad} from "react-countdown";
 import ShowQuestionWithAnswer
@@ -8,7 +8,7 @@ import {useMemo} from "react";
 
 type CurrentQuestionCardProps = {
     question: QuestionWithAnswer | null
-    onComplete: () => void
+    sendAnswer: () => void
     sendNextQuestion: () => void
     sendLeaderboard: () => void
 }
@@ -16,7 +16,7 @@ type CurrentQuestionCardProps = {
 export default function QuestionInProgressActions(
     {
         question,
-        onComplete,
+        sendAnswer,
         sendNextQuestion,
         sendLeaderboard
     }: CurrentQuestionCardProps) {
@@ -31,16 +31,16 @@ export default function QuestionInProgressActions(
 
     function handleOutOfTime(_timeDelta: CountdownTimeDelta, completedOnStart: boolean) {
         if (!completedOnStart) {
-            onComplete();
+            sendAnswer();
         }
     }
 
     return (
         <Card className="bg-neutral-900">
             <CardHeader>Current Question</CardHeader>
-            <CardContent>
+            <CardContent className="space-y-5">
                 {endTimestamp &&
-                    <div className="mb-5">
+                    <div>
                         <p>Time left:</p>
                         <Countdown
                             key={endTimestamp.toString()}
@@ -52,12 +52,15 @@ export default function QuestionInProgressActions(
                             onComplete={(timeDelta, completedOnStart) => handleOutOfTime(timeDelta, completedOnStart)}
                         />
                     </div>}
-                <ShowQuestionWithAnswer question={question}/>
+                <div>
+                    <ShowQuestionWithAnswer question={question}/>
+                </div>
+                <div className="flex gap-2.5 flex-wrap">
+                    <Button variant="secondary" onClick={sendAnswer}>Send answer</Button>
+                    <Button variant="secondary" onClick={sendLeaderboard}>Send leaderboard</Button>
+                    <Button variant="secondary" onClick={sendNextQuestion}>Send next question</Button>
+                </div>
             </CardContent>
-            <CardFooter>
-                <Button variant="outline" onClick={sendLeaderboard}>Send leaderboard</Button>
-                <Button variant="outline" onClick={sendNextQuestion}>Send next question</Button>
-            </CardFooter>
         </Card>
     )
 }
