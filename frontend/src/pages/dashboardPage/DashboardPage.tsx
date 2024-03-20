@@ -30,9 +30,9 @@ export default function DashboardPage() {
             <GamesProvider>
                 <CategoriesProvider>
                     <QuizzesProvider>
-                        <div className="flex h-screen overflow-hidden">
+                        <div className="flex h-screen">
                             <Sidebar/>
-                            <div className="overflow-auto grow">
+                            <div className="flex-auto overflow-y-auto grow">
                                 <Routes>
                                     <Route index={true} element={<IndexPage/>}></Route>
                                     <Route path="games/*" element={<GamesPage/>}></Route>
