@@ -17,19 +17,30 @@ import {useQuizzes} from "@/context/quizzesContext.tsx";
 import NewQuizSheet from "@/pages/dashboardPage/quizzesPage/quizzesArchive/newQuizModal/newQuizSheet.tsx";
 import ImportQuestionsSheet from "@/pages/dashboardPage/questionsPage/importQuestionsModal/importQuestionsSheet.tsx";
 import RemoveQuestionModal from "@/pages/dashboardPage/questionsPage/removeQuestionModal.tsx";
+import {useNavigate} from "react-router";
 
 
 export default function QuestionsPage() {
     const {questions, remove: removeQuestions} = useQuestions();
-    const {quizzes} = useQuizzes();
+    const {quizzes, edit: editQuiz} = useQuizzes();
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    const [newQuestionIsOpen, setNewQuestionIsOpen] = useState(false);
+    const [OpenNewQuizModal, setOpenNewQuizModal] = useState(false);
     const [openRemoveModal, setOpenRemoveModal] = useState(false);
+    const navigate = useNavigate();
 
     const selectedIds = useMemo(() => {
         const indexes = Object.keys(rowSelection);
         return indexes.map(index => questions[parseInt(index)].id);
     }, [rowSelection]);
+
+    function handleAddToExistingQuiz(quizId: string) {
+        const selectedQuiz = quizzes.find(quiz => quiz.id === quizId);
+        if (!selectedQuiz) return;
+        const newQuestionIds = selectedIds.filter(id => !selectedQuiz.questionIds.includes(id));
+        editQuiz({...selectedQuiz, questionIds: [...selectedQuiz.questionIds, ...newQuestionIds]});
+        setRowSelection({});
+        navigate("/dashboard/quizzes/" + quizId);
+    }
 
     return (
         <PageContainer>
@@ -49,12 +60,12 @@ export default function QuestionsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => setNewQuestionIsOpen(true)}>
+                                <DropdownMenuItem onClick={() => setOpenNewQuizModal(true)}>
                                     Add to new quiz
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator/>
                                 {quizzes.map(quiz => (
-                                    <DropdownMenuItem key={quiz.id}>
+                                    <DropdownMenuItem key={quiz.id} onClick={() => handleAddToExistingQuiz(quiz.id)}>
                                         {quiz.title}
                                     </DropdownMenuItem>
                                 ))}
@@ -72,8 +83,8 @@ export default function QuestionsPage() {
                         </RemoveQuestionModal>
                         <Button variant="outline">Remove from all quizzes</Button>
                         <NewQuizSheet
-                            open={newQuestionIsOpen}
-                            setOpen={setNewQuestionIsOpen}
+                            open={OpenNewQuizModal}
+                            setOpen={setOpenNewQuizModal}
                             questionIds={selectedIds}
                             children=""
                         />
