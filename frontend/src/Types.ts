@@ -106,8 +106,8 @@ export type QuizzesContextType = {
     quizzes: Quiz[],
     isPending: boolean,
     error: string | null,
-    add: (question: Quiz) => void,
-    edit: (question: Quiz) => void,
+    add: (quiz: Quiz) => void,
+    edit: (quiz: Quiz) => void,
     remove: (ids: string[]) => void
 }
 
