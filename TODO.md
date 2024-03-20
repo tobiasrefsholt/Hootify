@@ -5,7 +5,7 @@
 - [x] Better delete handling
   - [x] Remove question from quizzes containing it 
   - [x] Batch delete
-- [ ] Add to existing quiz
+- [x] Add to existing quiz
 - [ ] Batch remove from quizzes
 
 ## Quizzes
