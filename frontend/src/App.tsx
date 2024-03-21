@@ -4,6 +4,7 @@ import {Toaster} from "sonner";
 import {lazy, Suspense,} from "react";
 import {UserProvider} from "@/context/userContext.tsx";
 import {Loader2} from "lucide-react";
+import ResetPasswordPage from "@/pages/resetPasswordPage/resetPasswordPage.tsx";
 
 const FrontPage = lazy(() => import("./pages/frontPage/FrontPage"));
 const GamePage = lazy(() => import("./pages/gamePage/GamePage"));
@@ -20,6 +21,7 @@ function App() {
                             <Route index element={<FrontPage/>}/>
                             <Route path="game/:playerId" element={<GamePage/>}/>
                             <Route path="dashboard/*" element={<DashboardPage/>}/>
+                            <Route path="resetPassword" element={<ResetPasswordPage/>}/>
                         </Routes>
                     </Suspense>
                     <Toaster/>
