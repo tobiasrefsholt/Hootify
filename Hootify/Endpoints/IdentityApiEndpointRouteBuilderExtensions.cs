@@ -140,7 +140,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             return TypedResults.SignIn(newPrincipal, authenticationScheme: IdentityConstants.BearerScheme);
         });
 
-        routeGroup.MapGet("/confirmEmail", async Task<Results<ContentHttpResult, UnauthorizedHttpResult>>
+        routeGroup.MapGet("/c", async Task<Results<ContentHttpResult, UnauthorizedHttpResult>>
             ([FromQuery] string userId, [FromQuery] string code, [FromQuery] string? changedEmail, [FromServices] IServiceProvider sp) =>
         {
             var userManager = sp.GetRequiredService<UserManager<TUser>>();
@@ -205,7 +205,7 @@ public static class IdentityApiEndpointRouteBuilderExtensions
         });
 
         routeGroup.MapPost("/forgotPassword", async Task<Results<Ok, ValidationProblem>>
-            ([FromBody] ForgotPasswordRequest resetRequest, [FromServices] IServiceProvider sp) =>
+            ([FromBody] ForgotPasswordRequest resetRequest, [FromServices] IServiceProvider sp, HttpContext context) =>
         {
             var userManager = sp.GetRequiredService<UserManager<TUser>>();
             var user = await userManager.FindByEmailAsync(resetRequest.Email);
@@ -214,8 +214,10 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             {
                 var code = await userManager.GeneratePasswordResetTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                
+                var resetLink = context.Request.Headers.Origin + "/resetPassword?email=" + resetRequest.Email + "&code=" + code;
 
-                await emailSender.SendPasswordResetCodeAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(code));
+                await emailSender.SendPasswordResetLinkAsync(user, resetRequest.Email, HtmlEncoder.Default.Encode(resetLink));
             }
 
             // Don't reveal that the user does not exist or is not confirmed, so don't return a 200 if we would have

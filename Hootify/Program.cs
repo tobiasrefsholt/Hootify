@@ -34,6 +34,7 @@ builder.Services.AddScoped<GameService>();
 builder.Services.Configure<Brevo>(
     builder.Configuration.GetSection("Brevo"));
 builder.Services.AddTransient<IEmailSender, EmailService>();
+builder.Services.AddTransient(typeof(IEmailSender<AppUser>), typeof(EmailMessageSender<AppUser>));
 builder.Services
     .AddIdentityApiEndpoints<AppUser>(options =>
     {
