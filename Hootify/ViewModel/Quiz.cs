@@ -6,13 +6,17 @@ public class Quiz
     public string Title { get; set; }
     public string Description { get; set; }
     public List<Guid> QuestionIds { get; set; }
+    public long UpdatedAt { get; set; }
+    public long CreatedAt { get; set; }
 
-    public Quiz(Guid id, string title, string description, List<Guid> questionIds)
+    public Quiz(Guid id, string title, string description, List<Guid> questionIds, long updatedAt, long createdAt)
     {
         Id = id;
         Title = title;
         Description = description;
         QuestionIds = questionIds;
+        UpdatedAt = updatedAt;
+        CreatedAt = createdAt;
     }
 
     public Quiz()

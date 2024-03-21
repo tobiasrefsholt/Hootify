@@ -14,6 +14,7 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
         if (activeQuiz == null) throw new Exception("Quiz not found");
         var gameId = Guid.NewGuid();
         var shareKey = GenerateShareKey();
+        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var dbGame = new Game(
             gameId,
             UserId,
@@ -24,7 +25,8 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
             gameOptions.RandomizeAnswers,
             gameOptions.SecondsPerQuestion,
             GameState.WaitingForPlayers,
-            activeQuiz.QuestionIds
+            activeQuiz.QuestionIds,
+            timeStamp
         );
         DbContext.Games.Add(dbGame);
         var changes = await DbContext.SaveChangesAsync();
@@ -101,7 +103,8 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
             game.CurrentQuestionId,
             game.CurrentQuestionNumber,
             game.CurrentQuestionStartTime,
-            game.RemainingQuestions
+            game.RemainingQuestions,
+            game.CreatedAt
         );
     }
 }

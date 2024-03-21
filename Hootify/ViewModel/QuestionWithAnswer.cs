@@ -4,19 +4,19 @@ public class QuestionWithAnswer : Question
 {
     public int CorrectAnswer { get; set; }
 
-    public QuestionWithAnswer(Guid id, string title, string[] answers, string category, Guid categoryId,
-        long startTime, int seconds, int correctAnswer) : base(id, title, answers, category, categoryId, startTime,
-        seconds)
+    public QuestionWithAnswer(Guid id, string title, string[] answers, string category, Guid categoryId, long startTime,
+        int seconds, long updatedAt, long createdAt, int correctAnswer) : base(id, title, answers, category, categoryId, startTime,
+        seconds, updatedAt, createdAt)
     {
         CorrectAnswer = correctAnswer;
     }
 
-    public QuestionWithAnswer(Guid id, string title, string[] answers, string category, Guid categoryId,
-        int correctAnswer) : base(id, title, answers, category, categoryId)
+    public QuestionWithAnswer(Guid id, string title, string[] answers, string category, Guid categoryId, long updatedAt,
+        long createdAt, int correctAnswer) : base(id, title, answers, category, categoryId, updatedAt, createdAt)
     {
         CorrectAnswer = correctAnswer;
     }
-
+    
     public QuestionWithAnswer()
     {
     }

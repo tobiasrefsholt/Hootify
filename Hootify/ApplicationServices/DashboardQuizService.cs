@@ -8,7 +8,16 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
 {
     public async Task<bool> Add(ViewModel.Quiz quiz)
     {
-        var dbQuiz = new Quiz(Guid.NewGuid(), UserId, quiz.Title, quiz.Description, quiz.QuestionIds);
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var dbQuiz = new Quiz(
+            Guid.NewGuid(),
+            UserId,
+            quiz.Title,
+            quiz.Description,
+            quiz.QuestionIds,
+            timestamp,
+            timestamp
+        );
         DbContext.Quizzes.Add(dbQuiz);
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
@@ -19,16 +28,32 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         var dbQuiz = await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .FirstOrDefaultAsync(e => e.Id == id);
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         return dbQuiz != null
-            ? new ViewModel.Quiz(dbQuiz.Id, dbQuiz.Title, dbQuiz.Description, dbQuiz.QuestionIds)
+            ? new ViewModel.Quiz(
+                dbQuiz.Id,
+                dbQuiz.Title,
+                dbQuiz.Description,
+                dbQuiz.QuestionIds,
+                timestamp,
+                timestamp
+            )
             : null;
     }
 
     public async Task<List<ViewModel.Quiz>> GetAll()
     {
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         return await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
-            .Select(q => new ViewModel.Quiz(q.Id, q.Title, q.Description, q.QuestionIds))
+            .Select(q => new ViewModel.Quiz(
+                q.Id,
+                q.Title,
+                q.Description,
+                q.QuestionIds,
+                timestamp,
+                timestamp
+            ))
             .ToListAsync();
     }
 
@@ -41,6 +66,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         dbQuiz.Title = quiz.Title;
         dbQuiz.Description = quiz.Description;
         dbQuiz.QuestionIds = quiz.QuestionIds;
+        dbQuiz.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }

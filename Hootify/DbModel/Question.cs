@@ -8,8 +8,10 @@ public class Question
     public string[] Answers { get; set; }
     public int CorrectAnswer { get; set; }
     public Guid CategoryId { get; set; }
+    public long UpdatedAt { get; set; }
+    public long CreatedAt { get; set; }
 
-    public Question(Guid id, Guid userId, string title, string[] answers, int correctAnswer, Guid categoryId)
+    public Question(Guid id, Guid userId, string title, string[] answers, int correctAnswer, Guid categoryId, long updatedAt, long createdAt)
     {
         Id = id;
         UserId = userId;
@@ -17,6 +19,8 @@ public class Question
         Answers = answers;
         CorrectAnswer = correctAnswer;
         CategoryId = categoryId;
+        UpdatedAt = updatedAt;
+        CreatedAt = createdAt;
     }
 
     public Question()

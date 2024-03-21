@@ -19,9 +19,10 @@ public class Game
     public int CurrentQuestionNumber { get; set; }
     public long CurrentQuestionStartTime { get; set; }
     public List<Guid>? RemainingQuestions { get; set; }
+    public long CreatedAt { get; set; }
 
     public Game(Guid id, Guid userId, string shareKey, Guid quizId, string title, bool randomizeQuestions,
-        bool randomizeAnswers, int secondsPerQuestion, GameState state, List<Guid>? remainingQuestions)
+        bool randomizeAnswers, int secondsPerQuestion, GameState state, List<Guid>? remainingQuestions, long createdAt)
     {
         Id = id;
         UserId = userId;
@@ -33,6 +34,7 @@ public class Game
         SecondsPerQuestion = secondsPerQuestion;
         State = state;
         RemainingQuestions = remainingQuestions;
+        CreatedAt = createdAt;
     }
 
     public Game()

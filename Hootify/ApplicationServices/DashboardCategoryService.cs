@@ -8,7 +8,13 @@ public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpCo
 {
     public async Task<bool> Add(ViewModel.Category category)
     {
-        var dbCategory = new Category(Guid.NewGuid(), UserId, category.Name);
+        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var dbCategory = new Category(
+            Guid.NewGuid(),
+            UserId, category.Name,
+            timeStamp,
+            timeStamp
+        );
         DbContext.Categories.Add(dbCategory);
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
@@ -18,7 +24,12 @@ public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpCo
     {
         return await DbContext.Categories
             .Where(c => c.UserId == UserId)
-            .Select(c => new ViewModel.Category(c.Id, c.Name))
+            .Select(c => new ViewModel.Category(
+                c.Id,
+                c.Name,
+                c.UpdatedAt,
+                c.CreatedAt
+            ))
             .ToListAsync();
     }
 
@@ -29,6 +40,7 @@ public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpCo
             .FirstOrDefaultAsync(e => e.Id == category.Id);
         if (dbCategory == null) return false;
         dbCategory.Name = category.Name;
+        dbCategory.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }
