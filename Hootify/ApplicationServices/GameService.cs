@@ -316,7 +316,9 @@ public class GameService
                 c.Name,
                 c.Id,
                 g.CurrentQuestionStartTime,
-                g.SecondsPerQuestion
+                g.SecondsPerQuestion,
+                q.UpdatedAt,
+                q.CreatedAt
             )
         ).FirstOrDefaultAsync();
     }
@@ -336,6 +338,8 @@ public class GameService
                 c.Id,
                 g.CurrentQuestionStartTime,
                 g.SecondsPerQuestion,
+                q.UpdatedAt,
+                q.CreatedAt,
                 q.CorrectAnswer
             )
         ).FirstOrDefaultAsync();
@@ -461,7 +465,9 @@ public class GameService
                 c.Name,
                 c.Id,
                 g.CurrentQuestionStartTime,
-                g.SecondsPerQuestion
+                g.SecondsPerQuestion,
+                q.UpdatedAt,
+                q.CreatedAt
             )
         ).FirstOrDefaultAsync();
     }
