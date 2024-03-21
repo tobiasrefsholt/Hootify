@@ -45,7 +45,7 @@
 - [x] Check why the client is not loading on specific game states
 
 # Other ideas
-- [ ] CreatedAt and lastModified fields in database, to make games, quizzes, categories and questions sortable by date.
+- [x] CreatedAt and lastModified fields in database, to make games, quizzes, categories and questions sortable by date.
 - [ ] Add support for images on questions
 - [ ] Score based on time to answer (not sure if i want that)
 - [ ] Add a difficulty rating per question and quiz
