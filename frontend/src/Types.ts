@@ -28,7 +28,7 @@ export enum ApiEndpoint {
     DashboardGetGame = "/dashboard/game/get",
     DashboardGetAllGames = "/dashboard/game/getAll",
     DashboardAddGame = "/dashboard/game/add",
-    DashboardDeleteGame = "/dashboard/game/delete",
+    DashboardDeleteGame = "/dashboard/game/delete"
 }
 
 export enum GameState {
@@ -50,7 +50,7 @@ export type InsertQuestion = {
     title: string,
     answers: string[],
     correctAnswer: number,
-    categoryId: string,
+    categoryId: string
 };
 
 export type Question = {
@@ -60,7 +60,9 @@ export type Question = {
     category: string,
     categoryId: string,
     startTime: string,
-    seconds: number
+    seconds: number,
+    updatedAt: number,
+    createdAt: number
 };
 
 export type QuestionWithAnswer = Question & {
@@ -69,7 +71,9 @@ export type QuestionWithAnswer = Question & {
 
 export type Category = {
     id: string,
-    name: string
+    name: string,
+    updatedAt: number,
+    createdAt: number
 };
 
 export type User = {
@@ -135,6 +139,7 @@ export type Game = GameOptions & {
     currentQuestionNumber: number;
     currentQuestionStartTime: string;
     remainingQuestions: string[];
+    createdAt: number,
 }
 
 export type Quiz = {
@@ -142,6 +147,8 @@ export type Quiz = {
     title: string;
     description: string;
     questionIds: string[];
+    updatedAt: number;
+    createdAt: number;
 }
 
 export type InsertQuiz = {
