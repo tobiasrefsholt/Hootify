@@ -47,6 +47,13 @@ export const tableColumns: ColumnDef<Game>[] = [
         cell: ({row}) => GameState[row.original.state]
     },
     {
+        accessorKey: "createdAt",
+        header: ({column}) => (
+            <DataTableColumnHeader column={column} title={"Created At"}/>
+        ),
+        cell: ({row}) => (new Date(row.original.createdAt).toLocaleDateString())
+    },
+    {
         id: "actions",
         cell: ({row}) => (
             <TableCellActions row={row}/>

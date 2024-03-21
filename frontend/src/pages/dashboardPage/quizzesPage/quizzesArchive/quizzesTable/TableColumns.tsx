@@ -46,6 +46,20 @@ export const tableColumns: ColumnDef<Quiz>[] = [
         )
     },
     {
+        accessorKey: "updatedAt",
+        header: ({column}) => (
+            <DataTableColumnHeader column={column} title={"Updated At"}/>
+        ),
+        cell: ({row}) => (new Date(row.original.updatedAt).toLocaleDateString())
+    },
+    {
+        accessorKey: "createdAt",
+        header: ({column}) => (
+            <DataTableColumnHeader column={column} title={"Created At"}/>
+        ),
+        cell: ({row}) => (new Date(row.original.createdAt).toLocaleDateString())
+    },
+    {
         id: "actions",
         cell: ({row}) => (
             <TableCellActions row={row}/>
