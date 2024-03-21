@@ -8,7 +8,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
 {
     public async Task<bool> Add(ViewModel.Quiz quiz)
     {
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var dbQuiz = new Quiz(
             Guid.NewGuid(),
             UserId,
@@ -28,7 +28,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         var dbQuiz = await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .FirstOrDefaultAsync(e => e.Id == id);
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         return dbQuiz != null
             ? new ViewModel.Quiz(
                 dbQuiz.Id,
@@ -43,7 +43,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
 
     public async Task<List<ViewModel.Quiz>> GetAll()
     {
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         return await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
             .Select(q => new ViewModel.Quiz(
@@ -66,7 +66,7 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
         dbQuiz.Title = quiz.Title;
         dbQuiz.Description = quiz.Description;
         dbQuiz.QuestionIds = quiz.QuestionIds;
-        dbQuiz.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        dbQuiz.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var changes = await DbContext.SaveChangesAsync();
         return changes > 0;
     }

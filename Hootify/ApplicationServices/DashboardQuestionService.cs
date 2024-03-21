@@ -10,7 +10,7 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
 {
     public async Task<bool> Add(IEnumerable<AddQuestion> viewQuestions)
     {
-        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var dbQuestions = viewQuestions.Select(viewQuestion =>
             new Question(
                 Guid.NewGuid(),
@@ -63,7 +63,7 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
         dbQuestion.Answers = question.Answers;
         dbQuestion.CorrectAnswer = question.CorrectAnswer;
         dbQuestion.CategoryId = question.CategoryId;
-        dbQuestion.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        dbQuestion.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var changes = await DbContext.SaveChangesAsync();
         return changes < 0;
     }

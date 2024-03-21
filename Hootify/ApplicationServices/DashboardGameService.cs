@@ -14,7 +14,7 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
         if (activeQuiz == null) throw new Exception("Quiz not found");
         var gameId = Guid.NewGuid();
         var shareKey = GenerateShareKey();
-        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var dbGame = new Game(
             gameId,
             UserId,
