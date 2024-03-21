@@ -24,6 +24,7 @@ public class DashboardCategoryService(AppDbContext dbContext, HttpContext httpCo
     {
         return await DbContext.Categories
             .Where(c => c.UserId == UserId)
+            .OrderByDescending(c => c.UpdatedAt)
             .Select(c => new ViewModel.Category(
                 c.Id,
                 c.Name,

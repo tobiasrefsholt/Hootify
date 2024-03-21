@@ -43,16 +43,16 @@ public class DashboardQuizService(AppDbContext dbContext, HttpContext httpContex
 
     public async Task<List<ViewModel.Quiz>> GetAll()
     {
-        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         return await DbContext.Quizzes
             .Where(q => q.UserId == UserId)
+            .OrderByDescending(q => q.UpdatedAt)
             .Select(q => new ViewModel.Quiz(
                 q.Id,
                 q.Title,
                 q.Description,
                 q.QuestionIds,
-                timestamp,
-                timestamp
+                q.UpdatedAt,
+                q.CreatedAt
             ))
             .ToListAsync();
     }

@@ -21,7 +21,7 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
                 viewQuestion.CategoryId,
                 timeStamp,
                 timeStamp
-                )
+            )
         );
         DbContext.Questions.AddRange(dbQuestions);
         var changes = await DbContext.SaveChangesAsync();
@@ -35,6 +35,7 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
             join c in DbContext.Categories on q.CategoryId equals c.Id
             where q.UserId == UserId
             where id == null || q.Id == id
+            orderby q.UpdatedAt descending
             select new ViewModel.QuestionWithAnswer(
                 q.Id,
                 q.Title,
@@ -48,10 +49,12 @@ public class DashboardQuestionService(AppDbContext dbContext, HttpContext httpCo
     }
 
     public async Task<ViewModel.QuestionWithAnswer?> Get(Guid id) =>
-        await QuestionsWithAnswerQuery(id).FirstOrDefaultAsync();
+        await QuestionsWithAnswerQuery(id)
+            .FirstOrDefaultAsync();
 
     public async Task<List<ViewModel.QuestionWithAnswer>> GetAll() =>
-        await QuestionsWithAnswerQuery(null).ToListAsync();
+        await QuestionsWithAnswerQuery(null)
+            .ToListAsync();
 
     public async Task<bool> Update(ViewModel.QuestionWithAnswer question)
     {

@@ -46,6 +46,7 @@ public class DashboardGameService(AppDbContext dbContext, HttpContext httpContex
         if (gameState == null)
             return await DbContext.Games
                 .Where(g => g.UserId == UserId)
+                .OrderByDescending(g => g.CreatedAt)
                 .Select(g => GetViewModel(g))
                 .ToListAsync();
 
