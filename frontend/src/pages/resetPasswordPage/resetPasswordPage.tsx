@@ -5,6 +5,28 @@ import {Button} from "@/components/ui/button.tsx";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useSearchParams} from "react-router-dom";
+import {ApiEndpoint} from "@/Types.ts";
+import {useState} from "react";
+import {useNavigate} from "react-router";
+import {toast} from "sonner";
+import {Loader2} from "lucide-react";
+
+type PasswordResetErrorResponse = {
+    type: string;
+    title: string;
+    status: number;
+    errors: ErrorObject;
+}
+
+type ErrorObject = {
+    InvalidToken: string[];
+    PasswordTooShort?: string[];
+    PasswordRequiresNonAlphanumeric?: string[];
+    PasswordRequiresDigit?: string[];
+    PasswordRequiresLower?: string[];
+    PasswordRequiresUpper?: string[];
+    PasswordRequiresUniqueChars?: string[];
+}
 
 const FormSchema = z.object({
     email: z.string().email(),
@@ -31,6 +53,9 @@ const FormSchema = z.object({
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
+    const [isPending, setIsPending] = useState(false);
+    const navigate = useNavigate();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -41,8 +66,65 @@ export default function ResetPasswordPage() {
         }
     });
 
-    function onsubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data);
+    function showErrorResponse(errors: ErrorObject) {
+        for (const key in errors) {
+            if (key.includes("Password")) {
+                const passwordErrors = errors[key as keyof ErrorObject];
+                if (!passwordErrors) continue;
+                form.setError("newPassword", {
+                    message: passwordErrors[0]
+                })
+            } else if (key === "InvalidToken") {
+                const invalidTokenErrors = errors[key as keyof ErrorObject];
+                if (!invalidTokenErrors) continue;
+                form.setError("root", {
+                    message: invalidTokenErrors[0]
+                })
+            }
+        }
+    }
+
+    async function onsubmit(data: z.infer<typeof FormSchema>) {
+        setIsPending(true);
+        try {
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + ApiEndpoint.ResetPassword, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    resetCode: data.code,
+                    newPassword: data.newPassword
+                })
+            });
+
+            setIsPending(false);
+
+            // Handle successful response
+            if (response.status === 200) {
+                toast("Password changed successfully");
+                navigate("/");
+                return;
+            }
+
+            if (response.status === 400) {
+                const json = await response.json() as PasswordResetErrorResponse;
+                showErrorResponse(json.errors);
+                return;
+            }
+
+            // Handle error response
+            if (!response.ok) throw new Error();
+
+        } catch (e) {
+            form.setError("root", {
+                message: "Something went wrong. Please try again later."
+            })
+            setIsPending(false);
+            return;
+        }
     }
 
     return (
@@ -104,7 +186,9 @@ export default function ResetPasswordPage() {
                                     </FormItem>
                                 )}
                             />
-                            <Button>Change password</Button>
+                            {form.formState.errors.root?.message &&
+                                <FormMessage>{form.formState.errors.root?.message}</FormMessage>}
+                            <Button>{isPending ? <><Loader2/> Changing password</> : "Change password"}</Button>
                         </form>
                     </Form>
                 </div>
