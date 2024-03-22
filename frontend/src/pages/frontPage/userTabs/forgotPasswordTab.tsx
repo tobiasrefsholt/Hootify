@@ -6,7 +6,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Loader} from "lucide-react";
+import {Loader2} from "lucide-react";
 
 const FormSchema = z.object({
     email: z.string().email()
@@ -51,7 +51,7 @@ export default function ForgotPasswordTab() {
                     <FormMessage>{form.formState.errors.root?.message}</FormMessage>}
                 <Button variant="secondary">
                     {isPending
-                        ? <><Loader/> Resetting password</>
+                        ? <><Loader2/> Resetting password</>
                         : "Reset password"}
                 </Button>
             </form>
